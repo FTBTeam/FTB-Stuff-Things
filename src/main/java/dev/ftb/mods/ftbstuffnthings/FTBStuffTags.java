@@ -5,6 +5,7 @@ import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -60,6 +61,20 @@ public class FTBStuffTags {
 
         static TagKey<Item> commonTag(String name) {
             return tag("c", name);
+        }
+    }
+
+
+    public static class Painting {
+
+        public static final TagKey<PaintingVariant> DROPS_WITH_VARIANT = modTag("drops_with_variant");
+
+        static TagKey<PaintingVariant> tag(String modid, String name) {
+            return TagKey.create(Registries.PAINTING_VARIANT, ResourceLocation.fromNamespaceAndPath(modid, name));
+        }
+
+        static TagKey<PaintingVariant> modTag(String name) {
+            return tag(FTBStuffNThings.MODID, name);
         }
     }
 }
