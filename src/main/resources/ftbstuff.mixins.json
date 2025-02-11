@@ -4,7 +4,7 @@
   "package": "dev.ftb.mods.ftbstuffnthings.mixin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "ftbstuffnthings.refmap.json",
-  "server": [
+  "mixins": [
     "PaintingMixin"
   ],
   "injectors": {
