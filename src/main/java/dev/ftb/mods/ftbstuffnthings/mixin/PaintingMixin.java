@@ -5,6 +5,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.HangingEntity;
@@ -30,17 +31,18 @@ public abstract class PaintingMixin extends HangingEntity {
     public void dropItem(Entity brokenEntity, CallbackInfo ci) {
         Painting painting = (Painting) (Object) this;
         Holder<PaintingVariant> variant = painting.getVariant();
-        if (variant.is(FTBStuffTags.Painting.DROPS_WITH_VARIANT)) {
-            variant.unwrapKey().ifPresent(variantKey -> {
-                CompoundTag compoundTag = new CompoundTag();
-                compoundTag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.PAINTING).toString());
-                compoundTag.putString("variant", variantKey.location().toString());
-                ItemStack itemStack = new ItemStack(Items.PAINTING);
-                itemStack.set(DataComponents.ENTITY_DATA, CustomData.of(compoundTag));
-                this.spawnAtLocation(itemStack);
-                ci.cancel();
-            });
-        }
 
+        if (variant.is(FTBStuffTags.Painting.DROPS_WITH_VARIANT)) {
+            CompoundTag compoundTag = new CompoundTag();
+            compoundTag.putString(Entity.ID_TAG, BuiltInRegistries.ENTITY_TYPE.getKey(getType()).toString());
+            Painting.VARIANT_CODEC.encodeStart(this.registryAccess().createSerializationContext(NbtOps.INSTANCE), variant)
+                    .ifSuccess((tag) -> compoundTag.merge((CompoundTag) tag));
+
+            ItemStack itemStack = new ItemStack(Items.PAINTING);
+            itemStack.set(DataComponents.ENTITY_DATA, CustomData.of(compoundTag));
+
+            this.spawnAtLocation(itemStack);
+            ci.cancel();
+        }
     }
 }
