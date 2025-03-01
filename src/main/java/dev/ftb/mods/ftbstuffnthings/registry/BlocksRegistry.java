@@ -3,6 +3,8 @@ package dev.ftb.mods.ftbstuffnthings.registry;
 import com.google.common.collect.ImmutableList;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.SimpleFallingBlock;
+import dev.ftb.mods.ftbstuffnthings.blocks.basaltgen.BasaltGeneratorBlock;
+import dev.ftb.mods.ftbstuffnthings.blocks.basaltgen.BasaltGeneratorProperties;
 import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.CobbleGenProperties;
 import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.CobblegenBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.dripper.DripperBlock;
@@ -75,6 +77,20 @@ public class BlocksRegistry {
             = BLOCKS.register("netherite_cobblestone_generator", () -> new CobblegenBlock(CobbleGenProperties.NETHERITE));
 
     public static final List<DeferredBlock<CobblegenBlock>> COBBLEGENS = List.of(STONE_COBBLESTONE_GENERATOR, IRON_COBBLESTONE_GENERATOR, GOLD_COBBLESTONE_GENERATOR, DIAMOND_COBBLESTONE_GENERATOR, NETHERITE_COBBLESTONE_GENERATOR);
+
+    public static final DeferredBlock<BasaltGeneratorBlock> STONE_BASALT_GENERATOR
+            = BLOCKS.register("stone_basalt_generator", () -> new BasaltGeneratorBlock(BasaltGeneratorProperties.STONE));
+    public static final DeferredBlock<BasaltGeneratorBlock> IRON_BASALT_GENERATOR
+            = BLOCKS.register("iron_basalt_generator", () -> new BasaltGeneratorBlock(BasaltGeneratorProperties.IRON));
+    public static final DeferredBlock<BasaltGeneratorBlock> GOLD_BASALT_GENERATOR
+            = BLOCKS.register("gold_basalt_generator", () -> new BasaltGeneratorBlock(BasaltGeneratorProperties.GOLD));
+    public static final DeferredBlock<BasaltGeneratorBlock> DIAMOND_BASALT_GENERATOR
+            = BLOCKS.register("diamond_basalt_generator", () -> new BasaltGeneratorBlock(BasaltGeneratorProperties.DIAMOND));
+    public static final DeferredBlock<BasaltGeneratorBlock> NETHERITE_BASALT_GENERATOR
+            = BLOCKS.register("netherite_basalt_generator", () -> new BasaltGeneratorBlock(BasaltGeneratorProperties.NETHERITE));
+
+    public static final List<DeferredBlock<BasaltGeneratorBlock>> BASALT_GENERATORS = List.of(STONE_BASALT_GENERATOR, IRON_BASALT_GENERATOR, GOLD_BASALT_GENERATOR, DIAMOND_BASALT_GENERATOR, NETHERITE_BASALT_GENERATOR);
+
 
     // Misc machines
     public static final DeferredBlock<PumpBlock> PUMP

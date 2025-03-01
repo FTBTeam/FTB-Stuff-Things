@@ -49,6 +49,12 @@ public class ClientSetup {
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.DIAMOND_COBBLEGEN.get(), CobblegenBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.NETHERITE_COBBLEGEN.get(), CobblegenBlockEntityRenderer::new);
 
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.STONE_BASALT_GENERATOR.get(), BasaltGeneratorBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.IRON_BASALT_GENERATOR.get(), BasaltGeneratorBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.GOLD_BASALT_GENERATOR.get(), BasaltGeneratorBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.DIAMOND_BASALT_GENERATOR.get(), BasaltGeneratorBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.NETHERITE_BASALT_GENERATOR.get(), BasaltGeneratorBlockEntityRenderer::new);
+
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.JAR.get(), JarBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.TEMPERED_JAR.get(), TemperedJarBlockEntityRenderer::new);
     }
@@ -82,6 +88,18 @@ public class ClientSetup {
                 },
                 BlocksRegistry.COBBLEGENS.stream().map(DeferredHolder::get).map(ItemStack::new).map(ItemStack::getItem).toArray(ItemLike[]::new)
         );
+
+        event.register(
+                (stack, index) -> {
+                    if (index != 1) {
+                        return -1;
+                    }
+
+                    Minecraft instance = Minecraft.getInstance();
+                    return instance.level != null && instance.player != null ? BiomeColors.getAverageWaterColor(instance.level, instance.player.blockPosition()) : 4159204;
+                },
+                BlocksRegistry.BASALT_GENERATORS.stream().map(DeferredHolder::get).map(ItemStack::new).map(ItemStack::getItem).toArray(ItemLike[]::new)
+        );
     }
 
     public static void registerBlockColourHandlers(final RegisterColorHandlersEvent.Block event) {
@@ -94,6 +112,16 @@ public class ClientSetup {
                     return env != null && pos != null ? BiomeColors.getAverageWaterColor(env, pos) : 4159204;
                 },
                 BlocksRegistry.COBBLEGENS.stream().map(DeferredHolder::get).toArray(Block[]::new)
+        );
+        event.register(
+                (state, env, pos, index) -> {
+                    if (index != 1) {
+                        return -1;
+                    }
+
+                    return env != null && pos != null ? BiomeColors.getAverageWaterColor(env, pos) : 4159204;
+                },
+                BlocksRegistry.BASALT_GENERATORS.stream().map(DeferredHolder::get).toArray(Block[]::new)
         );
     }
 }

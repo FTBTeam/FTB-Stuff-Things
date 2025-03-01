@@ -1,6 +1,7 @@
 package dev.ftb.mods.ftbstuffnthings.registry;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
+import dev.ftb.mods.ftbstuffnthings.blocks.basaltgen.BasaltGeneratorBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.CobblegenBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.dripper.DripperBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.fusingmachine.FusingMachineBlockEntity;
@@ -50,6 +51,18 @@ public class BlockEntitiesRegistry {
             = BLOCK_ENTITIES.register("diamond_cobblegen", () -> BlockEntityType.Builder.of(CobblegenBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_COBBLESTONE_GENERATOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Netherite>> NETHERITE_COBBLEGEN
             = BLOCK_ENTITIES.register("netherite_cobblegen", () -> BlockEntityType.Builder.of(CobblegenBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_COBBLESTONE_GENERATOR.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltGeneratorBlockEntity.Stone>> STONE_BASALT_GENERATOR
+            = BLOCK_ENTITIES.register("stone_basalt_generator", () -> BlockEntityType.Builder.of(BasaltGeneratorBlockEntity.Stone::new, BlocksRegistry.STONE_BASALT_GENERATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltGeneratorBlockEntity.Iron>> IRON_BASALT_GENERATOR
+            = BLOCK_ENTITIES.register("iron_basalt_generator", () -> BlockEntityType.Builder.of(BasaltGeneratorBlockEntity.Iron::new, BlocksRegistry.IRON_BASALT_GENERATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltGeneratorBlockEntity.Gold>> GOLD_BASALT_GENERATOR
+            = BLOCK_ENTITIES.register("gold_basalt_generator", () -> BlockEntityType.Builder.of(BasaltGeneratorBlockEntity.Gold::new, BlocksRegistry.GOLD_BASALT_GENERATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltGeneratorBlockEntity.Diamond>> DIAMOND_BASALT_GENERATOR
+            = BLOCK_ENTITIES.register("diamond_basalt_generator", () -> BlockEntityType.Builder.of(BasaltGeneratorBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_BASALT_GENERATOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltGeneratorBlockEntity.Netherite>> NETHERITE_BASALT_GENERATOR
+            = BLOCK_ENTITIES.register("netherite_basalt_generator", () -> BlockEntityType.Builder.of(BasaltGeneratorBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_BASALT_GENERATOR.get()).build(null));
+
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PumpBlockEntity>> PUMP
             = BLOCK_ENTITIES.register("pump", () -> BlockEntityType.Builder.of(PumpBlockEntity::new, BlocksRegistry.PUMP.get()).build(null));

@@ -126,6 +126,17 @@ public class BlockStatesGenerators extends BlockStateProvider {
             }
         }
 
+        // Basalt generators
+        for (var block : List.of(BlocksRegistry.STONE_BASALT_GENERATOR, BlocksRegistry.IRON_BASALT_GENERATOR, BlocksRegistry.GOLD_BASALT_GENERATOR, BlocksRegistry.DIAMOND_BASALT_GENERATOR, BlocksRegistry.NETHERITE_BASALT_GENERATOR)) {
+            MultiPartBlockStateBuilder b = getMultipartBuilder(block.get());
+            String path = block.getId().getPath();
+            for (DirRotation d : HORIZONTALS) {
+                b.part().modelFile(models().getExistingFile(modLoc("block/" + path)))
+                        .rotationY(d.rotation).addModel()
+                        .condition(HORIZONTAL_FACING, d.direction);
+            }
+        }
+
 
         // Fusing Machine & Super Cooler
         for (var block: List.of(BlocksRegistry.FUSING_MACHINE, BlocksRegistry.SUPER_COOLER)) {

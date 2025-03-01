@@ -73,6 +73,20 @@ public class Config {
     public static final IntValue NETHERITE_COBBLEGEN_AMOUNT = COBBLEGEN_CONFIG.addInt("netherite_cobblegen_amount", 64, 1, 1000)
             .comment("Amount of cobble the netherite cobblegen produces per tick");
 
+    private static final SNBTConfig BASALTGEN_CONFIG = CONFIG.addGroup("basaltgen");
+
+    public static final IntValue STONE_BASALTGEN_SPEED = BASALTGEN_CONFIG.addInt("stone_basaltgen_speed", 1, 1, 1000)
+            .comment("Amount of basalt the stone basalt generator produces per tick");
+    public static final IntValue IRON_BASALTGEN_SPEED = BASALTGEN_CONFIG.addInt("iron_basaltgen_speed", 8, 1, 1000)
+            .comment("Amount of basalt the iron basalt generator produces per tick");
+    public static final IntValue GOLD_BASALTGEN_SPEED = BASALTGEN_CONFIG.addInt("gold_basaltgen_speed", 16, 1, 1000)
+            .comment("Amount of basalt the gold basalt generator produces per tick");
+    public static final IntValue DIAMOND_BASALTGEN_SPEED = BASALTGEN_CONFIG.addInt("diamond_basaltgen_speed", 32, 1, 1000)
+            .comment("Amount of basalt the diamond basalt generator produces per tick");
+    public static final IntValue NETHERITE_BASALTGEN_SPEED = BASALTGEN_CONFIG.addInt("netherite_basaltgen_speed", 64, 1, 1000)
+            .comment("Amount of basalt the netherite basalt generator produces per tick");
+
+
     private static final SNBTConfig WATER_STRAINER_CONFIG = CONFIG.addGroup("water_strainer");
     public static final IntValue STRAINER_TICK_RATE = WATER_STRAINER_CONFIG.addInt("strainer_tick_rate", 20, 1, Integer.MAX_VALUE)
             .comment("The delay between each strainer generation in ticks");
