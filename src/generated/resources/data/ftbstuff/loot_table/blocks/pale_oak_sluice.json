@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:copy_name",
+              "source": "block_entity"
+            }
+          ],
+          "name": "ftbstuff:pale_oak_sluice"
+        }
+      ],
+      "name": "pale_oak_sluice",
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "ftbstuff:blocks/pale_oak_sluice"
+}
