@@ -3,6 +3,7 @@ package dev.ftb.mods.ftbstuffnthings.data;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
 import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlock;
+import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlock;
 import dev.ftb.mods.ftbstuffnthings.crafting.DevEnvironmentCondition;
 import dev.ftb.mods.ftbstuffnthings.crafting.ItemWithChance;
@@ -150,11 +151,23 @@ public class RecipesGenerator extends RecipeProvider {
                     'C', Tags.Items.STRINGS
             ).save(output);
         }
-        shaped(BlocksRegistry.OAK_SLUICE.get(), Items.STICK,
+        woodSluce(BlocksRegistry.OAK_SLUICE, Blocks.OAK_LOG, output);
+        woodSluce(BlocksRegistry.SPRUCE_SLUICE, Blocks.SPRUCE_LOG, output);
+        woodSluce(BlocksRegistry.BIRCH_SLUICE, Blocks.BIRCH_LOG, output);
+        woodSluce(BlocksRegistry.JUNGLE_SLUICE, Blocks.JUNGLE_LOG, output);
+        woodSluce(BlocksRegistry.ACACIA_SLUICE, Blocks.ACACIA_LOG, output);
+        woodSluce(BlocksRegistry.DARK_OAK_SLUICE, Blocks.DARK_OAK_LOG, output);
+        woodSluce(BlocksRegistry.MANGROVE_SLUICE, Blocks.MANGROVE_LOG, output);
+        woodSluce(BlocksRegistry.CHERRY_SLUICE, Blocks.CHERRY_LOG, output);
+        //Pale is 1.21.4 --woodSluce(BlocksRegistry.PALE_OAK_SLUICE, Blocks.PALE_OAK_LOG, output);
+        woodSluce(BlocksRegistry.CRIMSON_SLUICE, Blocks.CRIMSON_STEM, output);
+        woodSluce(BlocksRegistry.WARPED_SLUICE, Blocks.WARPED_STEM, output);
+
+        /*shaped(BlocksRegistry.OAK_SLUICE.get(), Items.STICK,
                 "WS/WW",
                 'W', Items.OAK_LOG,
                 'S', Tags.Items.RODS_WOODEN
-        ).save(output);
+        ).save(output);*/
         shaped(BlocksRegistry.IRON_SLUICE.get(), Items.STICK,
                 "IC/SI",
                 'I', Tags.Items.INGOTS_IRON,
@@ -258,6 +271,14 @@ public class RecipesGenerator extends RecipeProvider {
                 'S', Tags.Items.RODS_WOODEN,
                 'M', ItemsRegistry.CLOTH_MESH,
                 'P', plankBlock
+        ).save(output);
+    }
+
+    private void woodSluce(DeferredBlock<SluiceBlock> result, Block woodType, RecipeOutput output) {
+        shaped(result, Items.STICK,
+                "WS/WW",
+                'W', woodType,
+                'S', Tags.Items.RODS_WOODEN
         ).save(output);
     }
 

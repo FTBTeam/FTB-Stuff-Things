@@ -44,9 +44,8 @@ public class BlockEntitiesRegistry {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Cherry>> CHERRY_SLUICE
             = BLOCK_ENTITIES.register("cherry_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Cherry::new, BlocksRegistry.CHERRY_SLUICE.get()).build(null));
-    /*public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.PaleOak>> PALE_OAK_SLUICE
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.PaleOak>> PALE_OAK_SLUICE
             = BLOCK_ENTITIES.register("pale_oak_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.PaleOak::new, BlocksRegistry.PALE_OAK_SLUICE.get()).build(null));
-*/
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Crimson>> CRIMSON_SLUICE
             = BLOCK_ENTITIES.register("crimson_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Crimson::new, BlocksRegistry.CRIMSON_SLUICE.get()).build(null));
 

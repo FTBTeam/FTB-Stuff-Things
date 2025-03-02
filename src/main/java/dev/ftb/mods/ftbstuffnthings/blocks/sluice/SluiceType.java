@@ -31,9 +31,9 @@ public enum SluiceType implements StringRepresentable {
     CHERRY("cherry", 1.0, 1.0, 12000,
             false, false, false, 0,
             SluiceBlockEntity.Cherry::new),
-/*    PALE_OAK("pale_oak", 1.0, 1.0, 12000,
+    PALE_OAK("pale_oak", 1.0, 1.0, 12000,
             false, false, false, 0,
-            SluiceBlockEntity.PaleOak::new),*/
+            SluiceBlockEntity.PaleOak::new),
     CRIMSON("crimson", 1.0, 1.0, 12000,
             false, false, false, 0,
             SluiceBlockEntity.Crimson::new),

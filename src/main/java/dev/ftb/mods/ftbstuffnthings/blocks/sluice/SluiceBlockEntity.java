@@ -415,11 +415,11 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
         }
     }
 
-/*    public static class PaleOak extends SluiceBlockEntity {
+    public static class PaleOak extends SluiceBlockEntity {
         public PaleOak(BlockPos pos, BlockState blockState) {
             super(BlockEntitiesRegistry.PALE_OAK_SLUICE.get(), pos, blockState);
         }
-    }*/
+    }
 
     public static class Crimson extends SluiceBlockEntity {
         public Crimson(BlockPos pos, BlockState blockState) {
