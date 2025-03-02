@@ -20,6 +20,7 @@ public class FTBStuffTags {
         public static final TagKey<Block> BARREL = modTag("barrel");
         public static final TagKey<Block> WATER_STRAINER = modTag("water_strainer");
         public static final TagKey<Block> SLUICE = modTag("sluice");
+        public static final TagKey<Block> WOODEN_SLUICES = modTag("wooden_sluices");
 
         private static final Map<MeshType, TagKey<Block>> ALLOWED_MESHES = Util.make(new EnumMap<>(MeshType.class), map -> {
             MeshType.NON_EMPTY_VALUES.forEach(mesh -> map.put(mesh, modTag("allowed_meshes/" + mesh.getSerializedName())));
@@ -48,6 +49,7 @@ public class FTBStuffTags {
         public static final TagKey<Item> GEARS_CAST_IRON = commonTag("gears/cast_iron");
         public static final TagKey<Item> HAMMERS = modTag("hammers");
         public static final TagKey<Item> CROOKS = modTag("crooks");
+        public static final TagKey<Item> WOODEN_SLUICES = modTag("wooden_sluices");
 
         public static final TagKey<Item> MESHES = modTag("meshes");
 

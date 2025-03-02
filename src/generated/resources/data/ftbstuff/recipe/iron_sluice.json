@@ -9,7 +9,7 @@
       "tag": "c:ingots/iron"
     },
     "S": {
-      "item": "ftbstuff:oak_sluice"
+      "tag": "ftbstuff:wooden_sluices"
     }
   },
   "pattern": [

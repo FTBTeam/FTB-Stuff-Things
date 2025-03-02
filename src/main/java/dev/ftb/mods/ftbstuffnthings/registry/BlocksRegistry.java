@@ -56,19 +56,23 @@ public class BlocksRegistry {
     public static final DeferredBlock<SluiceBlock> MANGROVE_SLUICE
             = BLOCKS.register("mangrove_sluice", () -> new SluiceBlock(SluiceType.MANGROVE, SoundType.WOOD));
     public static final DeferredBlock<SluiceBlock> CHERRY_SLUICE
-            = BLOCKS.register("cherry_sluice", () -> new SluiceBlock(SluiceType.CHERRY, SoundType.WOOD));
+            = BLOCKS.register("cherry_sluice", () -> new SluiceBlock(SluiceType.CHERRY, SoundType.CHERRY_WOOD));
     public static final DeferredBlock<SluiceBlock> PALE_OAK_SLUICE
             = BLOCKS.register("pale_oak_sluice", () -> new SluiceBlock(SluiceType.PALE_OAK, SoundType.WOOD));
     public static final DeferredBlock<SluiceBlock> CRIMSON_SLUICE
-            = BLOCKS.register("crimson_sluice", () -> new SluiceBlock(SluiceType.CRIMSON, SoundType.WOOD));
+            = BLOCKS.register("crimson_sluice", () -> new SluiceBlock(SluiceType.CRIMSON, SoundType.NETHER_WOOD));
     public static final DeferredBlock<SluiceBlock> WARPED_SLUICE
-            = BLOCKS.register("warped_sluice", () -> new SluiceBlock(SluiceType.WARPED, SoundType.WOOD));
+            = BLOCKS.register("warped_sluice", () -> new SluiceBlock(SluiceType.WARPED, SoundType.NETHER_WOOD));
     public static final DeferredBlock<SluiceBlock> IRON_SLUICE
             = BLOCKS.register("iron_sluice", () -> new SluiceBlock(SluiceType.IRON, SoundType.METAL));
     public static final DeferredBlock<SluiceBlock> DIAMOND_SLUICE
             = BLOCKS.register("diamond_sluice", () -> new SluiceBlock(SluiceType.DIAMOND, SoundType.METAL));
     public static final DeferredBlock<SluiceBlock> NETHERITE_SLUICE
             = BLOCKS.register("netherite_sluice", () -> new SluiceBlock(SluiceType.NETHERITE, SoundType.METAL));
+
+    public static List<DeferredBlock<SluiceBlock>> WOODEN_SLUICE = List.of(
+            OAK_SLUICE, SPRUCE_SLUICE, BIRCH_SLUICE, JUNGLE_SLUICE, ACACIA_SLUICE,
+            DARK_OAK_SLUICE, MANGROVE_SLUICE, CHERRY_SLUICE, PALE_OAK_SLUICE, CRIMSON_SLUICE, WARPED_SLUICE);
     public static List<DeferredBlock<SluiceBlock>> ALL_SLUICES = List.of(
             OAK_SLUICE, SPRUCE_SLUICE, BIRCH_SLUICE, JUNGLE_SLUICE, ACACIA_SLUICE,
             DARK_OAK_SLUICE, MANGROVE_SLUICE, CHERRY_SLUICE, PALE_OAK_SLUICE, CRIMSON_SLUICE, WARPED_SLUICE,

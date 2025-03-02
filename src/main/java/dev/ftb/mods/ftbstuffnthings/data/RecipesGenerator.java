@@ -163,16 +163,11 @@ public class RecipesGenerator extends RecipeProvider {
         woodSluce(BlocksRegistry.CRIMSON_SLUICE, Blocks.CRIMSON_STEM, output);
         woodSluce(BlocksRegistry.WARPED_SLUICE, Blocks.WARPED_STEM, output);
 
-        /*shaped(BlocksRegistry.OAK_SLUICE.get(), Items.STICK,
-                "WS/WW",
-                'W', Items.OAK_LOG,
-                'S', Tags.Items.RODS_WOODEN
-        ).save(output);*/
         shaped(BlocksRegistry.IRON_SLUICE.get(), Items.STICK,
                 "IC/SI",
                 'I', Tags.Items.INGOTS_IRON,
                 'C', Items.CHAIN,
-                'S', BlocksRegistry.OAK_SLUICE.get()
+                'S', FTBStuffTags.Items.WOODEN_SLUICES
         ).save(output);
         shaped(BlocksRegistry.DIAMOND_SLUICE.get(), Items.STICK,
                 "DD/SD",
