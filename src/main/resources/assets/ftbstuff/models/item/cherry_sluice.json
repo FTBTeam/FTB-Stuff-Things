@@ -3,7 +3,7 @@
 	"texture_size": [32, 32],
 	"textures": {
 		"0": "block/cherry_planks",
-		"particle": "ftbstuff:block/cherry_sluice"
+		"particle": "block/cherry_planks"
 	},
 	"elements": [
 		{

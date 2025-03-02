@@ -3,7 +3,7 @@
 	"texture_size": [32, 32],
 	"textures": {
 		"0": "block/spruce_planks",
-		"particle": "ftbstuff:block/spruce_sluice"
+		"particle": "block/spruce_planks"
 	},
 	"render_type": "cutout",
 	"elements": [
