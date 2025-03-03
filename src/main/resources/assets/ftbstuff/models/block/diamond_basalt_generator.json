@@ -194,8 +194,8 @@
 		},
 		{
 			"name": "ftb_soul_soil",
-			"from": [6, 2.2, 6],
-			"to": [10, 2.2, 10],
+			"from": [6, 2.01, 6],
+			"to": [10, 2.01, 10],
 			"rotation": {"angle": 0, "axis": "y", "origin": [4, 0, 8]},
 			"faces": {
 				"north": {"uv": [0, 0, 16, 16], "texture": "#4"},
