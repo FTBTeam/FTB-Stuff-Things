@@ -1,0 +1,6 @@
+{
+  "parent": "ftbstuff:block/sluice_body",
+  "textures": {
+    "0": "minecraft:block/mangrove_planks"
+  }
+}
