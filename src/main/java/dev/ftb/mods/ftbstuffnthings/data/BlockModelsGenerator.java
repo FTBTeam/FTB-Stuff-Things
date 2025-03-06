@@ -1,19 +1,11 @@
 package dev.ftb.mods.ftbstuffnthings.data;
 
 
-import com.google.gson.JsonElement;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.models.BlockModelGenerators;
-import net.minecraft.data.models.blockstates.BlockStateGenerator;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class BlockModelsGenerator extends BlockModelProvider {
 
@@ -34,7 +26,7 @@ public class BlockModelsGenerator extends BlockModelProvider {
     protected void registerModels() {
         makeSluice("oak");
         makeMCSluice("spruce");
-        makeMCSluice("birch");
+        makeSluice("birch");
         makeMCSluice("jungle");
         makeMCSluice("acacia");
         makeSluice("dark_oak");
