@@ -162,6 +162,7 @@ public class RecipesGenerator extends RecipeProvider {
         //Pale is 1.21.4 --woodSluce(BlocksRegistry.PALE_OAK_SLUICE, Blocks.PALE_OAK_LOG, output);
         woodSluce(BlocksRegistry.CRIMSON_SLUICE, Blocks.CRIMSON_STEM, output);
         woodSluce(BlocksRegistry.WARPED_SLUICE, Blocks.WARPED_STEM, output);
+        woodSluce(BlocksRegistry.BAMBOO_SLUICE, Blocks.BAMBOO_BLOCK, output);
 
         shaped(BlocksRegistry.IRON_SLUICE.get(), Items.STICK,
                 "IC/SI",

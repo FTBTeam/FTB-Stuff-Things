@@ -25,20 +25,21 @@ public class BlockModelsGenerator extends BlockModelProvider {
     @Override
     protected void registerModels() {
         makeSluice("oak");
-        makeMCSluice("spruce");
+        makeSluice("spruce");
         makeSluice("birch");
-        makeMCSluice("jungle");
-        makeMCSluice("acacia");
+        makeSluice("jungle");
+        makeSluice("acacia");
         makeSluice("dark_oak");
-        makeMCSluice("mangrove");
-        makeMCSluice("cherry");
+        makeSluice("mangrove");
+        makeSluice("cherry");
         makeSluice("pale_oak");
-        makeMCSluice("crimson");
-        makeMCSluice("warped");
+        makeSluice("crimson");
+        makeSluice("warped");
+        makeSluice("bamboo");
 
-        makeSluice("iron");
-        makeSluice("diamond");
-        makeSluice("netherite");
+        makeOldSluice("iron");
+        makeOldSluice("diamond");
+        makeOldSluice("netherite");
     }
 
     private void makeSluice(String type) {
@@ -47,9 +48,9 @@ public class BlockModelsGenerator extends BlockModelProvider {
         singleTexture("block/" + type + "_sluice_front", getLoc("sluice_front"), "0", getLoc("sluice/" + type + "_sluice"));
     }
 
-    private void makeMCSluice(String type) {
+    private void makeOldSluice(String type) {
         // Loc/Name of file, parent, texturekey
-        singleTexture("block/" + type + "_sluice_body", getLoc("sluice_body"), "0", getMCLoc(type + "_planks"));
-        singleTexture("block/" + type + "_sluice_front", getLoc("sluice_front"), "0", getMCLoc(type + "_planks"));
+        singleTexture("block/" + type + "_sluice_body", getLoc("sluice_old_body"), "0", getLoc("sluice/" + type + "_sluice"));
+        singleTexture("block/" + type + "_sluice_front", getLoc("sluice_old_front"), "0", getLoc("sluice/" + type + "_sluice"));
     }
 }

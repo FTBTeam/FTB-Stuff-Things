@@ -432,6 +432,12 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
             super(BlockEntitiesRegistry.WARPED_SLUICE.get(), pos, blockState);
         }
     }
+
+    public static class Bamboo extends SluiceBlockEntity {
+        public Bamboo(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.BAMBOO_SLUICE.get(), pos, blockState);
+        }
+    }
     //#endregion
 
     public static class Iron extends SluiceBlockEntity {

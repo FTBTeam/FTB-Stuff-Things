@@ -1,0 +1,6 @@
+{
+  "parent": "ftbstuff:item/sluice_old",
+  "textures": {
+    "0": "ftbstuff:block/sluice/iron_sluice"
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "parent": "ftbstuff:block/sluice_front",
+  "parent": "ftbstuff:block/sluice_old_front",
   "textures": {
     "0": "ftbstuff:block/sluice/iron_sluice"
   }

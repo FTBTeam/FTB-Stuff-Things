@@ -1,5 +1,5 @@
 {
-  "parent": "ftbstuff:block/sluice_body",
+  "parent": "ftbstuff:block/sluice_old_body",
   "textures": {
     "0": "ftbstuff:block/sluice/netherite_sluice"
   }

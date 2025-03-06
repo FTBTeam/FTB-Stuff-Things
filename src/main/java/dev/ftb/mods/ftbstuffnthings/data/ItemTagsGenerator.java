@@ -48,7 +48,7 @@ public class ItemTagsGenerator extends ItemTagsProvider {
                 ItemsRegistry.OAK_SLUICE, ItemsRegistry.SPRUCE_SLUICE, ItemsRegistry.BIRCH_SLUICE,
                 ItemsRegistry.JUNGLE_SLUICE, ItemsRegistry.ACACIA_SLUICE, ItemsRegistry.DARK_OAK_SLUICE,
                 ItemsRegistry.MANGROVE_SLUICE, ItemsRegistry.CHERRY_SLUICE, ItemsRegistry.PALE_OAK_SLUICE,
-                ItemsRegistry.CRIMSON_SLUICE, ItemsRegistry.WARPED_SLUICE
+                ItemsRegistry.CRIMSON_SLUICE, ItemsRegistry.WARPED_SLUICE, ItemsRegistry.BAMBOO_SLUICE
         );
     }
 

@@ -58,6 +58,8 @@ public class ItemsRegistry {
     public static final DeferredItem<BlockItem> PALE_OAK_SLUICE = blockItem("pale_oak_sluice", BlocksRegistry.PALE_OAK_SLUICE);
     public static final DeferredItem<BlockItem> CRIMSON_SLUICE = blockItem("crimson_sluice", BlocksRegistry.CRIMSON_SLUICE);
     public static final DeferredItem<BlockItem> WARPED_SLUICE = blockItem("warped_sluice", BlocksRegistry.WARPED_SLUICE);
+    public static final DeferredItem<BlockItem> BAMBOO_SLUICE = blockItem("bamboo_sluice", BlocksRegistry.BAMBOO_SLUICE);
+
     public static final DeferredItem<BlockItem> IRON_SLUICE = blockItem("iron_sluice", BlocksRegistry.IRON_SLUICE);
     public static final DeferredItem<BlockItem> DIAMOND_SLUICE = blockItem("diamond_sluice", BlocksRegistry.DIAMOND_SLUICE);
     public static final DeferredItem<BlockItem> NETHERITE_SLUICE = blockItem("netherite_sluice", BlocksRegistry.NETHERITE_SLUICE);

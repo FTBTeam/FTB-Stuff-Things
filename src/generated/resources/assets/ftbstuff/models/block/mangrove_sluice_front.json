@@ -1,6 +1,6 @@
 {
   "parent": "ftbstuff:block/sluice_front",
   "textures": {
-    "0": "minecraft:block/mangrove_planks"
+    "0": "ftbstuff:block/sluice/mangrove_sluice"
   }
 }
