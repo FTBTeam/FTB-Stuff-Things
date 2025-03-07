@@ -1,0 +1,6 @@
+{
+  "parent": "ftbstuff:block/sluice_body",
+  "textures": {
+    "0": "ftbstuff:block/sluice/jungle_sluice"
+  }
+}

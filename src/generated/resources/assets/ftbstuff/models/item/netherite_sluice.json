@@ -1,0 +1,6 @@
+{
+  "parent": "ftbstuff:item/sluice",
+  "textures": {
+    "0": "ftbstuff:block/sluice/netherite_sluice"
+  }
+}

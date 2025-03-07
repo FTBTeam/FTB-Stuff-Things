@@ -142,11 +142,16 @@ public class FTBStuffNThings {
         List.of(BlockEntitiesRegistry.FUSING_MACHINE, BlockEntitiesRegistry.SUPER_COOLER).forEach(machine ->
                 AbstractMachineBlockEntity.registerCapabilities(event, machine.get()));
 
-        List.of(BlockEntitiesRegistry.OAK_SLUICE, BlockEntitiesRegistry.IRON_SLUICE,
-                BlockEntitiesRegistry.DIAMOND_SLUICE, BlockEntitiesRegistry.NETHERITE_SLUICE).forEach(sluice -> {
+        List.of(BlockEntitiesRegistry.OAK_SLUICE, BlockEntitiesRegistry.SPRUCE_SLUICE,
+                BlockEntitiesRegistry.BIRCH_SLUICE, BlockEntitiesRegistry.JUNGLE_SLUICE,
+                BlockEntitiesRegistry.ACACIA_SLUICE, BlockEntitiesRegistry.DARK_OAK_SLUICE,
+                BlockEntitiesRegistry.MANGROVE_SLUICE, BlockEntitiesRegistry.CHERRY_SLUICE,
+                BlockEntitiesRegistry.PALE_OAK_SLUICE, BlockEntitiesRegistry.CRIMSON_SLUICE,
+                BlockEntitiesRegistry.WARPED_SLUICE, BlockEntitiesRegistry.BAMBOO_SLUICE,
+                BlockEntitiesRegistry.IRON_SLUICE, BlockEntitiesRegistry.DIAMOND_SLUICE,
+                BlockEntitiesRegistry.NETHERITE_SLUICE).forEach(sluice -> {
             SluiceBlockEntity.registerCapabilities(event, sluice.get());
         });
-
         List.of(BlockEntitiesRegistry.IRON_HAMMER, BlockEntitiesRegistry.GOLD_HAMMER,
                 BlockEntitiesRegistry.DIAMOND_HAMMER, BlockEntitiesRegistry.NETHERITE_HAMMER).forEach(hammer -> {
             AutoHammerBlockEntity.registerCapabilities(event, hammer.get());

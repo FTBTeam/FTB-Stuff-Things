@@ -25,6 +25,7 @@ public class DataGenerators {
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
         generator.addProvider(event.includeClient(), new I18nGenerator(packOutput));
+        generator.addProvider(event.includeClient(), new BlockModelsGenerator(packOutput, existingFileHelper));
         generator.addProvider(event.includeClient(), new BlockStatesGenerators(packOutput, existingFileHelper));
         generator.addProvider(event.includeClient(), new ItemModelsGenerator(packOutput, existingFileHelper));
 

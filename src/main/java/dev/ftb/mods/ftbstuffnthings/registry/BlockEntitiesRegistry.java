@@ -25,7 +25,37 @@ public class BlockEntitiesRegistry {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Oak>> OAK_SLUICE
             = BLOCK_ENTITIES.register("oak_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Oak::new, BlocksRegistry.OAK_SLUICE.get()).build(null));
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Iron>> IRON_SLUICE
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Spruce>> SPRUCE_SLUICE
+            = BLOCK_ENTITIES.register("spruce_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Spruce::new, BlocksRegistry.SPRUCE_SLUICE.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Birch>> BIRCH_SLUICE
+            = BLOCK_ENTITIES.register("birch_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Birch::new, BlocksRegistry.BIRCH_SLUICE.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Jungle>> JUNGLE_SLUICE
+            = BLOCK_ENTITIES.register("jungle_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Jungle::new, BlocksRegistry.JUNGLE_SLUICE.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Acacia>> ACACIA_SLUICE
+            = BLOCK_ENTITIES.register("acacia_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Acacia::new, BlocksRegistry.ACACIA_SLUICE.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.DarkOak>> DARK_OAK_SLUICE
+            = BLOCK_ENTITIES.register("dark_oak_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.DarkOak::new, BlocksRegistry.DARK_OAK_SLUICE.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Mangrove>> MANGROVE_SLUICE
+            = BLOCK_ENTITIES.register("mangrove_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Mangrove::new, BlocksRegistry.MANGROVE_SLUICE.get()).build(null));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Cherry>> CHERRY_SLUICE
+            = BLOCK_ENTITIES.register("cherry_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Cherry::new, BlocksRegistry.CHERRY_SLUICE.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.PaleOak>> PALE_OAK_SLUICE
+            = BLOCK_ENTITIES.register("pale_oak_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.PaleOak::new, BlocksRegistry.PALE_OAK_SLUICE.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Crimson>> CRIMSON_SLUICE
+            = BLOCK_ENTITIES.register("crimson_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Crimson::new, BlocksRegistry.CRIMSON_SLUICE.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Warped>> WARPED_SLUICE
+            = BLOCK_ENTITIES.register("warped_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Warped::new, BlocksRegistry.WARPED_SLUICE.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Bamboo>> BAMBOO_SLUICE
+            = BLOCK_ENTITIES.register("bamboo_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Bamboo::new, BlocksRegistry.BAMBOO_SLUICE.get()).build(null));
+
+
+   public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Iron>> IRON_SLUICE
             = BLOCK_ENTITIES.register("iron_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Iron::new, BlocksRegistry.IRON_SLUICE.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Diamond>> DIAMOND_SLUICE
             = BLOCK_ENTITIES.register("diamond_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_SLUICE.get()).build(null));

@@ -34,6 +34,17 @@ public class ClientSetup {
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.OAK_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.SPRUCE_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.BIRCH_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.JUNGLE_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.ACACIA_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.DARK_OAK_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.MANGROVE_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.CHERRY_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.PALE_OAK_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.CRIMSON_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.WARPED_SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.BAMBOO_SLUICE.get(), SluiceBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.IRON_SLUICE.get(), SluiceBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.DIAMOND_SLUICE.get(), SluiceBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.NETHERITE_SLUICE.get(), SluiceBlockEntityRenderer::new);

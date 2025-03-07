@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": {
+      "tag": "c:rods/wooden"
+    },
+    "W": {
+      "item": "minecraft:bamboo_block"
+    }
+  },
+  "pattern": [
+    "WS",
+    "WW"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ftbstuff:bamboo_sluice"
+  }
+}

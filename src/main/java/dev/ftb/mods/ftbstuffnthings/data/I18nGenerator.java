@@ -81,6 +81,17 @@ public class I18nGenerator extends LanguageProvider {
         add("ftbstuff.autohammer.running", "Running");
 
         addBlock(BlocksRegistry.OAK_SLUICE, "Oak Sluice");
+        addBlock(BlocksRegistry.SPRUCE_SLUICE, "Spruce Sluice");
+        addBlock(BlocksRegistry.BIRCH_SLUICE, "Birch Sluice");
+        addBlock(BlocksRegistry.JUNGLE_SLUICE, "Jungle Sluice");
+        addBlock(BlocksRegistry.ACACIA_SLUICE, "Acacia Sluice");
+        addBlock(BlocksRegistry.DARK_OAK_SLUICE, "Dark Oak Sluice");
+        addBlock(BlocksRegistry.MANGROVE_SLUICE, "Mangrove Sluice");
+        addBlock(BlocksRegistry.CHERRY_SLUICE, "Cherry Sluice");
+        addBlock(BlocksRegistry.PALE_OAK_SLUICE, "Pale Oak Sluice");
+        addBlock(BlocksRegistry.CRIMSON_SLUICE, "Crimson Sluice");
+        addBlock(BlocksRegistry.WARPED_SLUICE, "Warped Sluice");
+
         addBlock(BlocksRegistry.IRON_SLUICE, "Iron Sluice");
         addBlock(BlocksRegistry.DIAMOND_SLUICE, "Diamond Sluice");
         addBlock(BlocksRegistry.NETHERITE_SLUICE, "Netherite Sluice");
@@ -119,6 +130,7 @@ public class I18nGenerator extends LanguageProvider {
         addBlock(BlocksRegistry.OAK_STRAINER, "Oak Water Strainer");
         addBlock(BlocksRegistry.SPRUCE_STRAINER, "Spruce Water Strainer");
         addBlock(BlocksRegistry.WARPED_STRAINER, "Warped Water Strainer");
+        addBlock(BlocksRegistry.BAMBOO_SLUICE, "Bamboo Sluice");
 
         addBlock(BlocksRegistry.TUBE, "Cast Iron Tube");
         addBlock(BlocksRegistry.JAR, "Glass Jar");

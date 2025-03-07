@@ -1,0 +1,297 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "ftbstuff:block/acacia_sluice_body"
+      },
+      "when": {
+        "facing": "north",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/acacia_sluice_front"
+      },
+      "when": {
+        "facing": "north",
+        "part": "funnel"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/cloth_mesh"
+      },
+      "when": {
+        "facing": "north",
+        "mesh": "cloth",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/iron_mesh"
+      },
+      "when": {
+        "facing": "north",
+        "mesh": "iron",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/gold_mesh"
+      },
+      "when": {
+        "facing": "north",
+        "mesh": "gold",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/diamond_mesh"
+      },
+      "when": {
+        "facing": "north",
+        "mesh": "diamond",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/blazing_mesh"
+      },
+      "when": {
+        "facing": "north",
+        "mesh": "blazing",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/acacia_sluice_body",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/acacia_sluice_front",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "part": "funnel"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/cloth_mesh",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "mesh": "cloth",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/iron_mesh",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "mesh": "iron",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/gold_mesh",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "mesh": "gold",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/diamond_mesh",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "mesh": "diamond",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/blazing_mesh",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "mesh": "blazing",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/acacia_sluice_body",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/acacia_sluice_front",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "part": "funnel"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/cloth_mesh",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "mesh": "cloth",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/iron_mesh",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "mesh": "iron",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/gold_mesh",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "mesh": "gold",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/diamond_mesh",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "mesh": "diamond",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/blazing_mesh",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "mesh": "blazing",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/acacia_sluice_body",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/acacia_sluice_front",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "part": "funnel"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/cloth_mesh",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "mesh": "cloth",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/iron_mesh",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "mesh": "iron",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/gold_mesh",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "mesh": "gold",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/diamond_mesh",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "mesh": "diamond",
+        "part": "main"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/blazing_mesh",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "mesh": "blazing",
+        "part": "main"
+      }
+    }
+  ]
+}

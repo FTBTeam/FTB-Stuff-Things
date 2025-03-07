@@ -52,17 +52,16 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
     private static final float BASE_PROCESSING_TIME = 60; // 60 ticks or 3 seconds
 
     private final ItemStackHandler inputInventory = new SluiceItemHandler();
-    private final FluidTank fluidTank = new SluiceFluidTank(this, 10_000, tank -> {
-        setChanged();
-        fluidSyncNeeded = true;
-    });
     private final EmittingEnergy energyStorage = new EmittingEnergy(100_000, energy -> setChanged());
     private BlockCapabilityCache<IItemHandler, Direction> outputCache;
-
     private int processingProgress = 0;
     private int processingTime = 0;
     private boolean itemSyncNeeded;
     private boolean fluidSyncNeeded;
+    private final FluidTank fluidTank = new SluiceFluidTank(this, 10_000, tank -> {
+        setChanged();
+        fluidSyncNeeded = true;
+    });
     private ItemStack overflow = ItemStack.EMPTY;
 
     public SluiceBlockEntity(BlockEntityType<?> entity, BlockPos pos, BlockState blockState) {
@@ -367,11 +366,79 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
     }
 
     //#region BlockEntity types
+    //#region Wood Types
     public static class Oak extends SluiceBlockEntity {
         public Oak(BlockPos pos, BlockState blockState) {
             super(BlockEntitiesRegistry.OAK_SLUICE.get(), pos, blockState);
         }
     }
+
+    public static class Spruce extends SluiceBlockEntity {
+        public Spruce(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.SPRUCE_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class Birch extends SluiceBlockEntity {
+        public Birch(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.BIRCH_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class Jungle extends SluiceBlockEntity {
+        public Jungle(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.JUNGLE_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class Acacia extends SluiceBlockEntity {
+        public Acacia(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.ACACIA_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class DarkOak extends SluiceBlockEntity {
+        public DarkOak(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.DARK_OAK_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class Mangrove extends SluiceBlockEntity {
+        public Mangrove(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.MANGROVE_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class Cherry extends SluiceBlockEntity {
+        public Cherry(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.CHERRY_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class PaleOak extends SluiceBlockEntity {
+        public PaleOak(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.PALE_OAK_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class Crimson extends SluiceBlockEntity {
+        public Crimson(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.CRIMSON_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class Warped extends SluiceBlockEntity {
+        public Warped(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.WARPED_SLUICE.get(), pos, blockState);
+        }
+    }
+
+    public static class Bamboo extends SluiceBlockEntity {
+        public Bamboo(BlockPos pos, BlockState blockState) {
+            super(BlockEntitiesRegistry.BAMBOO_SLUICE.get(), pos, blockState);
+        }
+    }
+    //#endregion
 
     public static class Iron extends SluiceBlockEntity {
         public Iron(BlockPos pos, BlockState blockState) {
@@ -392,6 +459,19 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
     }
     //#endregion
 
+    public static class SluiceFluidTank extends EmittingFluidTank {
+        private final SluiceBlockEntity owner;
+
+        public SluiceFluidTank(SluiceBlockEntity owner, int capacity, Consumer<EmittingFluidTank> onChange) {
+            super(capacity, onChange);
+            this.owner = owner;
+        }
+
+        public SluiceBlockEntity getOwner() {
+            return owner;
+        }
+    }
+
     private class SluiceItemHandler extends ItemStackHandler {
         public SluiceItemHandler() {
             super(1);
@@ -411,19 +491,6 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
         @Override
         public int getSlotLimit(int slot) {
             return 1;
-        }
-    }
-
-    public static class SluiceFluidTank extends EmittingFluidTank {
-        private final SluiceBlockEntity owner;
-
-        public SluiceFluidTank(SluiceBlockEntity owner, int capacity, Consumer<EmittingFluidTank> onChange) {
-            super(capacity, onChange);
-            this.owner = owner;
-        }
-
-        public SluiceBlockEntity getOwner() {
-            return owner;
         }
     }
 }

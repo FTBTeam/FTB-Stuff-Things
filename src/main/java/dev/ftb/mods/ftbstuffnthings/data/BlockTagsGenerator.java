@@ -43,6 +43,7 @@ public class BlockTagsGenerator extends BlockTagsProvider {
         });
 
         BlocksRegistry.ALL_SLUICES.forEach(sluice -> tag(FTBStuffTags.Blocks.SLUICE).add(sluice.get()));
+        BlocksRegistry.WOODEN_SLUICE.forEach(sluice -> tag(FTBStuffTags.Blocks.WOODEN_SLUICES).add(sluice.get()));
         BlocksRegistry.CRATES.forEach(crate -> tag(FTBStuffTags.Blocks.CRATE).add(crate.get()));
         BlocksRegistry.BARRELS.forEach(barrel -> tag(FTBStuffTags.Blocks.BARREL).add(barrel.get()));
         BlocksRegistry.waterStrainers().forEach(strainer -> tag(FTBStuffTags.Blocks.WATER_STRAINER).add(strainer.get()));

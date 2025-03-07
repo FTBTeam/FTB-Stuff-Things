@@ -88,6 +88,23 @@ public class ItemModelsGenerator extends ItemModelProvider {
         simpleItem(ItemsRegistry.CROOK, "item/stone_crook");
         simpleItem(ItemsRegistry.STONE_ROD, "item/stone_rod");
 
+        singleTexture("item/oak_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/oak_sluice"));
+        singleTexture("item/spruce_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/spruce_sluice"));
+        singleTexture("item/birch_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/birch_sluice"));
+        singleTexture("item/jungle_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/jungle_sluice"));
+        singleTexture("item/acacia_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/acacia_sluice"));
+        singleTexture("item/dark_oak_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/dark_oak_sluice"));
+        singleTexture("item/mangrove_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/mangrove_sluice"));
+        singleTexture("item/cherry_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/cherry_sluice"));
+        singleTexture("item/pale_oak_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/pale_oak_sluice"));
+        singleTexture("item/crimson_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/crimson_sluice"));
+        singleTexture("item/warped_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/warped_sluice"));
+        singleTexture("item/bamboo_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/bamboo_sluice"));
+
+        singleTexture("item/iron_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/iron_sluice"));
+        singleTexture("item/diamond_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/diamond_sluice"));
+        singleTexture("item/netherite_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/netherite_sluice"));
+
         BlocksRegistry.allCompressedBlocks().forEach(db -> simpleBlockItem(db.get()));
     }
 

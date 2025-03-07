@@ -48,6 +48,18 @@ public class ItemsRegistry {
 
     //#region Block Items
     public static final DeferredItem<BlockItem> OAK_SLUICE = blockItem("oak_sluice", BlocksRegistry.OAK_SLUICE);
+    public static final DeferredItem<BlockItem> SPRUCE_SLUICE = blockItem("spruce_sluice", BlocksRegistry.SPRUCE_SLUICE);
+    public static final DeferredItem<BlockItem> BIRCH_SLUICE = blockItem("birch_sluice", BlocksRegistry.BIRCH_SLUICE);
+    public static final DeferredItem<BlockItem> JUNGLE_SLUICE = blockItem("jungle_sluice", BlocksRegistry.JUNGLE_SLUICE);
+    public static final DeferredItem<BlockItem> ACACIA_SLUICE = blockItem("acacia_sluice", BlocksRegistry.ACACIA_SLUICE);
+    public static final DeferredItem<BlockItem> DARK_OAK_SLUICE = blockItem("dark_oak_sluice", BlocksRegistry.DARK_OAK_SLUICE);
+    public static final DeferredItem<BlockItem> MANGROVE_SLUICE = blockItem("mangrove_sluice", BlocksRegistry.MANGROVE_SLUICE);
+    public static final DeferredItem<BlockItem> CHERRY_SLUICE = blockItem("cherry_sluice", BlocksRegistry.CHERRY_SLUICE);
+    public static final DeferredItem<BlockItem> PALE_OAK_SLUICE = blockItem("pale_oak_sluice", BlocksRegistry.PALE_OAK_SLUICE);
+    public static final DeferredItem<BlockItem> CRIMSON_SLUICE = blockItem("crimson_sluice", BlocksRegistry.CRIMSON_SLUICE);
+    public static final DeferredItem<BlockItem> WARPED_SLUICE = blockItem("warped_sluice", BlocksRegistry.WARPED_SLUICE);
+    public static final DeferredItem<BlockItem> BAMBOO_SLUICE = blockItem("bamboo_sluice", BlocksRegistry.BAMBOO_SLUICE);
+
     public static final DeferredItem<BlockItem> IRON_SLUICE = blockItem("iron_sluice", BlocksRegistry.IRON_SLUICE);
     public static final DeferredItem<BlockItem> DIAMOND_SLUICE = blockItem("diamond_sluice", BlocksRegistry.DIAMOND_SLUICE);
     public static final DeferredItem<BlockItem> NETHERITE_SLUICE = blockItem("netherite_sluice", BlocksRegistry.NETHERITE_SLUICE);
