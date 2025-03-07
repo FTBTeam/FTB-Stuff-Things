@@ -96,9 +96,9 @@ public class ItemModelsGenerator extends ItemModelProvider {
         singleTexture("item/warped_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/warped_sluice"));
         singleTexture("item/bamboo_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/bamboo_sluice"));
 
-        singleTexture("item/iron_sluice", modLoc("item/sluice_old"), "0", modLoc("block/sluice/iron_sluice"));
-        singleTexture("item/diamond_sluice", modLoc("item/sluice_old"), "0", modLoc("block/sluice/diamond_sluice"));
-        singleTexture("item/netherite_sluice", modLoc("item/sluice_old"), "0", modLoc("block/sluice/netherite_sluice"));
+        singleTexture("item/iron_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/iron_sluice"));
+        singleTexture("item/diamond_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/diamond_sluice"));
+        singleTexture("item/netherite_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/netherite_sluice"));
 
         BlocksRegistry.allCompressedBlocks().forEach(db -> simpleBlockItem(db.get()));
     }

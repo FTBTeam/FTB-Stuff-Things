@@ -37,20 +37,14 @@ public class BlockModelsGenerator extends BlockModelProvider {
         makeSluice("warped");
         makeSluice("bamboo");
 
-        makeOldSluice("iron");
-        makeOldSluice("diamond");
-        makeOldSluice("netherite");
+        makeSluice("iron");
+        makeSluice("diamond");
+        makeSluice("netherite");
     }
 
     private void makeSluice(String type) {
-        // Loc/Name of file, parent, texturekey
         singleTexture("block/" + type + "_sluice_body", getLoc("sluice_body"), "0", getLoc("sluice/" + type + "_sluice"));
         singleTexture("block/" + type + "_sluice_front", getLoc("sluice_front"), "0", getLoc("sluice/" + type + "_sluice"));
     }
 
-    private void makeOldSluice(String type) {
-        // Loc/Name of file, parent, texturekey
-        singleTexture("block/" + type + "_sluice_body", getLoc("sluice_old_body"), "0", getLoc("sluice/" + type + "_sluice"));
-        singleTexture("block/" + type + "_sluice_front", getLoc("sluice_old_front"), "0", getLoc("sluice/" + type + "_sluice"));
-    }
 }

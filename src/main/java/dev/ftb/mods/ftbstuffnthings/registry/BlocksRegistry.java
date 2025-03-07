@@ -70,7 +70,7 @@ public class BlocksRegistry {
     public static final DeferredBlock<SluiceBlock> DIAMOND_SLUICE
             = BLOCKS.register("diamond_sluice", () -> new SluiceBlock(SluiceType.DIAMOND, SoundType.METAL));
     public static final DeferredBlock<SluiceBlock> NETHERITE_SLUICE
-            = BLOCKS.register("netherite_sluice", () -> new SluiceBlock(SluiceType.NETHERITE, SoundType.METAL));
+            = BLOCKS.register("netherite_sluice", () -> new SluiceBlock(SluiceType.NETHERITE, SoundType.NETHERITE_BLOCK));
 
     public static List<DeferredBlock<SluiceBlock>> WOODEN_SLUICE = List.of(
             OAK_SLUICE, SPRUCE_SLUICE, BIRCH_SLUICE, JUNGLE_SLUICE, ACACIA_SLUICE,
