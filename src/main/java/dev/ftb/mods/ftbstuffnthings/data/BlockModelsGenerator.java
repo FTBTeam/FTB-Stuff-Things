@@ -1,6 +1,5 @@
 package dev.ftb.mods.ftbstuffnthings.data;
 
-
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -8,18 +7,12 @@ import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class BlockModelsGenerator extends BlockModelProvider {
-
-
     public BlockModelsGenerator(PackOutput output, ExistingFileHelper existingFileHelper) {
         super(output, FTBStuffNThings.MODID, existingFileHelper);
     }
 
     private ResourceLocation getLoc(String loc) {
         return ResourceLocation.fromNamespaceAndPath(FTBStuffNThings.MODID, "block/" + loc);
-    }
-
-    private ResourceLocation getMCLoc(String loc) {
-        return ResourceLocation.withDefaultNamespace("block/" + loc);
     }
 
     @Override
