@@ -151,18 +151,18 @@ public class RecipesGenerator extends RecipeProvider {
                     'C', Tags.Items.STRINGS
             ).save(output);
         }
-        woodSluce(BlocksRegistry.OAK_SLUICE, Blocks.OAK_LOG, output);
-        woodSluce(BlocksRegistry.SPRUCE_SLUICE, Blocks.SPRUCE_LOG, output);
-        woodSluce(BlocksRegistry.BIRCH_SLUICE, Blocks.BIRCH_LOG, output);
-        woodSluce(BlocksRegistry.JUNGLE_SLUICE, Blocks.JUNGLE_LOG, output);
-        woodSluce(BlocksRegistry.ACACIA_SLUICE, Blocks.ACACIA_LOG, output);
-        woodSluce(BlocksRegistry.DARK_OAK_SLUICE, Blocks.DARK_OAK_LOG, output);
-        woodSluce(BlocksRegistry.MANGROVE_SLUICE, Blocks.MANGROVE_LOG, output);
-        woodSluce(BlocksRegistry.CHERRY_SLUICE, Blocks.CHERRY_LOG, output);
-        //Pale is 1.21.4 --woodSluce(BlocksRegistry.PALE_OAK_SLUICE, Blocks.PALE_OAK_LOG, output);
-        woodSluce(BlocksRegistry.CRIMSON_SLUICE, Blocks.CRIMSON_STEM, output);
-        woodSluce(BlocksRegistry.WARPED_SLUICE, Blocks.WARPED_STEM, output);
-        woodSluce(BlocksRegistry.BAMBOO_SLUICE, Blocks.BAMBOO_BLOCK, output);
+        woodSluice(BlocksRegistry.OAK_SLUICE, Blocks.OAK_LOG, output);
+        woodSluice(BlocksRegistry.SPRUCE_SLUICE, Blocks.SPRUCE_LOG, output);
+        woodSluice(BlocksRegistry.BIRCH_SLUICE, Blocks.BIRCH_LOG, output);
+        woodSluice(BlocksRegistry.JUNGLE_SLUICE, Blocks.JUNGLE_LOG, output);
+        woodSluice(BlocksRegistry.ACACIA_SLUICE, Blocks.ACACIA_LOG, output);
+        woodSluice(BlocksRegistry.DARK_OAK_SLUICE, Blocks.DARK_OAK_LOG, output);
+        woodSluice(BlocksRegistry.MANGROVE_SLUICE, Blocks.MANGROVE_LOG, output);
+        woodSluice(BlocksRegistry.CHERRY_SLUICE, Blocks.CHERRY_LOG, output);
+        //Pale is 1.21.4 --woodSluice(BlocksRegistry.PALE_OAK_SLUICE, Blocks.PALE_OAK_LOG, output);
+        woodSluice(BlocksRegistry.CRIMSON_SLUICE, Blocks.CRIMSON_STEM, output);
+        woodSluice(BlocksRegistry.WARPED_SLUICE, Blocks.WARPED_STEM, output);
+        woodSluice(BlocksRegistry.BAMBOO_SLUICE, Blocks.BAMBOO_BLOCK, output);
 
         shaped(BlocksRegistry.IRON_SLUICE.get(), Items.STICK,
                 "IC/SI",
@@ -270,7 +270,7 @@ public class RecipesGenerator extends RecipeProvider {
         ).save(output);
     }
 
-    private void woodSluce(DeferredBlock<SluiceBlock> result, Block woodType, RecipeOutput output) {
+    private void woodSluice(DeferredBlock<SluiceBlock> result, Block woodType, RecipeOutput output) {
         shaped(result, Items.STICK,
                 "WS/WW",
                 'W', woodType,
