@@ -1,0 +1,7 @@
+{
+  "parent": "ftbstuff:block/basalt_generator",
+  "textures": {
+    "0": "ftbstuff:block/generator/gold",
+    "particle": "minecraft:block/gold_block"
+  }
+}

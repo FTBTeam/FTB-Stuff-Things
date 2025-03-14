@@ -1,0 +1,7 @@
+{
+  "parent": "ftbstuff:block/basalt_generator",
+  "textures": {
+    "0": "ftbstuff:block/generator/diamond",
+    "particle": "minecraft:block/diamond_block"
+  }
+}
