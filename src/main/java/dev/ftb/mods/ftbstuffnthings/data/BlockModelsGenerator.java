@@ -39,7 +39,7 @@ public class BlockModelsGenerator extends BlockModelProvider {
         makeSluice("netherite");
 
         makeGenerator("cobblestone");
-        //makeGenerator("basalt");
+        makeGenerator("basalt");
     }
 
     private void makeSluice(String type) {
