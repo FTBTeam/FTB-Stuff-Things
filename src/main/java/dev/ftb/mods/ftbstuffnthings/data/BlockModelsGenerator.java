@@ -42,6 +42,7 @@ public class BlockModelsGenerator extends BlockModelProvider {
         makeGenerator("basalt");
 
         makeHammer();
+        makeMesh();
     }
 
     private void makeSluice(String type) {
@@ -67,6 +68,15 @@ public class BlockModelsGenerator extends BlockModelProvider {
         withExistingParent("block/gold_auto_hammer_active", getLoc("auto_hammer_active")).texture("base", getLoc("auto_hammer/gold_base")).texture("hammer", getLoc("auto_hammer/gold_hammer_active"));
         withExistingParent("block/diamond_auto_hammer_active", getLoc("auto_hammer_active")).texture("base", getLoc("auto_hammer/diamond_base")).texture("hammer", getLoc("auto_hammer/diamond_hammer_active"));
         withExistingParent("block/netherite_auto_hammer_active", getLoc("auto_hammer_active")).texture("base", getLoc("auto_hammer/netherite_base")).texture("hammer", getLoc("auto_hammer/netherite_hammer_active"));
+    }
+
+    private void makeMesh() {
+        singleTexture("block/cloth_mesh", getLoc("mesh"), "0", getLoc("mesh/cloth"));
+        singleTexture("block/iron_mesh", getLoc("mesh"), "0", getLoc("mesh/iron"));
+        singleTexture("block/gold_mesh", getLoc("mesh"), "0", getLoc("mesh/gold"));
+        singleTexture("block/diamond_mesh", getLoc("mesh"), "0", getLoc("mesh/diamond"));
+        singleTexture("block/blazing_mesh", getLoc("mesh"), "0", getLoc("mesh/blazing"));
+
     }
 
 }

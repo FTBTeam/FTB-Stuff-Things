@@ -1,0 +1,6 @@
+{
+  "parent": "ftbstuff:block/mesh",
+  "textures": {
+    "0": "ftbstuff:block/mesh/gold"
+  }
+}
