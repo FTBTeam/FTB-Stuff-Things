@@ -1,0 +1,7 @@
+{
+  "parent": "ftbstuff:block/auto_hammer_active",
+  "textures": {
+    "base": "ftbstuff:block/auto_hammer/gold_base",
+    "hammer": "ftbstuff:block/auto_hammer/gold_hammer_active"
+  }
+}

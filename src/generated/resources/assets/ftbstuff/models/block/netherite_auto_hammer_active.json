@@ -1,0 +1,7 @@
+{
+  "parent": "ftbstuff:block/auto_hammer_active",
+  "textures": {
+    "base": "ftbstuff:block/auto_hammer/netherite_base",
+    "hammer": "ftbstuff:block/auto_hammer/netherite_hammer_active"
+  }
+}

@@ -40,6 +40,8 @@ public class BlockModelsGenerator extends BlockModelProvider {
 
         makeGenerator("cobblestone");
         makeGenerator("basalt");
+
+        makeHammer();
     }
 
     private void makeSluice(String type) {
@@ -53,7 +55,18 @@ public class BlockModelsGenerator extends BlockModelProvider {
         withExistingParent("block/gold_" + type + "_generator", getLoc(type + "_generator")).texture("0", getLoc("generator/gold")).texture("particle", getMCLoc("gold_block"));
         withExistingParent("block/diamond_" + type + "_generator", getLoc(type + "_generator")).texture("0", getLoc("generator/diamond")).texture("particle", getMCLoc("diamond_block"));
         withExistingParent("block/netherite_" + type + "_generator", getLoc(type + "_generator")).texture("0", getLoc("generator/netherite")).texture("particle", getMCLoc("netherite_block"));
+    }
 
+    private void makeHammer() {
+        withExistingParent("block/iron_auto_hammer", getLoc("auto_hammer")).texture("base", getLoc("auto_hammer/iron_base")).texture("hammer", getLoc("auto_hammer/iron_hammer"));
+        withExistingParent("block/gold_auto_hammer", getLoc("auto_hammer")).texture("base", getLoc("auto_hammer/gold_base")).texture("hammer", getLoc("auto_hammer/gold_hammer"));
+        withExistingParent("block/diamond_auto_hammer", getLoc("auto_hammer")).texture("base", getLoc("auto_hammer/diamond_base")).texture("hammer", getLoc("auto_hammer/diamond_hammer"));
+        withExistingParent("block/netherite_auto_hammer", getLoc("auto_hammer")).texture("base", getLoc("auto_hammer/netherite_base")).texture("hammer", getLoc("auto_hammer/netherite_hammer"));
+
+        withExistingParent("block/iron_auto_hammer_active", getLoc("auto_hammer_active")).texture("base", getLoc("auto_hammer/iron_base")).texture("hammer", getLoc("auto_hammer/iron_hammer_active"));
+        withExistingParent("block/gold_auto_hammer_active", getLoc("auto_hammer_active")).texture("base", getLoc("auto_hammer/gold_base")).texture("hammer", getLoc("auto_hammer/gold_hammer_active"));
+        withExistingParent("block/diamond_auto_hammer_active", getLoc("auto_hammer_active")).texture("base", getLoc("auto_hammer/diamond_base")).texture("hammer", getLoc("auto_hammer/diamond_hammer_active"));
+        withExistingParent("block/netherite_auto_hammer_active", getLoc("auto_hammer_active")).texture("base", getLoc("auto_hammer/netherite_base")).texture("hammer", getLoc("auto_hammer/netherite_hammer_active"));
     }
 
 }
