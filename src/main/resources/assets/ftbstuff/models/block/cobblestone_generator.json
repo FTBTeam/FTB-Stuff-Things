@@ -2,10 +2,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [256, 256],
 	"textures": {
-		"0": "ftbstuff:block/cobble_gen_tier_1",
 		"5": "block/lava_still",
-		"6": "block/water_still",
-		"particle": "block/cobblestone"
+		"6": "block/water_still"
 	},
 	"render_type": "cutout",
 	"elements": [
@@ -182,11 +180,12 @@
 			"from": [10, 2, 6],
 			"to": [14, 6, 10],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 8]},
+			"shade": false,
 			"faces": {
-				"north": {"uv": [0, 0, 16, 16], "texture": "#6","tintindex": 1},
-				"east": {"uv": [0, 0, 16, 16], "texture": "#6","tintindex": 1},
-				"south": {"uv": [0, 0, 16, 16], "texture": "#6","tintindex": 1},
-				"west": {"uv": [0, 0, 16, 16], "texture": "#6","tintindex": 1},
+				"north": {"uv": [0, 0, 16, 16], "texture": "#6", "tintindex": 1},
+				"east": {"uv": [0, 0, 16, 16], "texture": "#6", "tintindex": 1},
+				"south": {"uv": [0, 0, 16, 16], "texture": "#6", "tintindex": 1},
+				"west": {"uv": [0, 0, 16, 16], "texture": "#6", "tintindex": 1},
 				"up": {"uv": [0, 0, 16, 16], "texture": "#6", "tintindex": 1},
 				"down": {"uv": [0, 0, 16, 16], "texture": "#6", "tintindex": 1}
 			}

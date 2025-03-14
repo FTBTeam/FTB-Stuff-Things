@@ -15,6 +15,10 @@ public class BlockModelsGenerator extends BlockModelProvider {
         return ResourceLocation.fromNamespaceAndPath(FTBStuffNThings.MODID, "block/" + loc);
     }
 
+    private ResourceLocation getMCLoc(String loc) {
+        return ResourceLocation.withDefaultNamespace("block/" + loc);
+    }
+
     @Override
     protected void registerModels() {
         makeSluice("oak");
@@ -33,11 +37,23 @@ public class BlockModelsGenerator extends BlockModelProvider {
         makeSluice("iron");
         makeSluice("diamond");
         makeSluice("netherite");
+
+        makeGenerator("cobblestone");
+        //makeGenerator("basalt");
     }
 
     private void makeSluice(String type) {
         singleTexture("block/" + type + "_sluice_body", getLoc("sluice_body"), "0", getLoc("sluice/" + type + "_sluice"));
         singleTexture("block/" + type + "_sluice_front", getLoc("sluice_front"), "0", getLoc("sluice/" + type + "_sluice"));
+    }
+
+    private void makeGenerator(String type) {
+        withExistingParent("block/stone_" + type + "_generator", getLoc(type + "_generator")).texture("0", getLoc("generator/stone")).texture("particle", getMCLoc("cobblestone"));
+        withExistingParent("block/iron_" + type + "_generator", getLoc(type + "_generator")).texture("0", getLoc("generator/iron")).texture("particle", getMCLoc("iron_block"));
+        withExistingParent("block/gold_" + type + "_generator", getLoc(type + "_generator")).texture("0", getLoc("generator/gold")).texture("particle", getMCLoc("gold_block"));
+        withExistingParent("block/diamond_" + type + "_generator", getLoc(type + "_generator")).texture("0", getLoc("generator/diamond")).texture("particle", getMCLoc("diamond_block"));
+        withExistingParent("block/netherite_" + type + "_generator", getLoc(type + "_generator")).texture("0", getLoc("generator/netherite")).texture("particle", getMCLoc("netherite_block"));
+
     }
 
 }

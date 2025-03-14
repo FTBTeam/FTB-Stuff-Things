@@ -1,0 +1,7 @@
+{
+  "parent": "ftbstuff:block/cobblestone_generator",
+  "textures": {
+    "0": "ftbstuff:block/generator/iron",
+    "particle": "minecraft:block/iron_block"
+  }
+}
