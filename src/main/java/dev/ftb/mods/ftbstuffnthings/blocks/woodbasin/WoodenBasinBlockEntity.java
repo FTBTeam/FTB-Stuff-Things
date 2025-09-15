@@ -9,20 +9,27 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -84,6 +91,7 @@ public class WoodenBasinBlockEntity extends BlockEntity {
                         level.destroyBlock(getBlockPos().above(), recipe.dropItems(), fallingEntity);
                     } else {
                         level.playSound(null, getBlockPos().above(), SoundEvents.POINTED_DRIPSTONE_DRIP_WATER_INTO_CAULDRON, SoundSource.BLOCKS, 1f, 1f);
+                        sendParticles(fallingEntity, recipe.getFluid().getFluid());
                     }
                 } else {
                     if (fallingEntity instanceof Player p) {
@@ -92,6 +100,19 @@ public class WoodenBasinBlockEntity extends BlockEntity {
                 }
             }
         });
+    }
+
+    private void sendParticles(Entity entity, Fluid fluid) {
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.getChunkSource().chunkMap.getPlayers(new ChunkPos(getBlockPos()), false).forEach(player -> {
+                ParticleOptions particle = fluid.getFluidType().getDripInfo() != null ?
+                        fluid.getFluidType().getDripInfo().dripParticle() :
+                        ParticleTypes.DRIPPING_DRIPSTONE_WATER;
+                if (particle == null) particle = ParticleTypes.DRIPPING_DRIPSTONE_WATER;
+                Vec3 pos = Vec3.atCenterOf(getBlockPos()).add(0, 1.8, 0);
+                player.connection.send(new ClientboundLevelParticlesPacket(particle, true, pos.x, pos.y - 0.5, pos.z, 0.3f, 0.1f, 0.3f, 0.05f, 20));
+            });
+        }
     }
 
     private int genRecipeHash() {
