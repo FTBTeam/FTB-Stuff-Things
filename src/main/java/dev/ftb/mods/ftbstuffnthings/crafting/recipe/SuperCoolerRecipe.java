@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.ftb.mods.ftbstuffnthings.crafting.BaseRecipe;
-import dev.ftb.mods.ftbstuffnthings.crafting.EnergyComponent;
+import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -22,16 +22,16 @@ import java.util.Set;
 
 public class SuperCoolerRecipe extends BaseRecipe<SuperCoolerRecipe> {
     private final List<Ingredient> inputs;
-    private final EnergyComponent energyComponent;
+    private final EnergyRequirement energyRequirement;
     private final SizedFluidIngredient fluidInput;
     private final ItemStack result;
 
-    public SuperCoolerRecipe(List<Ingredient> inputs, SizedFluidIngredient fluidInput, EnergyComponent energyComponent, ItemStack result) {
+    public SuperCoolerRecipe(List<Ingredient> inputs, SizedFluidIngredient fluidInput, EnergyRequirement energyRequirement, ItemStack result) {
         super(RecipesRegistry.SUPER_COOLER_SERIALIZER, RecipesRegistry.SUPER_COOLER_TYPE);
 
         this.inputs = inputs;
         this.fluidInput = fluidInput;
-        this.energyComponent = energyComponent;
+        this.energyRequirement = energyRequirement;
         this.result = result;
     }
 
@@ -43,8 +43,8 @@ public class SuperCoolerRecipe extends BaseRecipe<SuperCoolerRecipe> {
         return fluidInput;
     }
 
-    public EnergyComponent getEnergyComponent() {
-        return energyComponent;
+    public EnergyRequirement getEnergyComponent() {
+        return energyRequirement;
     }
 
     public ItemStack getResult() {
@@ -52,7 +52,7 @@ public class SuperCoolerRecipe extends BaseRecipe<SuperCoolerRecipe> {
     }
 
     public interface IFactory<T extends SuperCoolerRecipe> {
-        T create(List<Ingredient> ingredients, SizedFluidIngredient fluidIngredient, EnergyComponent energyComponent, ItemStack result);
+        T create(List<Ingredient> ingredients, SizedFluidIngredient fluidIngredient, EnergyRequirement energyRequirement, ItemStack result);
     }
 
     public boolean test(IItemHandler itemHandler, FluidStack fluidStack) {
@@ -92,14 +92,14 @@ public class SuperCoolerRecipe extends BaseRecipe<SuperCoolerRecipe> {
             codec = RecordCodecBuilder.mapCodec(builder -> builder.group(
                     Ingredient.CODEC_NONEMPTY.listOf().fieldOf("inputs").forGetter(SuperCoolerRecipe::getInputs),
                     SizedFluidIngredient.FLAT_CODEC.fieldOf("fluid").forGetter(SuperCoolerRecipe::getFluidInput),
-                    EnergyComponent.CODEC.fieldOf("energy").forGetter(SuperCoolerRecipe::getEnergyComponent),
+                    EnergyRequirement.CODEC.fieldOf("energy").forGetter(SuperCoolerRecipe::getEnergyComponent),
                     ItemStack.CODEC.fieldOf("result").forGetter(SuperCoolerRecipe::getResult)
             ).apply(builder, factory::create));
 
             streamCodec = StreamCodec.composite(
                     Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), SuperCoolerRecipe::getInputs,
                     SizedFluidIngredient.STREAM_CODEC, SuperCoolerRecipe::getFluidInput,
-                    EnergyComponent.STREAM_CODEC, SuperCoolerRecipe::getEnergyComponent,
+                    EnergyRequirement.STREAM_CODEC, SuperCoolerRecipe::getEnergyComponent,
                     ItemStack.STREAM_CODEC, SuperCoolerRecipe::getResult,
                     factory::create
             );

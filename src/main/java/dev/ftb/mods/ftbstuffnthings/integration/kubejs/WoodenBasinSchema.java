@@ -10,7 +10,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 public interface WoodenBasinSchema {
     RecipeKey<FluidStack> OUTPUT_FLUID = FluidStackComponent.FLUID_STACK.outputKey("fluid");
-    RecipeKey<String> BLOCK_STATE_STRING = StringComponent.NON_EMPTY.inputKey("input");
+    RecipeKey<String> BLOCK_STATE_STRING = StringComponent.STRING.inputKey("input");
     RecipeKey<Float> PRODUCE_CHANCE = NumberComponent.FLOAT.inputKey("chance").optional(1f);
     RecipeKey<Float> CONSUME_CHANCE = NumberComponent.FLOAT.inputKey("block_consume_chance").optional(1f);
     RecipeKey<Boolean> DROP_ITEMS = BooleanComponent.BOOLEAN.inputKey("drop_items").optional(false);

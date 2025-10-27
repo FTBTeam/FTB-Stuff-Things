@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface CrookRecipeSchema {
     RecipeKey<Ingredient> INGREDIENT = IngredientComponent.INGREDIENT.key("input", ComponentRole.INPUT);
-    RecipeKey<List<ItemWithChance>> RESULTS = ItemWithChanceComponent.INSTANCE.asList().key("results", ComponentRole.OUTPUT);
+    RecipeKey<List<ItemWithChance>> RESULTS = ItemWithChanceComponent.TYPE.instance().asList().key("results", ComponentRole.OUTPUT);
     RecipeKey<Integer> MAX = NumberComponent.INT.key("max", ComponentRole.OTHER).optional(0);
     RecipeKey<Boolean> REPLACE_DROPS = BooleanComponent.BOOLEAN.key("replace_drops", ComponentRole.OTHER).optional(true);
 
