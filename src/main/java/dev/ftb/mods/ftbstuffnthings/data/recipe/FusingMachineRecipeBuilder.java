@@ -1,6 +1,6 @@
 package dev.ftb.mods.ftbstuffnthings.data.recipe;
 
-import dev.ftb.mods.ftbstuffnthings.crafting.EnergyComponent;
+import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.FusingMachineRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -22,6 +22,6 @@ public class FusingMachineRecipeBuilder extends BaseRecipeBuilder<FusingMachineR
 
     @Override
     protected FusingMachineRecipe buildRecipe() {
-        return new FusingMachineRecipe(inputs, fluidResult, new EnergyComponent(fePerTick, ticks));
+        return new FusingMachineRecipe(inputs, fluidResult, new EnergyRequirement(fePerTick, ticks));
     }
 }

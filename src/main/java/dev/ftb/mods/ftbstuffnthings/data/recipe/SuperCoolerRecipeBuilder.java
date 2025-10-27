@@ -1,6 +1,6 @@
 package dev.ftb.mods.ftbstuffnthings.data.recipe;
 
-import dev.ftb.mods.ftbstuffnthings.crafting.EnergyComponent;
+import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.SuperCoolerRecipe;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -25,6 +25,6 @@ public class SuperCoolerRecipeBuilder extends BaseRecipeBuilder<SuperCoolerRecip
 
     @Override
     protected SuperCoolerRecipe buildRecipe() {
-        return new SuperCoolerRecipe(itemInputs, fluidInput, new EnergyComponent(fePerTick, ticks), result);
+        return new SuperCoolerRecipe(itemInputs, fluidInput, new EnergyRequirement(fePerTick, ticks), result);
     }
 }
