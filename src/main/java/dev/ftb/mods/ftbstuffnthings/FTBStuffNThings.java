@@ -1,12 +1,12 @@
 package dev.ftb.mods.ftbstuffnthings;
 
 import com.mojang.logging.LogUtils;
+import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.TemperedJarBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlockEntity;
-import dev.ftb.mods.ftbstuffnthings.client.ClientSetup;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.items.FluidCapsuleItem;
 import dev.ftb.mods.ftbstuffnthings.items.WaterBowlItem;
@@ -29,7 +29,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -52,11 +51,7 @@ public class FTBStuffNThings {
     public FTBStuffNThings(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
 
-        if (FMLEnvironment.dist.isClient()) {
-            ClientSetup.onModConstruction(modEventBus);
-        }
-
-        Config.init();
+        ConfigManager.getInstance().registerServerConfig(Config.CONFIG, MODID, false);
 
         BlocksRegistry.init(modEventBus);
         ItemsRegistry.init(modEventBus);
