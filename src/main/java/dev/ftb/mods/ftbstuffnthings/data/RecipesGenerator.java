@@ -1,6 +1,5 @@
 package dev.ftb.mods.ftbstuffnthings.data;
 
-import dev.ftb.mods.ftblibrary.items.ModItems;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
 import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlock;

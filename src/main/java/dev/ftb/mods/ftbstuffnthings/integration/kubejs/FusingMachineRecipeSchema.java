@@ -1,7 +1,8 @@
 package dev.ftb.mods.ftbstuffnthings.integration.kubejs;
 
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
-import dev.latvian.mods.kubejs.recipe.component.*;
+import dev.latvian.mods.kubejs.recipe.component.FluidStackComponent;
+import dev.latvian.mods.kubejs.recipe.component.IngredientComponent;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import dev.latvian.mods.kubejs.util.TinyMap;
 import net.minecraft.world.item.crafting.Ingredient;

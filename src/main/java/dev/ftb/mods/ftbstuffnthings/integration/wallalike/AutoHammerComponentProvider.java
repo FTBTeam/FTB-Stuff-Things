@@ -108,10 +108,8 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerData
                 .ifPresent(tag -> compoundTag.put("processing", tag));
 
         ListTag tagItems = new ListTag();
-        autoHammerEntity.getOverflow().forEach(stack -> {
-            ItemStack.OPTIONAL_CODEC.encodeStart(blockAccessor.nbtOps(), stack).result()
-                    .ifPresent(tagItems::add);
-        });
+        autoHammerEntity.getOverflow().forEach(stack -> ItemStack.OPTIONAL_CODEC.encodeStart(blockAccessor.nbtOps(), stack).result()
+                .ifPresent(tagItems::add));
 
         compoundTag.put("output", tagItems);
     }

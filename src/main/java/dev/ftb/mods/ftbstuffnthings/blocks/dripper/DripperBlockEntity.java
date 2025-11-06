@@ -32,11 +32,9 @@ import java.util.Optional;
 
 public class DripperBlockEntity extends BlockEntity {
 	private final FluidTank tank;
-	private int prevAmount = -1;
 	private Fluid prevFluid = null;
-	private RecipeHolder<DripperRecipe> currentRecipe = null;
 
-	public DripperBlockEntity(BlockPos pos, BlockState state) {
+    public DripperBlockEntity(BlockPos pos, BlockState state) {
 		super(BlockEntitiesRegistry.DRIPPER.get(), pos, state);
 
 		tank = new FluidTank(4000) {
@@ -100,7 +98,7 @@ public class DripperBlockEntity extends BlockEntity {
 				tank.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
 			}
             if (!tank.isEmpty()) {
-                currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(this::searchForRecipe, this::genRecipeHash).orElse(null);
+                RecipeHolder<DripperRecipe> currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(this::searchForRecipe, this::genRecipeHash).orElse(null);
 
                 level.setBlock(worldPosition, getBlockState().setValue(DripperBlock.ACTIVE, !tank.getFluid().isEmpty() && currentRecipe != null), Block.UPDATE_ALL);
 

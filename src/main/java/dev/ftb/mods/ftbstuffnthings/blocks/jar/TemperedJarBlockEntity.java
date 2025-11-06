@@ -386,11 +386,8 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
 
     private boolean suitableOutputBlock(Direction dir) {
         BlockState state = level.getBlockState(getBlockPos().relative(dir));
-        if (state.getBlock() == Blocks.HOPPER && state.getValue(BlockStateProperties.FACING_HOPPER) == dir.getOpposite()) {
-            // don't push output to a hopper which is facing us, it's obviously intended as an input hopper
-            return false;
-        }
-        return true;
+        // don't push output to a hopper which is facing us, it's obviously intended as an input hopper
+        return state.getBlock() != Blocks.HOPPER || state.getValue(BlockStateProperties.FACING_HOPPER) != dir.getOpposite();
     }
 
     private List<FluidStack> distributeOutputFluids(JarRecipe recipe) {

@@ -43,18 +43,12 @@ import java.util.Map;
 
 public class PumpBlock extends AbstractMachineBlock implements EntityBlock {
     public enum Progress implements StringRepresentable {
-        ZERO(0),
-        TWENTY(20),
-        FORTY(40),
-        SIXTY(60),
-        EIGHTY(80),
-        HUNDRED(100);
-
-        private final int percentage;
-
-        Progress(int percentage) {
-            this.percentage = percentage;
-        }
+        ZERO,
+        TWENTY,
+        FORTY,
+        SIXTY,
+        EIGHTY,
+        HUNDRED;
 
         @Override
         public String getSerializedName() {

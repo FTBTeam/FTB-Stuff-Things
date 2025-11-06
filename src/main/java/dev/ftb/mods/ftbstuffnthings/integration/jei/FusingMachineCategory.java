@@ -85,9 +85,7 @@ public class FusingMachineCategory extends BaseStuffCategory<FusingMachineRecipe
         }
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, 84, 6).addFluidStack(fusingRecipe.getFluidResult().getFluid(), fusingRecipe.getFluidResult().getAmount())
-                .addRichTooltipCallback((recipeSlotView, tooltip) -> {
-                    tooltip.add(Component.literal(fusingRecipe.getFluidResult().getAmount() + " mB"));
-                });
+                .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(Component.literal(fusingRecipe.getFluidResult().getAmount() + " mB")));
     }
 
     enum ContainerHandler implements IGuiContainerHandler<FusingMachineScreen> {

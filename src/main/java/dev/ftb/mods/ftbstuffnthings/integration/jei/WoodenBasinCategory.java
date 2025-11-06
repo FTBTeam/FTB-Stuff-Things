@@ -1,6 +1,5 @@
 package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
-import dev.ftb.mods.ftblibrary.icon.Icons;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.WoodenBasinRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;

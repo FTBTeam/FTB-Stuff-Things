@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.BiConsumer;
 
 public class IOStackHandler implements IItemHandler {
-    ItemStackHandler input;
-    ItemStackHandler output;
+    private final ItemStackHandler input;
+    private final ItemStackHandler output;
 
     public IOStackHandler(int inputSlots, int outputSlots, BiConsumer<IOStackHandler, IO> onChange) {
         this.input = new EmittingStackHandler(inputSlots, (contents) -> onChange.accept(this, IO.INPUT));

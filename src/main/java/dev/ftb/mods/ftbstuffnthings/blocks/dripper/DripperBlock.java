@@ -107,28 +107,6 @@ public class DripperBlock extends Block implements EntityBlock {
 		}
 	}
 
-//	@Override
-//	@Deprecated
-//	public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-//		BlockPos.MutableBlockPos posBelow = pos.mutable();
-//		BlockState blockBelow;
-//
-//		do {
-//			posBelow.move(Direction.DOWN);
-//
-//			if (posBelow.getY() == level.getMinBuildHeight()) {
-//				return;
-//			}
-//
-//			blockBelow = level.getBlockState(posBelow);
-//		}
-//		while (blockBelow.isAir());
-//
-//		if (level.getBlockEntity(pos) instanceof DripperBlockEntity dripper) {
-//			dripper.serverTick(state, posBelow.immutable(), blockBelow, random);
-//		}
-//	}
-
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
