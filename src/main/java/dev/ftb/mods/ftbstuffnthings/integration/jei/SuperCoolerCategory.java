@@ -2,7 +2,7 @@ package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ftb.mods.ftbstuffnthings.client.screens.SuperCoolerScreen;
-import dev.ftb.mods.ftbstuffnthings.crafting.EnergyComponent;
+import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.SuperCoolerRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import mezz.jei.api.constants.VanillaTypes;
@@ -58,9 +58,9 @@ public class SuperCoolerCategory extends BaseStuffCategory<SuperCoolerRecipe> {
         this.powerBar.draw(graphics, 6, 6);
         this.progress.draw(graphics, 97, 6);
 
-        EnergyComponent energyComponent = recipe.getEnergyComponent();
-        int ticks = energyComponent.ticksToProcess();
-        int energyPerTick = energyComponent.fePerTick();
+        EnergyRequirement energyRequirement = recipe.getEnergyComponent();
+        int ticks = energyRequirement.ticksToProcess();
+        int energyPerTick = energyRequirement.fePerTick();
         int totalEnergy = ticks * energyPerTick;
 
         PoseStack stack = graphics.pose();

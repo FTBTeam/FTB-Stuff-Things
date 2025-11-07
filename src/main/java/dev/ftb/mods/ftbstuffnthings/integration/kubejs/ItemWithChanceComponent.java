@@ -1,25 +1,17 @@
 package dev.ftb.mods.ftbstuffnthings.integration.kubejs;
 
-import com.mojang.serialization.Codec;
+import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.crafting.ItemWithChance;
-import dev.latvian.mods.kubejs.recipe.component.RecipeComponent;
+import dev.latvian.mods.kubejs.recipe.component.RecipeComponentType;
+import dev.latvian.mods.kubejs.recipe.component.SimpleRecipeComponent;
 import dev.latvian.mods.rhino.type.TypeInfo;
 
-public class ItemWithChanceComponent implements RecipeComponent<ItemWithChance> {
-    public static final ItemWithChanceComponent INSTANCE = new ItemWithChanceComponent();
+public class ItemWithChanceComponent extends SimpleRecipeComponent<ItemWithChance> {
+    public static final TypeInfo TYPE_INFO = TypeInfo.of(ItemWithChance.class);
+    public static final RecipeComponentType.Unit<ItemWithChance> TYPE
+            = RecipeComponentType.unit(FTBStuffNThings.id("item_with_chance"), ItemWithChanceComponent::new);
 
-    @Override
-    public Codec<ItemWithChance> codec() {
-        return ItemWithChance.CODEC;
-    }
-
-    @Override
-    public TypeInfo typeInfo() {
-        return TypeInfo.of(ItemWithChance.class);
-    }
-
-    @Override
-    public String toString() {
-        return "item_with_chance";
+    public ItemWithChanceComponent(RecipeComponentType<?> type) {
+        super(type, ItemWithChance.CODEC, TYPE_INFO);
     }
 }

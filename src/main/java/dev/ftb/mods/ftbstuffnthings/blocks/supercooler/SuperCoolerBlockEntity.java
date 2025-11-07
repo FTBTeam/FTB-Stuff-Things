@@ -8,7 +8,7 @@ import dev.ftb.mods.ftbstuffnthings.blocks.ProgressProvider;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingEnergy;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingFluidTank;
 import dev.ftb.mods.ftbstuffnthings.capabilities.IOStackHandler;
-import dev.ftb.mods.ftbstuffnthings.crafting.EnergyComponent;
+import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.SuperCoolerRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
@@ -211,7 +211,7 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
 
     private void useEnergy() {
         if (currentRecipe != null) {
-            EnergyComponent energy = getCurrentRecipe().getEnergyComponent();
+            EnergyRequirement energy = getCurrentRecipe().getEnergyComponent();
             var result = energyHandler.extractEnergy(energy.fePerTick(), true);
             if (result >= energy.fePerTick()) {
                 energyHandler.extractEnergy(energy.fePerTick(), false);
