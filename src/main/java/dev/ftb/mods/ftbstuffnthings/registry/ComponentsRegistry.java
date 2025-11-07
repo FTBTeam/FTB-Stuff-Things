@@ -3,6 +3,7 @@ package dev.ftb.mods.ftbstuffnthings.registry;
 import com.mojang.serialization.Codec;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,7 +16,7 @@ import java.util.function.Supplier;
 
 public class ComponentsRegistry {
     private static final DeferredRegister.DataComponents COMPONENTS
-            = DeferredRegister.createDataComponents(FTBStuffNThings.MODID);
+            = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, FTBStuffNThings.MODID);
 
     // capsules and machines with one fluid tank
     public static final Supplier<DataComponentType<SimpleFluidContent>> STORED_FLUID

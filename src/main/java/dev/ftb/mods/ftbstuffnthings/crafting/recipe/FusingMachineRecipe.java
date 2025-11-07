@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.ftb.mods.ftbstuffnthings.crafting.BaseRecipe;
-import dev.ftb.mods.ftbstuffnthings.crafting.EnergyComponent;
+import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -21,14 +21,14 @@ import java.util.Set;
 public class FusingMachineRecipe extends BaseRecipe<FusingMachineRecipe> {
     private final List<Ingredient> inputs;
     private final FluidStack fluidResult;
-    private final EnergyComponent energyComponent;
+    private final EnergyRequirement energyRequirement;
 
-    public FusingMachineRecipe(List<Ingredient> inputs, FluidStack fluidResult, EnergyComponent energyComponent) {
+    public FusingMachineRecipe(List<Ingredient> inputs, FluidStack fluidResult, EnergyRequirement energyRequirement) {
         super(RecipesRegistry.FUSING_MACHINE_SERIALIZER, RecipesRegistry.FUSING_MACHINE_TYPE);
 
         this.inputs = inputs;
         this.fluidResult = fluidResult;
-        this.energyComponent = energyComponent;
+        this.energyRequirement = energyRequirement;
     }
 
     public List<Ingredient> getInputs() {
@@ -39,8 +39,8 @@ public class FusingMachineRecipe extends BaseRecipe<FusingMachineRecipe> {
         return fluidResult;
     }
 
-    public EnergyComponent getEnergyComponent() {
-        return energyComponent;
+    public EnergyRequirement getEnergyComponent() {
+        return energyRequirement;
     }
 
     public boolean test(IItemHandler itemHandler) {
@@ -68,7 +68,7 @@ public class FusingMachineRecipe extends BaseRecipe<FusingMachineRecipe> {
     }
 
     public interface IFactory<T extends FusingMachineRecipe> {
-        T create(List<Ingredient> inputs, FluidStack fluidResult, EnergyComponent energyComponent);
+        T create(List<Ingredient> inputs, FluidStack fluidResult, EnergyRequirement energyRequirement);
     }
 
     public static class Serializer<T extends FusingMachineRecipe> implements RecipeSerializer<T> {
@@ -79,13 +79,13 @@ public class FusingMachineRecipe extends BaseRecipe<FusingMachineRecipe> {
             codec = RecordCodecBuilder.mapCodec(builder -> builder.group(
                     Ingredient.CODEC_NONEMPTY.listOf().fieldOf("inputs").forGetter(FusingMachineRecipe::getInputs),
                     FluidStack.CODEC.fieldOf("result").forGetter(FusingMachineRecipe::getFluidResult),
-                    EnergyComponent.CODEC.fieldOf("energy").forGetter(FusingMachineRecipe::getEnergyComponent)
+                    EnergyRequirement.CODEC.fieldOf("energy").forGetter(FusingMachineRecipe::getEnergyComponent)
             ).apply(builder, factory::create));
 
             streamCodec = StreamCodec.composite(
                     Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()), FusingMachineRecipe::getInputs,
                     FluidStack.STREAM_CODEC, FusingMachineRecipe::getFluidResult,
-                    EnergyComponent.STREAM_CODEC, FusingMachineRecipe::getEnergyComponent,
+                    EnergyRequirement.STREAM_CODEC, FusingMachineRecipe::getEnergyComponent,
                     factory::create
             );
         }

@@ -1,12 +1,12 @@
 package dev.ftb.mods.ftbstuffnthings;
 
 import com.mojang.logging.LogUtils;
+import dev.ftb.mods.ftblibrary.config.manager.ConfigManager;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.TemperedJarBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlockEntity;
-import dev.ftb.mods.ftbstuffnthings.client.ClientSetup;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.items.FluidCapsuleItem;
 import dev.ftb.mods.ftbstuffnthings.items.WaterBowlItem;
@@ -26,10 +26,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -49,14 +46,8 @@ public class FTBStuffNThings {
 
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public FTBStuffNThings(IEventBus modEventBus, ModContainer modContainer) {
-        modEventBus.addListener(this::commonSetup);
-
-        if (FMLEnvironment.dist.isClient()) {
-            ClientSetup.onModConstruction(modEventBus);
-        }
-
-        Config.init();
+    public FTBStuffNThings(IEventBus modEventBus) {
+        ConfigManager.getInstance().registerServerConfig(Config.CONFIG, MODID, false);
 
         BlocksRegistry.init(modEventBus);
         ItemsRegistry.init(modEventBus);
@@ -83,15 +74,15 @@ public class FTBStuffNThings {
         // sent to players when they log in, and when a /reload is done on the server
         LootSummaryCollection lsc = new LootSummaryCollection();
 
-        Config.getStrainerLootTable().ifPresent(lootTableId -> BlocksRegistry.waterStrainers().forEach(b -> {
-            lsc.addEntry(b.getKey(), lootTableId, makeBlockParams(serverPlayer, b.get().defaultBlockState()));
-        }));
-        BlocksRegistry.BARRELS.forEach(b -> {
-            lsc.addEntry(b.getKey(), blockLootTable(b), makeBlockParams(serverPlayer, b.get().defaultBlockState()));
-        });
-        BlocksRegistry.CRATES.forEach(b -> {
-            lsc.addEntry(b.getKey(), blockLootTable(b), makeBlockParams(serverPlayer, b.get().defaultBlockState()));
-        });
+        Config.getStrainerLootTable().ifPresent(lootTableId -> BlocksRegistry.waterStrainers().forEach(b ->
+                lsc.addEntry(b.getKey(), lootTableId, makeBlockParams(serverPlayer, b.get().defaultBlockState())))
+        );
+        BlocksRegistry.BARRELS.forEach(b ->
+                lsc.addEntry(b.getKey(), blockLootTable(b), makeBlockParams(serverPlayer, b.get().defaultBlockState()))
+        );
+        BlocksRegistry.CRATES.forEach(b ->
+                lsc.addEntry(b.getKey(), blockLootTable(b), makeBlockParams(serverPlayer, b.get().defaultBlockState()))
+        );
 
         PacketDistributor.sendToPlayer(serverPlayer, new SyncLootSummaryPacket(lsc));
     }
@@ -107,11 +98,6 @@ public class FTBStuffNThings {
 
     private static ResourceLocation blockLootTable(DeferredBlock<Block> db) {
         return ResourceLocation.fromNamespaceAndPath(db.getId().getNamespace(), "blocks/" + db.getId().getPath());
-    }
-
-    private void commonSetup(final FMLCommonSetupEvent event) {
-        // Some common setup code
-        LOGGER.info("HELLO FROM COMMON SETUP");
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -149,13 +135,11 @@ public class FTBStuffNThings {
                 BlockEntitiesRegistry.PALE_OAK_SLUICE, BlockEntitiesRegistry.CRIMSON_SLUICE,
                 BlockEntitiesRegistry.WARPED_SLUICE, BlockEntitiesRegistry.BAMBOO_SLUICE,
                 BlockEntitiesRegistry.IRON_SLUICE, BlockEntitiesRegistry.DIAMOND_SLUICE,
-                BlockEntitiesRegistry.NETHERITE_SLUICE).forEach(sluice -> {
-            SluiceBlockEntity.registerCapabilities(event, sluice.get());
-        });
+                BlockEntitiesRegistry.NETHERITE_SLUICE)
+                .forEach(sluice -> SluiceBlockEntity.registerCapabilities(event, sluice.get()));
         List.of(BlockEntitiesRegistry.IRON_HAMMER, BlockEntitiesRegistry.GOLD_HAMMER,
-                BlockEntitiesRegistry.DIAMOND_HAMMER, BlockEntitiesRegistry.NETHERITE_HAMMER).forEach(hammer -> {
-            AutoHammerBlockEntity.registerCapabilities(event, hammer.get());
-        });
+                BlockEntitiesRegistry.DIAMOND_HAMMER, BlockEntitiesRegistry.NETHERITE_HAMMER)
+                .forEach(hammer -> AutoHammerBlockEntity.registerCapabilities(event, hammer.get()));
 
         event.registerItem(
                 Capabilities.FluidHandler.ITEM,

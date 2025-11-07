@@ -74,10 +74,10 @@ public class BlocksRegistry {
     public static final DeferredBlock<SluiceBlock> NETHERITE_SLUICE
             = BLOCKS.register("netherite_sluice", () -> new SluiceBlock(SluiceType.NETHERITE, SoundType.NETHERITE_BLOCK));
 
-    public static List<DeferredBlock<SluiceBlock>> WOODEN_SLUICE = List.of(
+    public static final List<DeferredBlock<SluiceBlock>> WOODEN_SLUICE = List.of(
             OAK_SLUICE, SPRUCE_SLUICE, BIRCH_SLUICE, JUNGLE_SLUICE, ACACIA_SLUICE,
             DARK_OAK_SLUICE, MANGROVE_SLUICE, CHERRY_SLUICE, PALE_OAK_SLUICE, CRIMSON_SLUICE, WARPED_SLUICE, BAMBOO_SLUICE);
-    public static List<DeferredBlock<SluiceBlock>> ALL_SLUICES = List.of(
+    public static final List<DeferredBlock<SluiceBlock>> ALL_SLUICES = List.of(
             OAK_SLUICE, SPRUCE_SLUICE, BIRCH_SLUICE, JUNGLE_SLUICE, ACACIA_SLUICE,
             DARK_OAK_SLUICE, MANGROVE_SLUICE, CHERRY_SLUICE, PALE_OAK_SLUICE, CRIMSON_SLUICE, WARPED_SLUICE,
             BAMBOO_SLUICE, IRON_SLUICE, DIAMOND_SLUICE, NETHERITE_SLUICE);

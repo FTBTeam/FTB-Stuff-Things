@@ -1,6 +1,6 @@
 package dev.ftb.mods.ftbstuffnthings.client;
 
-import dev.ftb.mods.ftbstuffnthings.blocks.woodbasin.WoodenBasinBlockEntity;
+import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.client.model.TubeModel;
 import dev.ftb.mods.ftbstuffnthings.client.renders.*;
 import dev.ftb.mods.ftbstuffnthings.client.screens.FusingMachineScreen;
@@ -16,24 +16,26 @@ import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
-public class ClientSetup {
-    public static void onModConstruction(IEventBus modBus) {
-        // called from mod ctor
-        modBus.addListener(ClientSetup::registerModelLoaders);
-        modBus.addListener(ClientSetup::registerRenderers);
-        modBus.addListener(ClientSetup::registerScreens);
-        modBus.addListener(ClientSetup::registerColorHandlers);
-        modBus.addListener(ClientSetup::registerBlockColourHandlers);
+@Mod(value = FTBStuffNThings.MODID, dist = Dist.CLIENT)
+public class FTBStuffNThingsClient {
+    public FTBStuffNThingsClient(IEventBus modBus) {
+        modBus.addListener(this::registerModelLoaders);
+        modBus.addListener(this::registerRenderers);
+        modBus.addListener(this::registerScreens);
+        modBus.addListener(this::registerColorHandlers);
+        modBus.addListener(this::registerBlockColourHandlers);
     }
 
-    private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+    private void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.OAK_SLUICE.get(), SluiceBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.SPRUCE_SLUICE.get(), SluiceBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.BIRCH_SLUICE.get(), SluiceBlockEntityRenderer::new);
@@ -71,18 +73,18 @@ public class ClientSetup {
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.WOODEN_BASIN.get(), BasinBlockEntityRenderer::new);
     }
 
-    private static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders event) {
+    private void registerModelLoaders(ModelEvent.RegisterGeometryLoaders event) {
         event.register(TubeModel.Loader.ID, TubeModel.Loader.INSTANCE);
     }
 
-    private static void registerScreens(RegisterMenuScreensEvent event) {
+    private void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ContentRegistry.TEMPERED_JAR_MENU.get(), TemperedJarScreen::new);
         event.register(ContentRegistry.FUSING_MACHINE_MENU.get(), FusingMachineScreen::new);
         event.register(ContentRegistry.SUPER_COOLER_MENU.get(), SuperCoolerScreen::new);
         event.register(ContentRegistry.WATER_STRAINER_MENU.get(), WaterStrainerScreen::new);
     }
 
-    private static void registerColorHandlers(RegisterColorHandlersEvent.Item event) {
+    private void registerColorHandlers(RegisterColorHandlersEvent.Item event) {
         event.register((stack, tintIndex) -> switch (tintIndex) {
             case 0 -> 0xFFFFFFFF;
             case 1 -> FluidCapsuleColorHandler.getColor(stack);
@@ -102,7 +104,7 @@ public class ClientSetup {
         );
     }
 
-    public static void registerBlockColourHandlers(final RegisterColorHandlersEvent.Block event) {
+    public void registerBlockColourHandlers(final RegisterColorHandlersEvent.Block event) {
         event.register(
                 (state, env, pos, index) -> {
                     if (index != 1) {

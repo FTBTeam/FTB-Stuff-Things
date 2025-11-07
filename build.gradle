@@ -2,7 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '1.0.17'
-    id "me.modmuss50.mod-publish-plugin" version "0.7.2"
+    id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
 
 apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/main/gradle/changelog.gradle'
@@ -124,7 +124,10 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_license            : mod_license,
             mod_version            : mod_version,
             mod_authors            : mod_authors,
-            mod_description        : mod_description
+            mod_description        : mod_description,
+            ftb_library_version    : ftb_library_version,
+            jei_version            : jei_version,
+            kubejs_version         : kubejs_version
     ]
     inputs.properties replaceProperties
     expand replaceProperties

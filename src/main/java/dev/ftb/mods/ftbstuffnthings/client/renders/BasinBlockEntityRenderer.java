@@ -1,13 +1,11 @@
 package dev.ftb.mods.ftbstuffnthings.client.renders;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.ftb.mods.ftbstuffnthings.blocks.jar.JarBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.woodbasin.WoodenBasinBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.client.RenderUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class BasinBlockEntityRenderer implements BlockEntityRenderer<WoodenBasinBlockEntity> {
     public static final RenderUtil.FluidBounds BASIN_BOUNDS = new RenderUtil.FluidBounds(2f / 16f, 4f / 16f, 10.5f / 16f);

@@ -22,9 +22,9 @@ public class FTBStuffTags {
         public static final TagKey<Block> SLUICE = modTag("sluice");
         public static final TagKey<Block> WOODEN_SLUICES = modTag("wooden_sluices");
 
-        private static final Map<MeshType, TagKey<Block>> ALLOWED_MESHES = Util.make(new EnumMap<>(MeshType.class), map -> {
-            MeshType.NON_EMPTY_VALUES.forEach(mesh -> map.put(mesh, modTag("allowed_meshes/" + mesh.getSerializedName())));
-        });
+        private static final Map<MeshType, TagKey<Block>> ALLOWED_MESHES = Util.make(new EnumMap<>(MeshType.class),
+                map -> MeshType.NON_EMPTY_VALUES.forEach(mesh -> map.put(mesh, modTag("allowed_meshes/" + mesh.getSerializedName())))
+        );
         public static TagKey<Block> allowedMeshes(MeshType type) {
             return ALLOWED_MESHES.get(type);
         }

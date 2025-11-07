@@ -63,10 +63,25 @@ description='''${mod_description}'''
     side="BOTH"
 
 [[dependencies.${mod_id}]]
-    modId="jei"
-    type="optional"
-    versionRange="[19.19.0,)"
+    modId="ftblibrary"
+    type="required"
+    versionRange="[${ftb_library_version},)"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="jei"
+    type="optional"
+    versionRange="[${jei_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="kubejs"
+    type="optional"
+    versionRange="[${kubejs_version},)"
+    ordering="NONE"
+    side="BOTH"
+
 [[mixins]]
 config="${mod_id}.mixins.json"

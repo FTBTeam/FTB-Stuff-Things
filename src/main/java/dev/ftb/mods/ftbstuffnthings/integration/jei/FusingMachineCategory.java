@@ -2,7 +2,7 @@ package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ftb.mods.ftbstuffnthings.client.screens.FusingMachineScreen;
-import dev.ftb.mods.ftbstuffnthings.crafting.EnergyComponent;
+import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.FusingMachineRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import mezz.jei.api.constants.VanillaTypes;
@@ -61,9 +61,9 @@ public class FusingMachineCategory extends BaseStuffCategory<FusingMachineRecipe
         stack.translate(5, 25, 0);
         stack.scale(0.5F, 0.5F, 0.5F);
 
-        EnergyComponent energyComponent = recipe.getEnergyComponent();
-        int ticks = energyComponent.ticksToProcess();
-        int energyPerTick = energyComponent.fePerTick();
+        EnergyRequirement energyRequirement = recipe.getEnergyComponent();
+        int ticks = energyRequirement.ticksToProcess();
+        int energyPerTick = energyRequirement.fePerTick();
         int totalEnergy = ticks * energyPerTick;
 
         graphics.drawString(Minecraft.getInstance().font, "%sFE/t (%sFE)".formatted(energyPerTick, totalEnergy), 0, 0, 0x404040, false);
@@ -85,9 +85,7 @@ public class FusingMachineCategory extends BaseStuffCategory<FusingMachineRecipe
         }
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, 84, 6).addFluidStack(fusingRecipe.getFluidResult().getFluid(), fusingRecipe.getFluidResult().getAmount())
-                .addRichTooltipCallback((recipeSlotView, tooltip) -> {
-                    tooltip.add(Component.literal(fusingRecipe.getFluidResult().getAmount() + " mB"));
-                });
+                .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(Component.literal(fusingRecipe.getFluidResult().getAmount() + " mB")));
     }
 
     enum ContainerHandler implements IGuiContainerHandler<FusingMachineScreen> {

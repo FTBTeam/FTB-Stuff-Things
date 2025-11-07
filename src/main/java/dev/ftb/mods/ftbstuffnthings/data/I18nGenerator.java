@@ -3,21 +3,15 @@ package dev.ftb.mods.ftbstuffnthings.data;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
-import net.minecraft.Util;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class I18nGenerator extends LanguageProvider {
     private static final String[] COMPRESSED_PREFIXES = new String[] { "", "Double ", "Triple " };
-    private static final Map<String, String> COMPRESSED_BLOCKS = Util.make(new HashMap<>(), map -> {
-        map.put("sand", "Sand");
-    });
 
     public I18nGenerator(PackOutput output) {
         super(output, FTBStuffNThings.MODID, "en_us");
