@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Wooden basin now plays particles in addition to sound when block is jumped on successfully
+* Added `ru_ru` translation (thanks @BazZziliuS)
+
+### Changed
+- Updated KubeJS support to KubeJS 7.2
+  - **IMPORTANT**: this release will not work with earlier versions of KubeJS!
 
 ## [21.1.11]
 
