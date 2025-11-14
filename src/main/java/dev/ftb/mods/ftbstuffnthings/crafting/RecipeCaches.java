@@ -14,6 +14,8 @@ public interface RecipeCaches {
     RecipeCache<FusingMachineRecipe> FUSING_MACHINE = new RecipeCache<>();
     RecipeCache<SuperCoolerRecipe> SUPER_COOLER = new RecipeCache<>();
     RecipeCache<SluiceRecipe> SLUICE = new RecipeCache<>();
+    RecipeCache<HammerRecipe> HAMMER = new RecipeCache<>();
+    RecipeMultiCache<CrookRecipe> CROOK = new RecipeMultiCache<>();
 
     static void clearAll() {
         TEMPERED_JAR.clear();
@@ -22,6 +24,8 @@ public interface RecipeCaches {
         FUSING_MACHINE.clear();
         SUPER_COOLER.clear();
         SLUICE.clear();
+        HAMMER.clear();
+        CROOK.clear();
 
         WaterStrainerBlockEntity.clearCachedLootTable();
 

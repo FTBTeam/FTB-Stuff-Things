@@ -4,6 +4,7 @@ import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
 import dev.ftb.mods.ftbstuffnthings.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -84,7 +85,7 @@ public class AutoHammerBlock extends Block implements EntityBlock {
     public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             if (world.getBlockEntity(pos) instanceof AutoHammerBlockEntity autoHammer) {
-                autoHammer.dropInventoryOnBreak();
+                autoHammer.dropInventoryOnBreak(world);
                 world.updateNeighbourForOutputSignal(pos, this);
             }
 
@@ -97,10 +98,10 @@ public class AutoHammerBlock extends Block implements EntityBlock {
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         return (level1, blockPos, blockState, t) -> {
             if (t instanceof AutoHammerBlockEntity tickable) {
-                if (level1.isClientSide()) {
-                    tickable.tickClient();
+                if (level1 instanceof ServerLevel serverLevel) {
+                    tickable.tickServer(serverLevel);
                 } else {
-                    tickable.tickServer();
+                    tickable.tickClient(level1);
                 }
             }
         };
