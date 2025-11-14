@@ -1,8 +1,11 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.hammer;
 
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
-import dev.ftb.mods.ftbstuffnthings.crafting.ToolsRecipeCache;
+import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
+import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
+import dev.ftb.mods.ftbstuffnthings.crafting.recipe.HammerRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
+import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -14,6 +17,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -31,11 +36,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public class AutoHammerBlockEntity extends BlockEntity {
     private final AutoHammerProperties props;
-    private final AutoHammerItemHandler itemHandler = new AutoHammerItemHandler();
-    private final InputHandler inputHandler = new InputHandler(itemHandler);
+    private final AutoHammerItemHandler itemHandler = new AutoHammerItemHandler();  // internal handler
+    private final InputHandler inputHandler = new InputHandler(itemHandler);  // public handler for capabilities
 
     private boolean active;
     private int progress;
@@ -47,6 +53,8 @@ public class AutoHammerBlockEntity extends BlockEntity {
     private final OutputHandler outputHandler = new OutputHandler(overflow);
     private BlockCapabilityCache<IItemHandler, Direction> inputCache;
     private BlockCapabilityCache<IItemHandler, Direction> outputCache;
+    private HammerRecipe currentRecipe = null;
+    private int lastPulledSlot;
 
     protected AutoHammerBlockEntity(BlockEntityType<?> type, AutoHammerProperties props, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -92,8 +100,8 @@ public class AutoHammerBlockEntity extends BlockEntity {
         handleUpdateTag(pkt.getTag(), lookupProvider);
     }
 
-    public void tickClient() {
-        if (!processingStack.isEmpty() && level != null && getBlockState().getValue(AbstractMachineBlock.ACTIVE)) {
+    public void tickClient(Level level) {
+        if (!processingStack.isEmpty() && getBlockState().getValue(AbstractMachineBlock.ACTIVE)) {
             if (++displayProgress >= props.getHammerSpeed()) {
                 displayProgress = 0;
                 if (processingStack.getItem() instanceof BlockItem blockItem) {
@@ -103,12 +111,17 @@ public class AutoHammerBlockEntity extends BlockEntity {
         }
     }
 
-    public void tickServer() {
+    private ItemStack getNextInputItem(ServerLevel level) {
+        if (itemHandler.getStack().isEmpty()) {
+            tryPullFromInput(level);
+        }
+        return itemHandler.getStack();
+    }
+
+    public void tickServer(ServerLevel serverLevel) {
         if (!getBlockState().getValue(BlockStateProperties.ENABLED)) {
             return;
         }
-
-        ItemStack inputStack = itemHandler.getStackInSlot(0);
 
         ItemStack prevProcessingStack = processingStack.copy();
         if (timeout > 0) {
@@ -124,38 +137,35 @@ public class AutoHammerBlockEntity extends BlockEntity {
             }
             setChanged();
         } else if (progress == 0) {
-            processingStack = ItemStack.EMPTY;
+            ItemStack inputStack = getNextInputItem(serverLevel);
             if (inputStack.isEmpty()) {
-                if (!tryPullFromInput()) {
-                    // nothing in input, cool down for a bit before checking again
-                    goOnTimeout(20);
-                } else {
-                    inputStack = itemHandler.getStackInSlot(0);
-                }
-            }
-            if (!inputStack.isEmpty()) {
-                List<ItemStack> hammerDrops = ToolsRecipeCache.getHammerDrops(level, inputStack);
-                if (!hammerDrops.isEmpty()) {
-                    processingStack = itemHandler.extractItem(0, 1, false);
-                    progress = 1;
-                    active = true;
-                    setChanged();
-                } else {
-                    // invalid item, shouldn't happen!
-                    Block.popResource(getLevel(), getBlockPos().above(), inputStack);
-                    itemHandler.setStackInSlot(0, ItemStack.EMPTY);
-                    goOnTimeout(20);
-                }
+                currentRecipe = null;
+                goOnTimeout(20);
+            } else {
+                getRecipeForStack(serverLevel, inputStack).ifPresentOrElse(
+                        recipe -> {
+                            currentRecipe = recipe;
+                            processingStack = itemHandler.extractItem(0, 1, false);
+                            progress = 1;
+                            active = true;
+                            setChanged();
+                        },
+                        () -> {
+                            // invalid item, shouldn't happen!
+                            Block.popResource(serverLevel, getBlockPos().above(), inputStack);
+                            itemHandler.setStackInSlot(0, ItemStack.EMPTY);
+                            goOnTimeout(20);
+                        }
+                );
             }
         } else {
             if (progress <= props.getHammerSpeed()) {
                 progress++;
                 setChanged();
-            } else {
+            } else if (currentRecipe != null) {  // should always be the case!
                 // completed one cycle, try to move output to adjacent inventory
-                List<ItemStack> hammerDrops = ToolsRecipeCache.getHammerDrops(level, processingStack);
                 progress = 0;
-                if (tryPushToOutput(hammerDrops)) {
+                if (tryPushToOutput(currentRecipe.getResults())) {
                     // done!
                     setChanged();
                 } else {
@@ -168,41 +178,60 @@ public class AutoHammerBlockEntity extends BlockEntity {
 
         boolean stateActive = getBlockState().getValue(AbstractMachineBlock.ACTIVE);
         if (stateActive && !active) {
-            getLevel().setBlock(getBlockPos(), getBlockState().setValue(AbstractMachineBlock.ACTIVE, false), Block.UPDATE_ALL);
+            serverLevel.setBlock(getBlockPos(), getBlockState().setValue(AbstractMachineBlock.ACTIVE, false), Block.UPDATE_ALL);
         } else if (!stateActive && active) {
-            getLevel().setBlock(getBlockPos(), getBlockState().setValue(AbstractMachineBlock.ACTIVE, true), Block.UPDATE_ALL);
+            serverLevel.setBlock(getBlockPos(), getBlockState().setValue(AbstractMachineBlock.ACTIVE, true), Block.UPDATE_ALL);
         }
 
         if (!ItemStack.isSameItemSameComponents(prevProcessingStack, processingStack)) {
-            getLevel().sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            serverLevel.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
         }
     }
 
-    private boolean tryPullFromInput() {
+    public static Optional<HammerRecipe> getRecipeForStack(Level level, ItemStack inputStack) {
+        if (inputStack.isEmpty()) return Optional.empty();
+        return RecipeCaches.HAMMER.getCachedRecipe(
+                () -> searchForRecipe(level, inputStack),
+                () -> genIngredientHash(inputStack)
+        ).map(RecipeHolder::value);
+    }
+
+    public static Optional<RecipeHolder<HammerRecipe>> searchForRecipe(Level level, ItemStack stack) {
+        return level.getRecipeManager().getRecipesFor(RecipesRegistry.HAMMER_TYPE.get(), NoInventory.INSTANCE, level).stream()
+                .filter(r -> r.value().getIngredient().test(stack))
+                .findFirst();
+    }
+
+    public static int genIngredientHash(ItemStack stack) {
+        return ItemStack.hashItemAndComponents(stack);
+    }
+
+    private void tryPullFromInput(ServerLevel level) {
         if (inputCache == null) {
             Direction dir = getInputDirection(getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
             inputCache = BlockCapabilityCache.create(Capabilities.ItemHandler.BLOCK, (ServerLevel) getLevel(), getBlockPos().relative(dir), dir.getOpposite());
         }
 
         IItemHandler src = inputCache.getCapability();
-        // we don't pull from other auto-hammers, since they push output anyway
+        // we don't pull from other auto-hammers, since they autopush output anyway
         if (src != null && !(src instanceof OutputHandler)) {
-            // TODO remember last slot successfully pulled from and try there first (optimisation)
+            if (lastPulledSlot >= src.getSlots()) {
+                lastPulledSlot = 0;
+            }
             for (int i = 0; i < src.getSlots(); i++) {
-                ItemStack stack = src.getStackInSlot(i);
-                if (ToolsRecipeCache.hammerable(stack)) {
-                    ItemStack in = src.extractItem(i, 1, true);
+                int actualSlot = i + lastPulledSlot >= src.getSlots() ? i + lastPulledSlot - src.getSlots() : i + lastPulledSlot;
+                ItemStack stack = src.getStackInSlot(actualSlot);
+                if (getRecipeForStack(level, stack).isPresent()) {
+                    ItemStack in = src.extractItem(actualSlot, 1, true);
                     if (!in.isEmpty()) {
                         if (itemHandler.insertItem(0, in, false).isEmpty()) {
-                            src.extractItem(i, 1, false);
-                            return true;
+                            src.extractItem(actualSlot, 1, false);
+                            return;
                         }
                     }
                 }
             }
         }
-
-        return false;
     }
 
     public static Direction getInputDirection(Direction facing) {
@@ -287,15 +316,15 @@ public class AutoHammerBlockEntity extends BlockEntity {
         }
     }
 
-    public void dropInventoryOnBreak() {
+    public void dropInventoryOnBreak(Level level) {
         ItemStack stack = itemHandler.getStackInSlot(0);
         if (!stack.isEmpty()) {
-            Block.popResource(getLevel(), getBlockPos(), stack);
+            Block.popResource(level, getBlockPos(), stack);
         }
         if (!processingStack.isEmpty()) {
-            Block.popResource(getLevel(), getBlockPos(), processingStack);
+            Block.popResource(level, getBlockPos(), processingStack);
         }
-        overflow.forEach(os -> Block.popResource(getLevel(), getBlockPos(), os));
+        overflow.forEach(os -> Block.popResource(level, getBlockPos(), os));
     }
 
     public ItemStack getProcessingStack() {
@@ -361,7 +390,7 @@ public class AutoHammerBlockEntity extends BlockEntity {
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return ToolsRecipeCache.hammerable(stack);
+            return getRecipeForStack(level, stack).isPresent();
         }
 
         @Override
@@ -372,6 +401,10 @@ public class AutoHammerBlockEntity extends BlockEntity {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+        }
+
+        private ItemStack getStack() {
+            return getStackInSlot(0);
         }
     }
 

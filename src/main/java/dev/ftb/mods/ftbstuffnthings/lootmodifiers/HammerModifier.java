@@ -4,7 +4,7 @@ import com.google.common.base.Suppliers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
-import dev.ftb.mods.ftbstuffnthings.crafting.ToolsRecipeCache;
+import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlockEntity;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +16,6 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 public class HammerModifier extends LootModifier {
@@ -33,15 +32,15 @@ public class HammerModifier extends LootModifier {
         Entity entity = context.getParamOrNull(LootContextParams.THIS_ENTITY);
         BlockState blockState = context.getParamOrNull(LootContextParams.BLOCK_STATE);
 
-        if (!(entity instanceof Player) || hammer == null || blockState == null || !hammer.is(FTBStuffTags.Items.HAMMERS) || !ToolsRecipeCache.hammerable(blockState)) {
+        if (!(entity instanceof Player) || hammer == null || blockState == null || !hammer.is(FTBStuffTags.Items.HAMMERS)) {
             return list;
         }
 
-        List<ItemStack> hammerDrops = ToolsRecipeCache.getHammerDrops(entity.level(), new ItemStack(blockState.getBlock()));
-        if (!hammerDrops.isEmpty()) {
+        ItemStack stack = new ItemStack(blockState.getBlock());
+        AutoHammerBlockEntity.getRecipeForStack(context.getLevel(), stack).ifPresent(recipe -> {
             list.clear();
-            hammerDrops.stream().map(ItemStack::copy).forEach(list::add);
-        }
+            list.addAll(recipe.getResults());
+        });
 
         return list;
     }
