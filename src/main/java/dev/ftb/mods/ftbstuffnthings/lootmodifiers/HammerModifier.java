@@ -39,7 +39,7 @@ public class HammerModifier extends LootModifier {
         ItemStack stack = new ItemStack(blockState.getBlock());
         AutoHammerBlockEntity.getRecipeForStack(context.getLevel(), stack).ifPresent(recipe -> {
             list.clear();
-            list.addAll(recipe.getResults());
+            list.addAll(recipe.getResults().stream().map(ItemStack::copy).toList());
         });
 
         return list;
