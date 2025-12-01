@@ -162,17 +162,23 @@ public class AutoHammerBlockEntity extends BlockEntity {
             if (progress <= props.getHammerSpeed()) {
                 progress++;
                 setChanged();
-            } else if (currentRecipe != null) {  // should always be the case!
-                // completed one cycle, try to move output to adjacent inventory
-                progress = 0;
-                if (tryPushToOutput(currentRecipe.getResults())) {
-                    // done!
-                    setChanged();
-                } else {
-                    // nowhere to send the outputs, stall for a bit and try again
-                    goOnTimeout(30);
+            } else {
+                if (currentRecipe == null) {
+                    // can happen on restore from NBT
+                    currentRecipe = getRecipeForStack(serverLevel, processingStack).orElse(null);
                 }
-                processingStack = ItemStack.EMPTY;
+                if (currentRecipe != null) {  // should always be the case!
+                    // completed one cycle, try to move output to adjacent inventory
+                    progress = 0;
+                    if (tryPushToOutput(currentRecipe.getResults())) {
+                        // done!
+                        setChanged();
+                    } else {
+                        // nowhere to send the outputs, stall for a bit and try again
+                        goOnTimeout(30);
+                    }
+                    processingStack = ItemStack.EMPTY;
+                }
             }
         }
 
