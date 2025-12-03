@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [21.1.16]
+
+### Fixed
+* The SlowMelter 9000 now no longer continues to consume power and appear to run if two items are the slots for a 1-item recipe 
+  * Note that this stalling is intended behaviour and players are encouraged to find workarounds to limit the items going into the machine for 1-item recipes
+  * The simplest workaround is to keep an item not used by any recipe in the machine's second input slot
+
 ## [21.1.15]
 
 ### Fixed
