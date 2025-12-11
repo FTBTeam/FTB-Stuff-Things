@@ -1,6 +1,5 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.fusingmachine;
 
-import com.google.common.collect.Sets;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.FluidEnergyProcessorContainerData;
 import dev.ftb.mods.ftbstuffnthings.blocks.FluidEnergyProvider;
@@ -26,7 +25,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.energy.IEnergyStorage;
@@ -35,7 +33,10 @@ import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class FusingMachineBlockEntity extends AbstractMachineBlockEntity implements MenuProvider, FluidEnergyProvider, ProgressProvider {
@@ -56,7 +57,7 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
     @Override
     public void tickServer(ServerLevel serverLevel) {
         if (!hasEnoughEnergy() || !hasOccupiedInputSlots()) {
-            setActive(false);
+            resetProgress(true);
             return;
         }
 
@@ -69,8 +70,7 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
                     .orElse(null);
 
             if (currentRecipe == null || !fluidHandler.isEmpty() && !FluidStack.isSameFluidSameComponents(fluidHandler.getFluid(), currentRecipe.getFluidResult())) {
-                progress = 0;
-                setActive(false);
+                resetProgress(true);
                 return;
             }
 
@@ -85,7 +85,7 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
                     // We're done... Output the result
                     executeRecipe();
                 } else {
-                    // not enough space for output fluid, go inactive but keep progress
+                    // not enough space for output fluid; go inactive but keep progress
                     setActive(false);
                 }
             } else if (progress < progressRequired) {
@@ -127,18 +127,15 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
     //#region BlockEntity processing
 
     private void executeRecipe() {
-        Set<Ingredient> requiredItems = Sets.newIdentityHashSet();
-        requiredItems.addAll(currentRecipe.getInputs());
-
         BitSet extractingSlots = new BitSet(itemHandler.getSlots());  // track which slots we need to extract from
 
-        // Try and remove the items from the input slots
-        for (var ingredient : requiredItems) {
+        // Determine which input slots should be extracted from
+        for (var ingredient : currentRecipe.getInputs()) {
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 if (!extractingSlots.get(i) && ingredient.test(itemHandler.getStackInSlot(i))) {
                     if (itemHandler.extractItem(i, 1, true).isEmpty()) {
                         // this shouldn't happen, but let's be defensive
-                        resetProgress();
+                        resetProgress(true);
                         currentRecipe = null;
                         return;
                     }
@@ -147,6 +144,7 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
             }
         }
 
+        // Do the actual extraction and fluid production
         if (extractingSlots.cardinality() == currentRecipe.getInputs().size()) {
             for (int i = 0; i < itemHandler.getSlots(); i++) {
                 if (extractingSlots.get(i)) {
@@ -154,9 +152,10 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
                 }
             }
             fluidHandler.fillInternal(currentRecipe.getFluidResult(), IFluidHandler.FluidAction.EXECUTE);
+            resetProgress(false);
+        } else {
+            setActive(true);
         }
-
-        resetProgress();
     }
 
     private void useEnergy() {
@@ -166,16 +165,19 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
 
         var result = energyHandler.extractEnergy(currentRecipe.getEnergyComponent().fePerTick(), true);
         if (result < currentRecipe.getEnergyComponent().fePerTick()) {
-            resetProgress();
+            resetProgress(true);
             return;
         }
 
         energyHandler.extractEnergy(currentRecipe.getEnergyComponent().fePerTick(), false);
     }
 
-    private void resetProgress() {
+    private void resetProgress(boolean goInactive) {
         progress = 0;
         progressRequired = 0;
+        if (goInactive) {
+            setActive(false);
+        }
     }
 
     private boolean hasEnoughEnergy() {
