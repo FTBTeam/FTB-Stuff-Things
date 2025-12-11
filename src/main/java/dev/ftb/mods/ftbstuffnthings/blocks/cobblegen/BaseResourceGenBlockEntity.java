@@ -86,7 +86,7 @@ public abstract class BaseResourceGenBlockEntity extends BlockEntity {
     private IItemHandler getConnectedInventory() {
         if (outputCache == null || outputCache.getCapability() == null) {
             for (Direction direction : Direction.values()) {
-                outputCache = BlockCapabilityCache.create(Capabilities.ItemHandler.BLOCK, (ServerLevel) getLevel(), getBlockPos().relative(direction), null);
+                outputCache = BlockCapabilityCache.create(Capabilities.ItemHandler.BLOCK, (ServerLevel) getLevel(), getBlockPos().relative(direction), direction.getOpposite());
                 IItemHandler dest = outputCache.getCapability();
                 if (dest != null && hasSpaceInInventory(dest)) {
                     return dest;
