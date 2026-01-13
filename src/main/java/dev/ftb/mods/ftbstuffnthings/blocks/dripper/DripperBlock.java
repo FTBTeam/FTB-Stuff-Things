@@ -2,15 +2,21 @@ package dev.ftb.mods.ftbstuffnthings.blocks.dripper;
 
 import dev.ftb.mods.ftbstuffnthings.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -23,12 +29,14 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,6 +78,12 @@ public class DripperBlock extends Block implements EntityBlock {
 	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (!level.isClientSide() && level.getBlockEntity(pos) instanceof DripperBlockEntity dripper) {
 			FluidTank tank = dripper.getTank();
+
+			ItemInteractionResult bottleRes = tryUseWaterBottle(stack, level, pos, player, hand, tank);
+			if (bottleRes != null) {
+				return bottleRes;
+			}
+
 			FluidUtil.interactWithFluidHandler(player, hand, tank);
 
 			if (tank.getFluidAmount() == 0) {
@@ -78,6 +92,29 @@ public class DripperBlock extends Block implements EntityBlock {
 				player.displayClientMessage(Component.translatable("ftblibrary.mb",
 						tank.getFluidAmount(), tank.getFluid().getHoverName()), true);
 			}
+		}
+
+		return ItemInteractionResult.sidedSuccess(level.isClientSide);
+	}
+
+	@Nullable
+	private static ItemInteractionResult tryUseWaterBottle(ItemStack stack, Level level, BlockPos pos, Player player, InteractionHand hand, FluidTank tank) {
+		if (!stack.is(Items.POTION)) return null;
+
+		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
+		if (contents == null || !contents.is(Potions.WATER)) return null;
+
+		FluidStack water = new FluidStack(Fluids.WATER, 250);
+
+		if (tank.fill(water, IFluidHandler.FluidAction.SIMULATE) < 250) {
+			return ItemInteractionResult.FAIL;
+		}
+
+		level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1F, 1F);
+		tank.fill(water, IFluidHandler.FluidAction.EXECUTE);
+
+		if (!player.isCreative()) {
+			player.setItemInHand(hand, new ItemStack(Items.GLASS_BOTTLE));
 		}
 
 		return ItemInteractionResult.sidedSuccess(level.isClientSide);
