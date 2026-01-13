@@ -92,33 +92,31 @@ public class DripperBlockEntity extends BlockEntity {
 	}
 
 	public void serverTick(ServerLevel serverLevel) {
-		if (serverLevel.getGameTime() % 20 != 0) return;
-
-		FluidState state = serverLevel.getFluidState(getBlockPos().above());
-		if (state.is(Tags.Fluids.WATER) && state.isSource()) {
-			tank.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
-		}
-		RecipeHolder<DripperRecipe> currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(this::searchForRecipe, this::genRecipeHash).orElse(null);
-
-		boolean active = !tank.isEmpty() && currentRecipe != null;
-
-		BlockState bs = getBlockState();
-		if (bs.getValue(DripperBlock.ACTIVE) != active) {
-			level.setBlock(worldPosition, bs.setValue(DripperBlock.ACTIVE, active), Block.UPDATE_ALL);
-		}
-		if (currentRecipe != null) {
-			DripperRecipe recipe = currentRecipe.value();
-			boolean success = false;
-			if (tank.getFluidAmount() >= recipe.getFluid().getAmount()) {
-				if (serverLevel.random.nextDouble() < recipe.getChance()) {
-					level.setBlock(getBlockPos().below(), recipe.getOutputState(), Block.UPDATE_ALL);
-					success = true;
-				}
-				if (success || recipe.consumeFluidOnFail()) {
-					tank.drain(recipe.getFluid().getAmount(), IFluidHandler.FluidAction.EXECUTE);
-				}
+        if (serverLevel.getGameTime() % 20 == 0) {
+			FluidState state = serverLevel.getFluidState(getBlockPos().above());
+			if (state.is(Tags.Fluids.WATER) && state.isSource()) {
+				tank.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
 			}
-		}
+            if (!tank.isEmpty()) {
+                RecipeHolder<DripperRecipe> currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(this::searchForRecipe, this::genRecipeHash).orElse(null);
+
+                level.setBlock(worldPosition, getBlockState().setValue(DripperBlock.ACTIVE, !tank.getFluid().isEmpty() && currentRecipe != null), Block.UPDATE_ALL);
+
+                if (currentRecipe != null) {
+                    DripperRecipe recipe = currentRecipe.value();
+                    boolean success = false;
+                    if (tank.getFluidAmount() >= recipe.getFluid().getAmount()) {
+                        if (serverLevel.random.nextDouble() < recipe.getChance()) {
+                            level.setBlock(getBlockPos().below(), recipe.getOutputState(), Block.UPDATE_ALL);
+                            success = true;
+                        }
+                        if (success || recipe.consumeFluidOnFail()) {
+                            tank.drain(recipe.getFluid().getAmount(), IFluidHandler.FluidAction.EXECUTE);
+                        }
+                    }
+                }
+            }
+        }
 	}
 
 	private int genRecipeHash() {
