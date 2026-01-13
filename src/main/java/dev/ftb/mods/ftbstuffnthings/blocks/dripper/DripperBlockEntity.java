@@ -115,7 +115,12 @@ public class DripperBlockEntity extends BlockEntity {
                         }
                     }
                 }
-            }
+            } else {
+				BlockState bs = getBlockState();
+				if (bs.getValue(DripperBlock.ACTIVE)) {
+					level.setBlock(worldPosition, bs.setValue(DripperBlock.ACTIVE, false), Block.UPDATE_ALL);
+				}
+			}
         }
 	}
 
