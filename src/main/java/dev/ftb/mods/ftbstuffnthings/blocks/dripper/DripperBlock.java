@@ -114,7 +114,8 @@ public class DripperBlock extends Block implements EntityBlock {
 		tank.fill(water, IFluidHandler.FluidAction.EXECUTE);
 
 		if (!player.isCreative()) {
-			player.setItemInHand(hand, new ItemStack(Items.GLASS_BOTTLE));
+			stack.shrink(1);
+			player.addItem(new ItemStack(Items.GLASS_BOTTLE));
 		}
 
 		return ItemInteractionResult.sidedSuccess(level.isClientSide);
