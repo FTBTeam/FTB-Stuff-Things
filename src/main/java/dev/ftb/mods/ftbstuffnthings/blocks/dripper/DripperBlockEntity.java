@@ -92,30 +92,33 @@ public class DripperBlockEntity extends BlockEntity {
 	}
 
 	public void serverTick(ServerLevel serverLevel) {
-        if (serverLevel.getGameTime() % 20 == 0) {
+        if (serverLevel.getGameTime() % 20 == 0 && getBlockState().hasProperty(DripperBlock.ACTIVE)) {
 			FluidState state = serverLevel.getFluidState(getBlockPos().above());
 			if (state.is(Tags.Fluids.WATER) && state.isSource()) {
 				tank.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
 			}
+			boolean active = getBlockState().getValue(DripperBlock.ACTIVE);
+			boolean newActive = false;
             if (!tank.isEmpty()) {
-                RecipeHolder<DripperRecipe> currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(this::searchForRecipe, this::genRecipeHash).orElse(null);
-
-                level.setBlock(worldPosition, getBlockState().setValue(DripperBlock.ACTIVE, !tank.getFluid().isEmpty() && currentRecipe != null), Block.UPDATE_ALL);
-
-                if (currentRecipe != null) {
-                    DripperRecipe recipe = currentRecipe.value();
+                var currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(this::searchForRecipe, this::genRecipeHash);
+                if (currentRecipe.isPresent()) {
+                    DripperRecipe recipe = currentRecipe.get().value();
                     boolean success = false;
                     if (tank.getFluidAmount() >= recipe.getFluid().getAmount()) {
-                        if (serverLevel.random.nextDouble() < recipe.getChance()) {
-                            level.setBlock(getBlockPos().below(), recipe.getOutputState(), Block.UPDATE_ALL);
-                            success = true;
-                        }
-                        if (success || recipe.consumeFluidOnFail()) {
-                            tank.drain(recipe.getFluid().getAmount(), IFluidHandler.FluidAction.EXECUTE);
+						newActive = true;
+						if (serverLevel.random.nextDouble() < recipe.getChance()) {
+							serverLevel.setBlock(getBlockPos().below(), recipe.getOutputState(), Block.UPDATE_ALL);
+							success = true;
+						}
+						if (success || recipe.consumeFluidOnFail()) {
+							tank.drain(recipe.getFluid().getAmount(), IFluidHandler.FluidAction.EXECUTE);
                         }
                     }
                 }
             }
+			if (active != newActive) {
+				serverLevel.setBlock(worldPosition, getBlockState().setValue(DripperBlock.ACTIVE, newActive), Block.UPDATE_ALL);
+			}
         }
 	}
 
