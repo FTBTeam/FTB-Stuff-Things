@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [21.1.17]
 
-### Fixed
+### Changed
+* Water bottles can now be used to fill the dripper adding 250mb per bottle
 * Fixed Dripper not always correctly updating its active/inactive blockstate property
 
 ## [21.1.16]
