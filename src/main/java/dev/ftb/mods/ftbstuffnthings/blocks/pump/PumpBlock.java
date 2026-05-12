@@ -12,7 +12,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.player.Player;
@@ -35,8 +35,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.FakePlayer;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -110,14 +109,14 @@ public class PumpBlock extends AbstractMachineBlock implements EntityBlock {
             return InteractionResult.PASS;
         }
 
-        if (!level.isClientSide && !pump.windUp()) {
+        if (!level.isClientSide() && !pump.windUp()) {
             // overwound, oops!
             player.hurt(level.damageSources().source(ModDamageSources.STATIC_ELECTRIC, player), PUMP_DAMAGE_AMOUNT);
             if (player instanceof ServerPlayer sp) CriterionTriggerRegistry.SUPERCHARGED.get().trigger(sp);
             if (player.getHealth() - PUMP_DAMAGE_AMOUNT < 0) {
-                LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level);
+                LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
                 if (lightning != null) {
-                    lightning.moveTo(Vec3.atBottomCenterOf(player.blockPosition()));
+                    lightning.setPos(Vec3.atBottomCenterOf(player.blockPosition()));
                     lightning.setVisualOnly(true);
                     level.addFreshEntity(lightning);
                 }
@@ -132,29 +131,29 @@ public class PumpBlock extends AbstractMachineBlock implements EntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (!(blockEntity instanceof PumpBlockEntity pump)) {
-            return ItemInteractionResult.FAIL;
+            return InteractionResult.FAIL;
         }
 
         if (pump.creative) {
             ItemStack itemInHand = player.getItemInHand(hand);
 
-            ItemInteractionResult result = ItemInteractionResult.FAIL;
+            InteractionResult result = InteractionResult.FAIL;
             // Try a normal bucket
             if (!itemInHand.isEmpty()) {
                 if (itemInHand.getItem() instanceof BucketItem bucketItem) {
                     pump.creativeFluid = bucketItem.content;
                     sendTileUpdate(level, pos, state, pump);
-                    result = ItemInteractionResult.SUCCESS;
+                    result = InteractionResult.SUCCESS;
                 } else {
-                    IFluidHandlerItem capability = itemInHand.getCapability(Capabilities.FluidHandler.ITEM);
+                    var capability = itemInHand.getCapability(Capabilities.Fluid.ITEM, null);
                     if (capability != null) {
                         // Take the first one
-                        pump.creativeFluid = capability.getFluidInTank(0).getFluid();
+                        pump.creativeFluid = capability.getResource(0).getFluid();
                         sendTileUpdate(level, pos, state, pump);
-                        result = ItemInteractionResult.SUCCESS;
+                        result = InteractionResult.SUCCESS;
                     }
                 }
             }
@@ -164,14 +163,14 @@ public class PumpBlock extends AbstractMachineBlock implements EntityBlock {
             }
 
             pump.creativeItem = itemInHand.getItem();
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 sendTileUpdate(level, pos, state, pump);
             }
 
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     private void sendTileUpdate(Level level, BlockPos pos, BlockState state, PumpBlockEntity tile) {

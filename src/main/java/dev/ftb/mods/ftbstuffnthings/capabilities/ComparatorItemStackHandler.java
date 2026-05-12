@@ -1,35 +1,43 @@
 package dev.ftb.mods.ftbstuffnthings.capabilities;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+
+import java.util.function.Consumer;
 
 /**
  * An ItemStackHandler which supports cached comparator signal level calculation.
  * Only recalculates the signal when the contents have changed.
  */
-public class ComparatorItemStackHandler extends ItemStackHandler {
+public class ComparatorItemStackHandler extends EmittingStackHandler {
     private int signalLevel = -1;  // -1 indicates recalc needed
 
+    public ComparatorItemStackHandler(int invSize, Consumer<EmittingStackHandler> onChange) {
+        super(invSize, onChange);
+    }
+
     public ComparatorItemStackHandler(int invSize) {
-        super(invSize);
+        super(invSize, _ -> {});
     }
 
     @Override
-    protected void onContentsChanged(int slot) {
+    protected void onContentsChanged(int index, ItemStack previousContents) {
+        super.onContentsChanged(index, previousContents);
+
         invalidateComparatorValue();
     }
 
     @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-        super.deserializeNBT(provider, nbt);
+    public void deserialize(ValueInput input) {
+        super.deserialize(input);
+
         invalidateComparatorValue();
     }
 
     public int getComparatorLevel() {
         if (signalLevel < 0) {
-            signalLevel = ItemHandlerHelper.calcRedstoneFromInventory(this);
+            signalLevel = ResourceHandlerUtil.getRedstoneSignalFromResourceHandler(this);
         }
         return signalLevel;
     }

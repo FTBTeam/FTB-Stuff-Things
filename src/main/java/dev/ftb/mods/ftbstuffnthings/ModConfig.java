@@ -1,32 +1,32 @@
 package dev.ftb.mods.ftbstuffnthings;
 
-import dev.ftb.mods.ftblibrary.snbt.config.BooleanValue;
-import dev.ftb.mods.ftblibrary.snbt.config.IntValue;
-import dev.ftb.mods.ftblibrary.snbt.config.SNBTConfig;
-import dev.ftb.mods.ftblibrary.snbt.config.StringValue;
+import dev.ftb.mods.ftblibrary.config.value.BooleanValue;
+import dev.ftb.mods.ftblibrary.config.value.Config;
+import dev.ftb.mods.ftblibrary.config.value.IntValue;
+import dev.ftb.mods.ftblibrary.config.value.StringValue;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceProperties;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceType;
-import net.minecraft.Util;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.neoforged.neoforge.common.util.Lazy;
 
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
-public interface Config {
-    SNBTConfig CONFIG = SNBTConfig.create(FTBStuffNThings.MODID);
+public interface ModConfig {
+    Config CONFIG = Config.create(FTBStuffNThings.MOD_ID).standardTopLevelComment(FTBStuffNThings.MOD_NAME, FTBStuffNThings.MOD_ID, false);
 
-    SNBTConfig GENERAL_CONFIG = CONFIG.addGroup("general");
+    Config GENERAL_CONFIG = CONFIG.addGroup("general");
     BooleanValue INCLUDE_DEV_RECIPES = GENERAL_CONFIG.addBoolean("include_dev_recipes", false)
             .comment("If true, dev/testing recipes will be available outside a development environment", "Leave this false unless actually testing the mod.");
     BooleanValue HIDE_TEMPERATURE_INGREDIENTS = GENERAL_CONFIG.addBoolean("hide_temperature_ingredients", false)
             .comment("If true, the custom temperature ingredients will not be displayed");
 
-    SNBTConfig SLUICE_CONFIG = CONFIG.addGroup("sluice");
+    Config SLUICE_CONFIG = CONFIG.addGroup("sluice");
     Map<SluiceType,SluiceProperties> SLUICE_PROPERTIES = Util.make(new EnumMap<>(SluiceType.class), map -> {
         for (SluiceType type : SluiceType.values()) {
-            SNBTConfig config = SLUICE_CONFIG.addGroup(type.getSerializedName());
+            Config config = SLUICE_CONFIG.addGroup(type.getSerializedName());
             map.put(type, new SluiceProperties(
                     config.addDouble("timeMultiplier", type.defTimeMod)
                             .comment("How long it takes to process a resource in this Sluice (multiplier for recipe base tick time)"),
@@ -46,7 +46,7 @@ public interface Config {
         }
     });
 
-    SNBTConfig AUTOHAMMER_CONFIG = CONFIG.addGroup("autohammer");
+    Config AUTOHAMMER_CONFIG = CONFIG.addGroup("autohammer");
     IntValue IRON_HAMMER_SPEED = AUTOHAMMER_CONFIG.addInt("stone_hammer_speed", 50, 1, 100000)
             .comment("Speed of the iron auto-hammer as ticks taken to process a block");
     IntValue GOLD_HAMMER_SPEED = AUTOHAMMER_CONFIG.addInt("gold_hammer_speed", 40, 1, 100000)
@@ -56,7 +56,7 @@ public interface Config {
     IntValue NETHERITE_HAMMER_SPEED = AUTOHAMMER_CONFIG.addInt("netherite_hammer_speed", 15, 1, 100000)
             .comment("Speed of the netherite auto-hammer as ticks taken to process a block");
 
-    SNBTConfig COBBLEGEN_CONFIG = CONFIG.addGroup("cobblegen");
+    Config COBBLEGEN_CONFIG = CONFIG.addGroup("cobblegen");
     IntValue COBBLEGEN_TICK_RATE = COBBLEGEN_CONFIG.addInt("cobblegen_tick_rate", 20, 1, Integer.MAX_VALUE)
             .comment("The delay between each cobble generation in ticks");
     IntValue STONE_COBBLEGEN_AMOUNT = COBBLEGEN_CONFIG.addInt("stone_cobblegen_amount", 1, 1, 1000)
@@ -70,7 +70,7 @@ public interface Config {
     IntValue NETHERITE_COBBLEGEN_AMOUNT = COBBLEGEN_CONFIG.addInt("netherite_cobblegen_amount", 64, 1, 1000)
             .comment("Amount of cobble the netherite cobblegen produces per tick");
 
-    SNBTConfig BASALTGEN_CONFIG = CONFIG.addGroup("basaltgen");
+    Config BASALTGEN_CONFIG = CONFIG.addGroup("basaltgen");
     IntValue BASALTGEN_TICK_RATE = BASALTGEN_CONFIG.addInt("basaltgen_tick_rate", 20, 1, Integer.MAX_VALUE)
             .comment("The delay between each cobble generation in ticks");
     IntValue STONE_BASALTGEN_AMOUNT = BASALTGEN_CONFIG.addInt("stone_basaltgen_amount", 1, 1, 1000)
@@ -84,13 +84,13 @@ public interface Config {
     IntValue NETHERITE_BASALTGEN_AMOUNT = BASALTGEN_CONFIG.addInt("netherite_basaltgen_amount", 64, 1, 1000)
             .comment("Amount of cobble the netherite basaltgen produces per tick");
 
-    SNBTConfig WATER_STRAINER_CONFIG = CONFIG.addGroup("water_strainer");
+    Config WATER_STRAINER_CONFIG = CONFIG.addGroup("water_strainer");
     IntValue STRAINER_TICK_RATE = WATER_STRAINER_CONFIG.addInt("strainer_tick_rate", 20, 1, Integer.MAX_VALUE)
             .comment("The delay between each strainer generation in ticks");
-    StringValue STRAINER_LOOT_TABLE = WATER_STRAINER_CONFIG.addString("strainer_loot_table", FTBStuffNThings.MODID + ":custom/water_strainer_test")
+    StringValue STRAINER_LOOT_TABLE = WATER_STRAINER_CONFIG.addString("strainer_loot_table", FTBStuffNThings.MOD_ID + ":custom/water_strainer_test")
             .comment("Location of the loot table used to generate strainer loot from");
 
-    SNBTConfig PUMP_CONFIG = CONFIG.addGroup("pump");
+    Config PUMP_CONFIG = CONFIG.addGroup("pump");
     IntValue PUMP_MAX_CHARGE = PUMP_CONFIG.addInt("pump_max_charge", 6000, 1000, Integer.MAX_VALUE)
             .comment("Maximum charge the Pump can have. 20 charge is consumed for every 1000mB of water pumped");
     IntValue PUMP_CHARGEUP_AMOUNT = PUMP_CONFIG.addInt("pump_chargeup_amount", 14, 1, Integer.MAX_VALUE)
@@ -102,7 +102,7 @@ public interface Config {
         return Lazy.of(() -> SLUICE_PROPERTIES.get(type));
     }
 
-    static Optional<ResourceLocation> getStrainerLootTable() {
-        return Optional.ofNullable(ResourceLocation.tryParse(STRAINER_LOOT_TABLE.get()));
+    static Optional<Identifier> getStrainerLootTable() {
+        return Optional.ofNullable(Identifier.tryParse(STRAINER_LOOT_TABLE.get()));
     }
 }

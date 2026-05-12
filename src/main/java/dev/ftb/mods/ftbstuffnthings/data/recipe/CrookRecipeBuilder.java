@@ -2,7 +2,10 @@ package dev.ftb.mods.ftbstuffnthings.data.recipe;
 
 import dev.ftb.mods.ftbstuffnthings.crafting.ItemWithChance;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.CrookRecipe;
+import net.minecraft.data.recipes.RecipeBuilder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 
 import java.util.List;
 
@@ -31,5 +34,10 @@ public class CrookRecipeBuilder extends BaseRecipeBuilder<CrookRecipe> {
     @Override
     protected CrookRecipe buildRecipe() {
         return new CrookRecipe(ingredient, results, max, replaceDrops);
+    }
+
+    @Override
+    public ResourceKey<Recipe<?>> defaultId() {
+        return RecipeBuilder.getDefaultRecipeId(results.getFirst().item());
     }
 }

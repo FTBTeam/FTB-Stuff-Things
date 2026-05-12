@@ -19,6 +19,27 @@ import java.util.*;
 
 @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class SluiceRecipe extends BaseRecipe<SluiceRecipe> {
+    public static final MapCodec<SluiceRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+            Ingredient.CODEC.fieldOf("input").forGetter(SluiceRecipe::getIngredient),
+            ItemWithChance.CODEC.listOf().fieldOf("results").forGetter(SluiceRecipe::getResults),
+            Codec.INT.optionalFieldOf("max_results", 4).forGetter(SluiceRecipe::getMaxResults),
+            SizedFluidIngredient.CODEC.optionalFieldOf("fluid").forGetter(SluiceRecipe::getFluid),
+            Codec.FLOAT.optionalFieldOf("processing_time_multiplier", 1F).forGetter(SluiceRecipe::getProcessingTimeMultiplier),
+            MeshType.CODEC.listOf().fieldOf("mesh_types").forGetter(SluiceRecipe::getMeshTypesAsList)
+    ).apply(builder, SluiceRecipe::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, SluiceRecipe> STREAM_CODEC = StreamCodec.composite(
+            Ingredient.CONTENTS_STREAM_CODEC, SluiceRecipe::getIngredient,
+            ItemWithChance.STREAM_CODEC.apply(ByteBufCodecs.list()), SluiceRecipe::getResults,
+            ByteBufCodecs.VAR_INT, SluiceRecipe::getMaxResults,
+            ByteBufCodecs.optional(SizedFluidIngredient.STREAM_CODEC), SluiceRecipe::getFluid,
+            ByteBufCodecs.FLOAT, SluiceRecipe::getProcessingTimeMultiplier,
+            MeshType.STREAM_CODEC.apply(ByteBufCodecs.list()), SluiceRecipe::getMeshTypesAsList,
+            SluiceRecipe::new
+    );
+
+    public static final RecipeSerializer<SluiceRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     private final Ingredient ingredient;
     private final List<ItemWithChance> results;
     private final int maxResults;
@@ -74,45 +95,5 @@ public class SluiceRecipe extends BaseRecipe<SluiceRecipe> {
 
     public List<MeshType> getMeshTypesAsList() {
         return List.copyOf(meshTypes);
-    }
-
-    public interface IFactory<T extends SluiceRecipe> {
-        T create(Ingredient ingredient, List<ItemWithChance> results, int maxResults, Optional<SizedFluidIngredient> fluid, float processingTimeMultiplier, List<MeshType> meshTypes);
-    }
-
-    public static class Serializer<T extends SluiceRecipe> implements RecipeSerializer<T> {
-        private final MapCodec<T> codec;
-        private final StreamCodec<RegistryFriendlyByteBuf, T> streamCodec;
-
-        public Serializer(IFactory<T> factory) {
-            codec = RecordCodecBuilder.mapCodec(builder -> builder.group(
-                    Ingredient.CODEC_NONEMPTY.fieldOf("input").forGetter(SluiceRecipe::getIngredient),
-                    ItemWithChance.CODEC.listOf().fieldOf("results").forGetter(SluiceRecipe::getResults),
-                    Codec.INT.optionalFieldOf("max_results", 4).forGetter(SluiceRecipe::getMaxResults),
-                    SizedFluidIngredient.FLAT_CODEC.optionalFieldOf("fluid").forGetter(SluiceRecipe::getFluid),
-                    Codec.FLOAT.optionalFieldOf("processing_time_multiplier", 1F).forGetter(SluiceRecipe::getProcessingTimeMultiplier),
-                    MeshType.CODEC.listOf().fieldOf("mesh_types").forGetter(SluiceRecipe::getMeshTypesAsList)
-            ).apply(builder, factory::create));
-
-            streamCodec = StreamCodec.composite(
-                    Ingredient.CONTENTS_STREAM_CODEC, SluiceRecipe::getIngredient,
-                    ItemWithChance.STREAM_CODEC.apply(ByteBufCodecs.list()), SluiceRecipe::getResults,
-                    ByteBufCodecs.VAR_INT, SluiceRecipe::getMaxResults,
-                    ByteBufCodecs.optional(SizedFluidIngredient.STREAM_CODEC), SluiceRecipe::getFluid,
-                    ByteBufCodecs.FLOAT, SluiceRecipe::getProcessingTimeMultiplier,
-                    MeshType.STREAM_CODEC.apply(ByteBufCodecs.list()), SluiceRecipe::getMeshTypesAsList,
-                    factory::create
-            );
-        }
-
-        @Override
-        public MapCodec<T> codec() {
-            return codec;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, T> streamCodec() {
-            return streamCodec;
-        }
     }
 }

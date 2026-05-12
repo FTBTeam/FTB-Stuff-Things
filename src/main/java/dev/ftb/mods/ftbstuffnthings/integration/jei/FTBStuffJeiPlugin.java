@@ -1,6 +1,7 @@
 package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
+import dev.ftb.mods.ftbstuffnthings.client.FTBStuffNThingsClient;
 import dev.ftb.mods.ftbstuffnthings.client.screens.FusingMachineScreen;
 import dev.ftb.mods.ftbstuffnthings.client.screens.SuperCoolerScreen;
 import dev.ftb.mods.ftbstuffnthings.client.screens.TemperedJarScreen;
@@ -14,16 +15,17 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.IRecipeManager;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.IJeiRuntime;
 import mezz.jei.api.runtime.IRecipesGui;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.RecipeType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,14 +33,18 @@ import java.util.function.Function;
 
 @JeiPlugin
 public class FTBStuffJeiPlugin implements IModPlugin {
+    @Nullable
     static IJeiHelpers jeiHelpers;
-    static IRecipeManager recipeManager;
-    static IRecipesGui recipesGui;
+//    @Nullable
+//    static IRecipeManager recipeManager;
+//    @Nullable
+//    static IRecipesGui recipesGui;
 
     @Override
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
-        recipeManager = jeiRuntime.getRecipeManager();
-        recipesGui = jeiRuntime.getRecipesGui();
+//        recipeManager = jeiRuntime.getRecipeManager();
+//        recipesGui = jeiRuntime.getRecipesGui();
+        jeiHelpers = jeiRuntime.getJeiHelpers();
 
         jeiRuntime.getIngredientManager().addIngredientsAtRuntime(FTBStuffIngredientTypes.TEMPERATURE, Arrays.asList(Temperature.values()));
     }
@@ -55,8 +61,6 @@ public class FTBStuffJeiPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
-        jeiHelpers = registration.getJeiHelpers();
-
         registration.addRecipeCategories(
                 new TemperedJarCategory(),
                 new TemperatureSourceCategory(),
@@ -86,24 +90,24 @@ public class FTBStuffJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ItemsRegistry.TEMPERED_JAR.toStack(), RecipeTypes.TEMPERED_JAR);
-        registration.addRecipeCatalyst(ItemsRegistry.CREATIVE_HOT_TEMPERATURE_SOURCE.toStack(), RecipeTypes.TEMPERATURE_SOURCE);
-        registration.addRecipeCatalyst(ItemsRegistry.CREATIVE_SUPERHEATED_TEMPERATURE_SOURCE.toStack(), RecipeTypes.TEMPERATURE_SOURCE);
-        registration.addRecipeCatalyst(ItemsRegistry.CREATIVE_CHILLED_TEMPERATURE_SOURCE.toStack(), RecipeTypes.TEMPERATURE_SOURCE);
-        registration.addRecipeCatalyst(ItemsRegistry.CROOK.toStack(), RecipeTypes.CROOK);
-        registration.addRecipeCatalyst(ItemsRegistry.DRIPPER.toStack(), RecipeTypes.DRIPPER);
-        registration.addRecipeCatalyst(ItemsRegistry.FUSING_MACHINE.toStack(), RecipeTypes.FUSING_MACHINE);
-        registration.addRecipeCatalyst(ItemsRegistry.SUPER_COOLER.toStack(), RecipeTypes.SUPER_COOLER);
-        registration.addRecipeCatalyst(ItemsRegistry.WOODEN_BASIN.toStack(), RecipeTypes.WOODEN_BASIN);
+        registration.addCraftingStation(RecipeTypes.TEMPERED_JAR, ItemsRegistry.TEMPERED_JAR.toStack());
+        registration.addCraftingStation(RecipeTypes.TEMPERATURE_SOURCE, ItemsRegistry.CREATIVE_HOT_TEMPERATURE_SOURCE.toStack());
+        registration.addCraftingStation(RecipeTypes.TEMPERATURE_SOURCE, ItemsRegistry.CREATIVE_SUPERHEATED_TEMPERATURE_SOURCE.toStack());
+        registration.addCraftingStation(RecipeTypes.TEMPERATURE_SOURCE, ItemsRegistry.CREATIVE_CHILLED_TEMPERATURE_SOURCE.toStack());
+        registration.addCraftingStation(RecipeTypes.CROOK, ItemsRegistry.CROOK.toStack());
+        registration.addCraftingStation(RecipeTypes.DRIPPER, ItemsRegistry.DRIPPER.toStack());
+        registration.addCraftingStation(RecipeTypes.FUSING_MACHINE, ItemsRegistry.FUSING_MACHINE.toStack());
+        registration.addCraftingStation(RecipeTypes.SUPER_COOLER, ItemsRegistry.SUPER_COOLER.toStack());
+        registration.addCraftingStation(RecipeTypes.WOODEN_BASIN, ItemsRegistry.WOODEN_BASIN.toStack());
 
         for (var item : ItemsRegistry.ALL_HAMMERS) {
-            registration.addRecipeCatalyst(item.toStack(), RecipeTypes.HAMMER);
+            registration.addCraftingStation(RecipeTypes.HAMMER, item.toStack());
         }
         for (var block : BlocksRegistry.ALL_AUTO_HAMMERS) {
-            registration.addRecipeCatalyst(block.toStack(), RecipeTypes.HAMMER);
+            registration.addCraftingStation(RecipeTypes.HAMMER, block.toStack());
         }
         for (var block : BlocksRegistry.ALL_SLUICES) {
-            registration.addRecipeCatalyst(block.toStack(), RecipeTypes.SLUICE);
+            registration.addCraftingStation(RecipeTypes.SLUICE, block.toStack());
         }
 
 //        BlocksRegistry.waterStrainers().forEach(b -> registration.addRecipeCatalyst(b.toStack(), RecipeTypes.LOOT_SUMMARY));
@@ -118,20 +122,22 @@ public class FTBStuffJeiPlugin implements IModPlugin {
 
     @Override
     public void registerAdvanced(IAdvancedRegistration registration) {
-        registration.addTypedRecipeManagerPlugin(RecipeTypes.LOOT_SUMMARY, LootSummaryPlugin.INSTANCE);
+        registration.addSimpleRecipeManagerPlugin(RecipeTypes.LOOT_SUMMARY, LootSummaryPlugin.INSTANCE);
     }
 
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return FTBStuffNThings.id("jei_plugin");
     }
 
-    private <I extends RecipeInput, T extends Recipe<I>> void addRecipeType(IRecipeRegistration registration, net.minecraft.world.item.crafting.RecipeType<T> mcRecipeType, RecipeType<T> jeiRecipeType) {
+    private <I extends RecipeInput, T extends Recipe<I>> void addRecipeType(IRecipeRegistration registration, RecipeType<T> mcRecipeType, IRecipeType<T> jeiRecipeType) {
         addRecipeType(registration, mcRecipeType, jeiRecipeType, Function.identity());
     }
 
-    private <I extends RecipeInput, T extends Recipe<I>> void addRecipeType(IRecipeRegistration registration, net.minecraft.world.item.crafting.RecipeType<T> mcRecipeType, RecipeType<T> jeiRecipeType, Function<List<T>, List<T>> postProcessor) {
-        List<T> recipes = Minecraft.getInstance().level.getRecipeManager().getAllRecipesFor(mcRecipeType).stream()
+    private <I extends RecipeInput, T extends Recipe<I>> void addRecipeType(IRecipeRegistration registration, RecipeType<T> mcRecipeType, IRecipeType<T> jeiRecipeType, Function<List<T>, List<T>> postProcessor) {
+        var recipeMap = FTBStuffNThingsClient.getInstance().getRecipeMap();
+
+        List<T> recipes = recipeMap.byType(mcRecipeType).stream()
                 .map(RecipeHolder::value)
                 .filter(IHideableRecipe::shouldShow)
                 .toList();

@@ -11,6 +11,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,16 +35,16 @@ public record SyncJarContentsPacket(BlockPos jarPos, List<ResourceSlot> resource
 
     public static SyncJarContentsPacket wholeJar(TemperedJarBlockEntity jar) {
         List<ResourceSlot> resources = new ArrayList<>();
-        for (int i = 0; i < jar.getInputItemHandler().getSlots(); i++) {
-            ItemStack stack = jar.getInputItemHandler().getStackInSlot(i);
-            if (!stack.isEmpty()) {
-                resources.add(new ResourceSlot(i, Either.left(stack)));
+        for (int i = 0; i < jar.getInputItemHandler().size(); i++) {
+            var resource = jar.getInputItemHandler().getResource(i);
+            if (!resource.isEmpty()) {
+                resources.add(new ResourceSlot(i, Either.left(resource), jar.getInputItemHandler().getAmountAsInt(i)));
             }
         }
-        for (int i = 0; i < jar.getFluidHandler().getTanks(); i++) {
-            FluidStack stack = jar.getFluidHandler().getFluidInTank(i);
-            if (!stack.isEmpty()) {
-                resources.add(new ResourceSlot(i, Either.right(stack)));
+        for (int i = 0; i < jar.getFluidHandler().size(); i++) {
+            FluidResource resource = jar.getFluidHandler().getResource(i);
+            if (!resource.isEmpty()) {
+                resources.add(new ResourceSlot(i, Either.right(resource), jar.getFluidHandler().getAmountAsInt(i)));
             }
         }
 
@@ -50,11 +52,11 @@ public record SyncJarContentsPacket(BlockPos jarPos, List<ResourceSlot> resource
     }
 
     public static SyncJarContentsPacket oneItem(BlockPos pos, int slot, ItemStack stack) {
-        return new SyncJarContentsPacket(pos, List.of(new ResourceSlot(slot, Either.left(stack))));
+        return new SyncJarContentsPacket(pos, List.of(new ResourceSlot(slot, Either.left(ItemResource.of(stack)), stack.count())));
     }
 
     public static SyncJarContentsPacket oneFluid(BlockPos pos, int slot, FluidStack stack) {
-        return new SyncJarContentsPacket(pos, List.of(new ResourceSlot(slot, Either.right(stack))));
+        return new SyncJarContentsPacket(pos, List.of(new ResourceSlot(slot, Either.right(FluidResource.of(stack)), stack.amount())));
     }
 
     @Override
@@ -68,10 +70,11 @@ public record SyncJarContentsPacket(BlockPos jarPos, List<ResourceSlot> resource
         }
     }
 
-    public record ResourceSlot(int slot, Either<ItemStack,FluidStack> resource) {
+    public record ResourceSlot(int slot, Either<ItemResource, FluidResource> resource, int amount) {
         public static final StreamCodec<RegistryFriendlyByteBuf, ResourceSlot> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.VAR_INT, ResourceSlot::slot,
-                ByteBufCodecs.either(ItemStack.STREAM_CODEC, FluidStack.STREAM_CODEC),ResourceSlot::resource,
+                ByteBufCodecs.either(ItemResource.STREAM_CODEC, FluidResource.STREAM_CODEC),ResourceSlot::resource,
+                ByteBufCodecs.VAR_INT, ResourceSlot::amount,
                 ResourceSlot::new
         );
     }

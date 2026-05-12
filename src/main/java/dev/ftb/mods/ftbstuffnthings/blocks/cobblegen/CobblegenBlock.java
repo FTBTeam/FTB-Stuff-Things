@@ -6,7 +6,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -21,11 +20,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 public class CobblegenBlock extends Block implements EntityBlock {
     private final IResourceGenProps props;
@@ -60,11 +62,16 @@ public class CobblegenBlock extends Block implements EntityBlock {
 
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof BaseResourceGenBlockEntity baseGen && player.getMainHandItem().isEmpty()) {
-            ItemStack stack = baseGen.getInternalInventory().extractItem(0, 64, false);
-            if (!stack.isEmpty()) {
-                player.addItem(stack);
-                player.level().playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.2f, 1f);
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof BaseResourceGenBlockEntity baseGen && player.getMainHandItem().isEmpty()) {
+            try (Transaction tx = Transaction.openRoot()) {
+                var extracted = ResourceHandlerUtil.extractFirst(
+                        baseGen.getInternalInventory(), r -> r.getItem() == baseGen.generatedItem(), 64, tx
+                );
+                if (extracted != null && !extracted.isEmpty()) {
+                    player.addItem(extracted.resource().toStack(extracted.amount()));
+                    player.level().playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.2f, 1f);
+                    tx.commit();
+                }
             }
             return InteractionResult.CONSUME;
         }
@@ -90,8 +97,8 @@ public class CobblegenBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
-        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
 
         boolean hasSignal = !level.hasNeighborSignal(pos);
         if (hasSignal != state.getValue(BlockStateProperties.ENABLED)) {

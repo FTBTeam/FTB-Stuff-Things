@@ -31,7 +31,7 @@ public record SendSluiceStartPacket(BlockPos pos, int processingTime) implements
         return TYPE;
     }
 
-    public static void handleData(SendSluiceStartPacket packet, IPayloadContext context) {
+    public static void handleData(SendSluiceStartPacket packet, IPayloadContext ignoredContext) {
         ClientUtil.getBlockEntityAt(packet.pos, SluiceBlockEntity.class)
                 .ifPresent(holder -> holder.syncProcessingTimeFromServer(packet.processingTime));
     }

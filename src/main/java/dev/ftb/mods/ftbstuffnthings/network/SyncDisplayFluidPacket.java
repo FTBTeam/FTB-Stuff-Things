@@ -19,7 +19,7 @@ public record SyncDisplayFluidPacket(BlockPos pos, FluidStack fluidStack) implem
             SyncDisplayFluidPacket::new
     );
 
-    public static void handleData(SyncDisplayFluidPacket packet, IPayloadContext ctx) {
+    public static void handleData(SyncDisplayFluidPacket packet, IPayloadContext ignoredCtx) {
         ClientUtil.getBlockEntityAt(packet.pos, AbstractMachineBlockEntity.class)
                 .ifPresent(holder -> holder.syncFluidFromServer(packet.fluidStack));
     }

@@ -7,9 +7,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class SuperCoolerMenu extends AbstractMachineMenu<SuperCoolerBlockEntity> {
     public SuperCoolerMenu(int windowId, Inventory playerInventory, FriendlyByteBuf buffer) {
@@ -20,11 +22,13 @@ public class SuperCoolerMenu extends AbstractMachineMenu<SuperCoolerBlockEntity>
         super(ContentRegistry.SUPER_COOLER_MENU.get(), windowId, playerInventory, pos);
 
         int startY = 10;
-        if (blockEntity.getItemHandler() instanceof IOStackHandler handler) {
-            addSlot(new SlotItemHandler(handler.getInput(), 0, 42, startY));
-            addSlot(new SlotItemHandler(handler.getInput(), 1, 42, startY + 18));
-            addSlot(new SlotItemHandler(handler.getInput(), 2, 42, startY + (18 * 2)));
-            addSlot(new ExtractOnlySlot(handler.getOutput(), 0, 122, startY + 19));
+        if (getBlockEntity() != null && getBlockEntity().getItemHandler() instanceof IOStackHandler handler) {
+            ItemStacksResourceHandler input = handler.getInput();
+            ItemStacksResourceHandler output = handler.getOutput();
+            addSlot(new ResourceHandlerSlot(input, input::set,0, 42, startY));
+            addSlot(new ResourceHandlerSlot(input, input::set, 1, 42, startY + 18));
+            addSlot(new ResourceHandlerSlot(input, input::set, 2, 42, startY + (18 * 2)));
+            addSlot(new ExtractOnlySlot(output, output::set,0, 122, startY + 19));
         }
 
         addPlayerSlots(playerInventory, 8, 84);
@@ -32,13 +36,13 @@ public class SuperCoolerMenu extends AbstractMachineMenu<SuperCoolerBlockEntity>
         addDataSlots(containerData);
     }
 
-    public static class ExtractOnlySlot extends SlotItemHandler {
-        public ExtractOnlySlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
-            super(itemHandler, index, xPosition, yPosition);
+    public static class ExtractOnlySlot extends ResourceHandlerSlot {
+        public ExtractOnlySlot(ResourceHandler<ItemResource> itemHandler, IndexModifier<ItemResource> modifier, int index, int xPosition, int yPosition) {
+            super(itemHandler, modifier, index, xPosition, yPosition);
         }
 
         @Override
-        public boolean mayPlace(@NotNull ItemStack stack) {
+        public boolean mayPlace(ItemStack stack) {
             return false;
         }
     }

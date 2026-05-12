@@ -9,12 +9,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -28,9 +30,10 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class JarBlock extends Block implements EntityBlock, SerializableComponentsProvider {
     public static final VoxelShape SHAPE = VoxelShapeUtils.or(
@@ -60,16 +63,15 @@ public class JarBlock extends Block implements EntityBlock, SerializableComponen
     }
 
     @Override
-    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         return level.getBlockEntity(pos) instanceof JarBlockEntity jar ? jar.getComparatorSignal() : 0;
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.getBlock() != newState.getBlock()) {
-            level.updateNeighbourForOutputSignal(pos, this);
-            super.onRemove(state, level, pos, newState, movedByPiston);
-        }
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+
+        level.updateNeighbourForOutputSignal(pos, this);
     }
 
     @Override
@@ -78,11 +80,11 @@ public class JarBlock extends Block implements EntityBlock, SerializableComponen
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         ItemStack item = player.getItemInHand(hand);
 
         if (hitResult.getDirection() == Direction.UP && item.getItem() == ItemsRegistry.TUBE.get()) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
 
         if (!level.isClientSide()) {
@@ -93,7 +95,7 @@ public class JarBlock extends Block implements EntityBlock, SerializableComponen
             }
         }
 
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
@@ -101,13 +103,19 @@ public class JarBlock extends Block implements EntityBlock, SerializableComponen
         list.add(ComponentsRegistry.STORED_FLUID.get());
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public static class JarBlockItem extends BlockItem {
+        public JarBlockItem(Block block, Properties properties) {
+            super(block, properties);
+        }
 
-        FluidStack content = stack.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy();
-        if (!content.isEmpty()) {
-            tooltipComponents.add(MiscUtil.makeFluidStackDesc(content));
+        @Override
+        public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+            super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
+
+            FluidStack content = itemStack.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy();
+            if (!content.isEmpty()) {
+                builder.accept(MiscUtil.makeFluidStackDesc(content));
+            }
         }
     }
 }

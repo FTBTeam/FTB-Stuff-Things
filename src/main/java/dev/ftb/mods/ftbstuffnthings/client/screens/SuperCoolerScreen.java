@@ -4,12 +4,12 @@ import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.supercooler.SuperCoolerMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class SuperCoolerScreen extends BaseFluidAndEnergyScreen<SuperCoolerMenu> {
-    private static final ResourceLocation TEXTURE = FTBStuffNThings.id("textures/gui/super_cooler_background.png");
+    private static final Identifier TEXTURE = FTBStuffNThings.id("textures/gui/super_cooler_background.png");
 
     public SuperCoolerScreen(SuperCoolerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 3, 79, TEXTURE);

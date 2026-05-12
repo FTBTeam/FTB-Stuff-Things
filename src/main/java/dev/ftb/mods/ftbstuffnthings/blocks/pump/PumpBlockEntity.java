@@ -1,12 +1,13 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.pump;
 
-import dev.ftb.mods.ftbstuffnthings.Config;
+import dev.ftb.mods.ftbstuffnthings.ModConfig;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -16,7 +17,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.item.Item;
@@ -25,14 +25,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -52,7 +55,7 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
     public Fluid creativeFluid = Fluids.WATER;
     public Item creativeItem = null;
 
-    private final Map<Direction, BlockCapabilityCache<IFluidHandler, Direction>> capabilityCacheMap = new EnumMap<>(Direction.class);
+    private final Map<Direction, BlockCapabilityCache<ResourceHandler<FluidResource>, Direction>> capabilityCacheMap = new EnumMap<>(Direction.class);
 
     public PumpBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntitiesRegistry.PUMP.get(), pos, state);
@@ -86,11 +89,16 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
 
         int totalFilled = 0;
         for (Direction dir : OUTPUT_DIRS) {
-            var fluidCache = capabilityCacheMap.computeIfAbsent(dir, k -> BlockCapabilityCache.create(Capabilities.FluidHandler.BLOCK, serverLevel, getBlockPos().relative(dir), dir.getOpposite()));
-            IFluidHandler handler = fluidCache.getCapability();
+            var fluidCache = capabilityCacheMap.computeIfAbsent(dir, _ ->
+                    BlockCapabilityCache.create(Capabilities.Fluid.BLOCK, serverLevel, getBlockPos().relative(dir), dir.getOpposite())
+            );
+            var handler = fluidCache.getCapability();
             if (handler != null) {
-                totalFilled += handler.fill(new FluidStack(Fluids.WATER, Config.PUMP_FLUID_TRANSFER.get()), IFluidHandler.FluidAction.EXECUTE);
-                handleCreateItemInsertion(handler);
+                try (Transaction tx = Transaction.openRoot()) {
+                    totalFilled += handler.insert(FluidResource.of(Fluids.WATER), ModConfig.PUMP_FLUID_TRANSFER.get(), tx);
+                    handleCreateItemInsertion(handler, tx);
+                    tx.commit();
+                }
             }
         }
 
@@ -108,62 +116,54 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
         }
     }
 
-    private void handleCreateItemInsertion(IFluidHandler handler) {
+    private void handleCreateItemInsertion(ResourceHandler<FluidResource> handler, Transaction tx) {
         if (creative && creativeItem != null && handler instanceof SluiceBlockEntity.SluiceFluidTank sluiceFluidTank) {
             // null side bypasses item IO ability checking
-            ItemStackHandler itemHandler = sluiceFluidTank.getOwner().getItemHandler(null);
+            var itemHandler = sluiceFluidTank.getOwner().getItemHandler(null);
             if (itemHandler != null) {
-                itemHandler.insertItem(0, creativeItem.getDefaultInstance(), false);
+                itemHandler.insert(ItemResource.of(creativeItem), 1, tx);
             }
         }
     }
 
     @Override
-    protected void saveAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-        compound.putInt("time_left", this.timeLeft);
-        compound.putBoolean("is_creative", this.creative);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
 
-        if (this.creativeFluid != Fluids.WATER) {
-            ResourceLocation key = BuiltInRegistries.FLUID.getKey(this.creativeFluid);
-            compound.putString("creative_fluid", key.toString());
+        output.putInt("time_left", this.timeLeft);
+        output.putBoolean("is_creative", this.creative);
+        if (creativeFluid != Fluids.WATER) {
+            output.store("creative_fluid", FluidStack.FLUID_HOLDER_CODEC, BuiltInRegistries.FLUID.wrapAsHolder(creativeFluid));
         }
-
-        if (this.creativeItem != null) {
-            ResourceLocation key = BuiltInRegistries.ITEM.getKey(this.creativeItem);
-            compound.putString("creative_item", key.toString());
+        if (creativeItem != null) {
+            output.store("creative_item", Item.CODEC, BuiltInRegistries.ITEM.wrapAsHolder(creativeItem));
         }
     }
 
     @Override
-    protected void loadAdditional(CompoundTag compound, HolderLookup.Provider registries) {
-        this.timeLeft = compound.getInt("time_left");
-        this.creative = compound.getBoolean("is_creative");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
 
-        if (compound.contains("creative_fluid")) {
-            ResourceLocation creativeFluidFromReg = ResourceLocation.tryParse(compound.getString("creative_fluid"));
-            if (creativeFluidFromReg != null) {
-                this.creativeFluid = BuiltInRegistries.FLUID.get(creativeFluidFromReg);
-            }
-        }
+        timeLeft = input.getIntOr("time_left", 0);
+        creative = input.getBooleanOr("is_creative", false);
+        creativeFluid = input.read("creative_fluid", FluidStack.FLUID_HOLDER_CODEC)
+                .map(Holder::value).orElse(Fluids.WATER);
+        creativeItem = input.read("creative_item", Item.CODEC)
+                .map(Holder::value).orElse(null);
 
-        if (compound.contains("creative_item")) {
-            ResourceLocation creativeItemFromReg = ResourceLocation.tryParse(compound.getString("creative_item"));
-            if (creativeItemFromReg != null) {
-                this.creativeItem = BuiltInRegistries.ITEM.get(creativeItemFromReg);
-            }
-        }
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var data = new CompoundTag();
-        this.saveAdditional(data, registries);
-        return data;
+//        var data = new CompoundTag();
+//        this.saveAdditional(data, registries);
+//        return data;
+        return new CompoundTag();
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        this.loadAdditional(tag, lookupProvider);
+    public void handleUpdateTag(ValueInput input) {
+//        super.handleUpdateTag(input);
     }
 
     @Nullable
@@ -173,22 +173,22 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        this.loadAdditional(pkt.getTag(), lookupProvider);
+    public void onDataPacket(Connection net, ValueInput valueInput) {
+//        loadAdditional(valueInput);
     }
 
     @Override
-    public @Nullable IItemHandler getItemHandler(@Nullable Direction side) {
+    public @Nullable ResourceHandler<ItemResource> getItemHandler(@Nullable Direction side) {
         return null;
     }
 
     @Override
-    public @Nullable IFluidHandler getFluidHandler(@Nullable Direction side) {
+    public @Nullable ResourceHandler<FluidResource> getFluidHandler(@Nullable Direction side) {
         return null;
     }
 
     @Override
-    public @Nullable IEnergyStorage getEnergyHandler(@Nullable Direction side) {
+    public @Nullable EnergyHandler getEnergyHandler(@Nullable Direction side) {
         return null;
     }
 
@@ -197,12 +197,12 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
     }
 
     public boolean windUp() {
-        int maxCharge = Config.PUMP_MAX_CHARGE.get();
+        int maxCharge = ModConfig.PUMP_MAX_CHARGE.get();
 
         if (timeLeft >= maxCharge) {
             return false;
         }
-        timeLeft = Math.min(maxCharge, timeLeft + Config.PUMP_CHARGEUP_AMOUNT.get());
+        timeLeft = Math.min(maxCharge, timeLeft + ModConfig.PUMP_CHARGEUP_AMOUNT.get());
 
         updatePumpProgress();
         setChanged();
@@ -231,8 +231,8 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
 
     private void setPumpProgress(PumpBlock.Progress progress) {
         level.setBlock(getBlockPos(), getBlockState()
-                .setValue(AbstractMachineBlock.ACTIVE, true)
-                .setValue(PumpBlock.PROGRESS, progress),
+                        .setValue(AbstractMachineBlock.ACTIVE, true)
+                        .setValue(PumpBlock.PROGRESS, progress),
                 Block.UPDATE_ALL);
     }
 }

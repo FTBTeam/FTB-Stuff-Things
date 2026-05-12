@@ -1,14 +1,14 @@
 package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
 import com.google.common.base.MoreObjects;
-import dev.ftb.mods.ftbstuffnthings.Config;
+import dev.ftb.mods.ftbstuffnthings.ModConfig;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.ingredients.subtypes.UidContext;
-import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 
 public enum TemperatureHelper implements IIngredientHelper<Temperature> {
     INSTANCE;
@@ -24,17 +24,12 @@ public enum TemperatureHelper implements IIngredientHelper<Temperature> {
     }
 
     @Override
-    public String getUniqueId(Temperature ingredient, UidContext context) {
-        return ingredient.getSerializedName();
-    }
-
-    @Override
     public Object getUid(Temperature ingredient, UidContext context) {
         return ingredient.getSerializedName();
     }
 
     @Override
-    public ResourceLocation getResourceLocation(Temperature ingredient) {
+    public Identifier getIdentifier(Temperature ingredient) {
         return FTBStuffNThings.id(ingredient.getSerializedName());
     }
 
@@ -45,7 +40,7 @@ public enum TemperatureHelper implements IIngredientHelper<Temperature> {
 
     @Override
     public boolean isHiddenFromRecipeViewersByTags(Temperature ingredient) {
-        return Config.HIDE_TEMPERATURE_INGREDIENTS.get();
+        return ModConfig.HIDE_TEMPERATURE_INGREDIENTS.get();
     }
 
     @Override

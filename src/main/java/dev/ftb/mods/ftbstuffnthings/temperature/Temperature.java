@@ -7,16 +7,15 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
-import org.joml.Vector3f;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public enum Temperature implements StringRepresentable {
-	NORMAL("normal", new DustParticleOptions(new Vector3f(0.9F, 0.9F, 0.9F), 1F), 0.1F, ChatFormatting.GRAY),
+	NORMAL("normal", new DustParticleOptions(0xFFE0E0E0, 1F), 0.1F, ChatFormatting.GRAY),
 	HOT("hot", ParticleTypes.FLAME, 0.1F, ChatFormatting.GOLD),
 	SUPERHEATED("superheated", ParticleTypes.SOUL_FIRE_FLAME, 0.1F, ChatFormatting.AQUA),
 	CHILLED("chilled", ParticleTypes.END_ROD, 0.3F, ChatFormatting.BLUE);
@@ -26,8 +25,8 @@ public enum Temperature implements StringRepresentable {
 
 	private final String id;
 	private final Component name;
-	private final ResourceLocation texture;
-	private final Icon icon;
+	private final Identifier texture;
+	private final Icon<?> icon;
 	private final ParticleOptions particleOptions;
 	private final float particleYOffset;
 	private final ChatFormatting color;
@@ -38,7 +37,7 @@ public enum Temperature implements StringRepresentable {
 		this.particleYOffset = particleYOffset;
 		this.color = color;
 
-		name = Component.translatable(FTBStuffNThings.MODID + ".temperature." + this.id);
+		name = Component.translatable(FTBStuffNThings.MOD_ID + ".temperature." + this.id);
 		texture = FTBStuffNThings.id("textures/gui/temperature/" + this.id + ".png");
 		icon = Icon.getIcon(texture);
 	}
@@ -52,11 +51,11 @@ public enum Temperature implements StringRepresentable {
 		return name.copy().withStyle(color);
 	}
 
-	public ResourceLocation getTexture() {
+	public Identifier getTexture() {
 		return texture;
 	}
 
-	public Icon getIcon() {
+	public Icon<?> getIcon() {
 		return icon;
 	}
 

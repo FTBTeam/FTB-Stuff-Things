@@ -8,6 +8,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.ftb.mods.ftbstuffnthings.crafting.BaseRecipe;
+import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
 import net.minecraft.commands.arguments.blocks.BlockPredicateArgument;
@@ -19,7 +20,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -35,6 +38,25 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DripperRecipe extends BaseRecipe<DripperRecipe> {
+	public static final MapCodec<DripperRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+			Codec.STRING.fieldOf("input").forGetter(DripperRecipe::getInputStateStr),
+			Codec.STRING.fieldOf("output").forGetter(DripperRecipe::getOutputStateStr),
+			FluidStack.CODEC.fieldOf("fluid").forGetter(DripperRecipe::getFluid),
+			Codec.DOUBLE.validate(MiscUtil::validateChanceRange).optionalFieldOf("chance", 1.0).forGetter(DripperRecipe::getChance),
+			Codec.BOOL.optionalFieldOf("consume_fluid_on_fail", false).forGetter(DripperRecipe::consumeFluidOnFail)
+	).apply(builder, DripperRecipe::new));
+
+	private static final StreamCodec<RegistryFriendlyByteBuf, DripperRecipe> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.STRING_UTF8, DripperRecipe::getInputStateStr,
+			ByteBufCodecs.STRING_UTF8, DripperRecipe::getOutputStateStr,
+			FluidStack.STREAM_CODEC, DripperRecipe::getFluid,
+			ByteBufCodecs.DOUBLE, DripperRecipe::getChance,
+			ByteBufCodecs.BOOL, DripperRecipe::consumeFluidOnFail,
+			DripperRecipe::new
+	);
+
+	public static final RecipeSerializer<DripperRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
 	private final String inputStateStr;
 	private final BlockPredicateArgument.Result inputPredicate;
 	private final String outputString;
@@ -53,13 +75,13 @@ public class DripperRecipe extends BaseRecipe<DripperRecipe> {
 		this.consumeFluidOnFail = consumeFluidOnFail;
 
 		try {
-			inputPredicate = BlockPredicateArgument.parse(BuiltInRegistries.BLOCK.asLookup(), new StringReader(inputStateStr));
+			inputPredicate = BlockPredicateArgument.parse(BuiltInRegistries.BLOCK, new StringReader(inputStateStr));
 		} catch (CommandSyntaxException e) {
 			throw new JsonSyntaxException(e);
 		}
 
 		try {
-			BlockStateParser.BlockResult blockResult = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), new StringReader(outputStateStr), false);
+			BlockStateParser.BlockResult blockResult = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK, new StringReader(outputStateStr), false);
 			outputState = blockResult.blockState();
 		} catch (CommandSyntaxException e) {
 			throw new JsonSyntaxException(e);
@@ -107,7 +129,7 @@ public class DripperRecipe extends BaseRecipe<DripperRecipe> {
 	 */
 	public Either<ItemStack, Fluid> getOutputItemOrFluid() {
 		Block b = outputState.getBlock();
-        return b instanceof LiquidBlock l ?
+		return b instanceof LiquidBlock l ?
 				Either.right(l.fluid) :
 				Either.left(b.asItem().getDefaultInstance());
 	}
@@ -132,43 +154,5 @@ public class DripperRecipe extends BaseRecipe<DripperRecipe> {
 		// note: just checking for a fluid match; not checking amount here
 		return FluidStack.isSameFluidSameComponents(fluidInDripper, fluid)
 				&& inputPredicate.test(new BlockInWorld(level, pos, false));
-	}
-
-	public interface IFactory<T extends DripperRecipe> {
-		T create(String inputString, String outputString, FluidStack fluid, double chance, boolean consumeFluidOnFail);
-	}
-
-	public static class Serializer<T extends DripperRecipe> implements RecipeSerializer<T> {
-		private final MapCodec<T> codec;
-		private final StreamCodec<RegistryFriendlyByteBuf,T> streamCodec;
-
-		public Serializer(IFactory<T> factory) {
-			this.codec = RecordCodecBuilder.mapCodec(builder -> builder.group(
-					Codec.STRING.fieldOf("input").forGetter(DripperRecipe::getInputStateStr),
-					Codec.STRING.fieldOf("output").forGetter(DripperRecipe::getOutputStateStr),
-					FluidStack.CODEC.fieldOf("fluid").forGetter(DripperRecipe::getFluid),
-					Codec.DOUBLE.validate(MiscUtil::validateChanceRange).optionalFieldOf("chance", 1.0).forGetter(DripperRecipe::getChance),
-					Codec.BOOL.optionalFieldOf("consume_fluid_on_fail", false).forGetter(DripperRecipe::consumeFluidOnFail)
-			).apply(builder, factory::create));
-
-			this.streamCodec = StreamCodec.composite(
-					ByteBufCodecs.STRING_UTF8, DripperRecipe::getInputStateStr,
-					ByteBufCodecs.STRING_UTF8, DripperRecipe::getOutputStateStr,
-					FluidStack.STREAM_CODEC, DripperRecipe::getFluid,
-					ByteBufCodecs.DOUBLE, DripperRecipe::getChance,
-					ByteBufCodecs.BOOL, DripperRecipe::consumeFluidOnFail,
-					factory::create
-			);
-		}
-
-		@Override
-		public MapCodec<T> codec() {
-			return codec;
-		}
-
-		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, T> streamCodec() {
-			return streamCodec;
-		}
 	}
 }

@@ -1,19 +1,13 @@
 package dev.ftb.mods.ftbstuffnthings.blocks;
 
-import dev.ftb.mods.ftbstuffnthings.client.ClientUtil;
-import dev.ftb.mods.ftbstuffnthings.registry.ComponentsRegistry;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -31,16 +25,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidActionResult;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.SimpleFluidContent;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.wrapper.PlayerInvWrapper;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import org.jspecify.annotations.Nullable;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
@@ -99,43 +85,41 @@ public abstract class AbstractMachineBlock extends Block implements EntityBlock 
         return state;
     }
 
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    // TODO tooltips for block items
 
-        if (context.level() != null) {
-            if (context.level().isClientSide) {
-                ClientUtil.maybeAddBlockTooltip(stack, tooltipComponents);
-            }
-            int energy = stack.getOrDefault(ComponentsRegistry.STORED_ENERGY, 0);
-            if (energy > 0) {
-                tooltipComponents.add(Component.translatable("ftbstuff.tooltip.energy", energy).withStyle(ChatFormatting.YELLOW));
-            }
-            FluidStack fluidStack = stack.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy();
-            if (!fluidStack.isEmpty()) {
-                tooltipComponents.add(Component.translatable("ftbstuff.tooltip.fluid", fluidStack.getAmount(), fluidStack.getHoverName()).withStyle(ChatFormatting.YELLOW));
-            }
-        }
-    }
+//    @Override
+//    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+//        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+//
+//        if (context.level() != null) {
+//            if (context.level().isClientSide()) {
+//                ClientUtil.maybeAddBlockTooltip(stack, tooltipComponents);
+//            }
+//            int energy = stack.getOrDefault(ComponentsRegistry.STORED_ENERGY, 0);
+//            if (energy > 0) {
+//                tooltipComponents.add(Component.translatable("ftbstuff.tooltip.energy", energy).withStyle(ChatFormatting.YELLOW));
+//            }
+//            FluidStack fluidStack = stack.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy();
+//            if (!fluidStack.isEmpty()) {
+//                tooltipComponents.add(Component.translatable("ftbstuff.tooltip.fluid", fluidStack.getAmount(), fluidStack.getHoverName()).withStyle(ChatFormatting.YELLOW));
+//            }
+//        }
+//    }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (!level.isClientSide()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof AbstractMachineBlockEntity machine) {
-                IFluidHandler handler = machine.getFluidHandler(hitResult.getDirection());
-                if (handler != null) {
-                    // handle filling/emptying with bucket (or other fluid containing item)
-                    if (FluidUtil.interactWithFluidHandler(player, hand, handler)) {
-                        return ItemInteractionResult.CONSUME;
-                    }
-                }
+            if (blockEntity instanceof AbstractMachineBlockEntity
+                    && FluidUtil.interactWithFluidHandler(player, hand, player.level(), pos, hitResult.getDirection()))
+            {
+                return InteractionResult.CONSUME;
             }
             if (blockEntity instanceof MenuProvider menuProvider) {
                 player.openMenu(menuProvider, pos);
             }
         }
-        return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     @Nullable
@@ -152,38 +136,28 @@ public abstract class AbstractMachineBlock extends Block implements EntityBlock 
         };
     }
 
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean bl) {
-        if (state.getBlock() != newState.getBlock()) {
-            if (level.getBlockEntity(pos) instanceof AbstractMachineBlockEntity machine) {
-                machine.dropItemContents();
-            }
-        }
-
-        super.onRemove(state, level, pos, newState, bl);
-    }
-
-
-    private static boolean doFluidInteraction(BlockEntity te, Direction face, Player player, InteractionHand hand, boolean isInserting) {
-        ItemStack stack = player.getItemInHand(hand);
-        return FluidUtil.getFluidHandler(stack).map(stackHandler -> {
-            IFluidHandler handler = te.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, te.getBlockPos(), te.getBlockState(), te, face);
-            if (handler != null) {
-                if (stackHandler.getTanks() == 0) return false;
-                int capacity = stackHandler.getTankCapacity(0);
-                PlayerInvWrapper invWrapper = new PlayerInvWrapper(player.getInventory());
-                FluidActionResult result = isInserting ?
-                        FluidUtil.tryEmptyContainerAndStow(player.getItemInHand(hand), handler, invWrapper, capacity, player, true) :
-                        FluidUtil.tryFillContainerAndStow(player.getItemInHand(hand), handler, invWrapper, capacity, player, true);
-                if (result.isSuccess()) {
-                    player.setItemInHand(hand, result.getResult());
-                    return true;
-                }
-                return false;
-            }
-            return false;
-        }).orElse(false);
-    }
+//    private static boolean doFluidInteraction(BlockEntity te, Direction face, Player player, InteractionHand hand, boolean isInserting) {
+//        return net.neoforged.neoforge.transfer.fluid.FluidUtil.interactWithFluidHandler(player, hand, player.level(), te.getBlockPos(), face);
+//
+//        ItemStack stack = player.getItemInHand(hand);
+//        return FluidUtil.getFluidHandler(stack).map(stackHandler -> {
+//            IFluidHandler handler = te.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, te.getBlockPos(), te.getBlockState(), te, face);
+//            if (handler != null) {
+//                if (stackHandler.getTanks() == 0) return false;
+//                int capacity = stackHandler.getTankCapacity(0);
+//                PlayerInvWrapper invWrapper = new PlayerInvWrapper(player.getInventory());
+//                FluidActionResult result = isInserting ?
+//                        FluidUtil.tryEmptyContainerAndStow(player.getItemInHand(hand), handler, invWrapper, capacity, player, true) :
+//                        FluidUtil.tryFillContainerAndStow(player.getItemInHand(hand), handler, invWrapper, capacity, player, true);
+//                if (result.isSuccess()) {
+//                    player.setItemInHand(hand, result.getResult());
+//                    return true;
+//                }
+//                return false;
+//            }
+//            return false;
+//        }).orElse(false);
+//    }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {

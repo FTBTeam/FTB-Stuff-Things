@@ -4,22 +4,20 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.ftb.mods.ftbstuffnthings.crafting.BaseRecipe;
 import dev.ftb.mods.ftbstuffnthings.crafting.IHideableRecipe;
 import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
 import dev.ftb.mods.ftbstuffnthings.temperature.TemperatureAndEfficiency;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -32,7 +30,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TemperatureSourceRecipe implements Recipe<NoInventory>, IHideableRecipe {
+public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe> implements IHideableRecipe {
+    public static final MapCodec<TemperatureSourceRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+            Codec.STRING.fieldOf("blockstate")
+                    .forGetter(TemperatureSourceRecipe::getBlockStateStr),
+            StringRepresentable.fromEnum(Temperature::values).optionalFieldOf("temperature", Temperature.NORMAL)
+                    .forGetter(TemperatureSourceRecipe::getTemperature),
+            Codec.DOUBLE.optionalFieldOf("efficiency", 1.0)
+                    .forGetter(TemperatureSourceRecipe::getEfficiency),
+            ItemStack.OPTIONAL_CODEC.optionalFieldOf("display_item", ItemStack.EMPTY)
+                    .forGetter(TemperatureSourceRecipe::getDisplayStack),
+            Codec.BOOL.optionalFieldOf("hide_from_jei", false)
+                    .forGetter(TemperatureSourceRecipe::hideFromJEI)
+    ).apply(builder, TemperatureSourceRecipe::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, TemperatureSourceRecipe> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, TemperatureSourceRecipe::getBlockStateStr,
+            NeoForgeStreamCodecs.enumCodec(Temperature.class), TemperatureSourceRecipe::getTemperature,
+            ByteBufCodecs.DOUBLE, TemperatureSourceRecipe::getEfficiency,
+            ItemStack.OPTIONAL_STREAM_CODEC, TemperatureSourceRecipe::getDisplayStack,
+            ByteBufCodecs.BOOL, TemperatureSourceRecipe::hideFromJEI,
+            TemperatureSourceRecipe::new
+    );
+
+    public static final RecipeSerializer<TemperatureSourceRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
     private final String blockStateStr;
     private final BlockState blockState;
     private final TemperatureAndEfficiency temperatureAndEfficiency;
@@ -41,12 +63,14 @@ public class TemperatureSourceRecipe implements Recipe<NoInventory>, IHideableRe
     private final Map<String,String> predicates;
 
     public TemperatureSourceRecipe(String blockStateStr, Temperature temperature, double efficiency, ItemStack stack, boolean hideFromJEI) {
+        super(RecipesRegistry.TEMPERATURE_SOURCE_SERIALIZER, RecipesRegistry.TEMPERATURE_SOURCE_TYPE);
+
         this.temperatureAndEfficiency = new TemperatureAndEfficiency(temperature, efficiency);
         this.stack = stack;
         this.hideFromJEI = hideFromJEI;
         this.blockStateStr = blockStateStr;
         try {
-            this.blockState = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), blockStateStr, false).blockState();
+            this.blockState = BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK, blockStateStr, false).blockState();
         } catch (CommandSyntaxException e) {
             throw new IllegalArgumentException("invalid blockstate: " + blockStateStr);
         }
@@ -76,31 +100,6 @@ public class TemperatureSourceRecipe implements Recipe<NoInventory>, IHideableRe
     @Override
     public boolean matches(NoInventory input, Level level) {
         return true;
-    }
-
-    @Override
-    public ItemStack assemble(NoInventory input, HolderLookup.Provider registries) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return true;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return ItemStack.EMPTY;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
-        return RecipesRegistry.TEMPERATURE_SOURCE_SERIALIZER.get();
-    }
-
-    @Override
-    public RecipeType<?> getType() {
-        return RecipesRegistry.TEMPERATURE_SOURCE_TYPE.get();
     }
 
     public BlockState getBlockState() {
@@ -153,48 +152,5 @@ public class TemperatureSourceRecipe implements Recipe<NoInventory>, IHideableRe
         }
 
         return true;
-    }
-
-    public interface IFactory<T extends TemperatureSourceRecipe> {
-        T create(String blockState, Temperature temperature, double efficiency, ItemStack stack, boolean hideFromJEI);
-    }
-
-    public static class Serializer<T extends TemperatureSourceRecipe> implements RecipeSerializer<T> {
-        private final MapCodec<T> codec;
-        private final StreamCodec<RegistryFriendlyByteBuf,T> streamCodec;
-
-        public Serializer(IFactory<T> factory) {
-            this.codec = RecordCodecBuilder.mapCodec(builder -> builder.group(
-                    Codec.STRING.fieldOf("blockstate")
-                            .forGetter(TemperatureSourceRecipe::getBlockStateStr),
-                    StringRepresentable.fromEnum(Temperature::values).optionalFieldOf("temperature", Temperature.NORMAL)
-                            .forGetter(TemperatureSourceRecipe::getTemperature),
-                    Codec.DOUBLE.optionalFieldOf("efficiency", 1.0)
-                            .forGetter(TemperatureSourceRecipe::getEfficiency),
-                    ItemStack.OPTIONAL_CODEC.optionalFieldOf("display_item", ItemStack.EMPTY)
-                            .forGetter(TemperatureSourceRecipe::getDisplayStack),
-                    Codec.BOOL.optionalFieldOf("hide_from_jei", false)
-                            .forGetter(TemperatureSourceRecipe::hideFromJEI)
-            ).apply(builder, factory::create));
-
-            this.streamCodec = StreamCodec.composite(
-                    ByteBufCodecs.STRING_UTF8, TemperatureSourceRecipe::getBlockStateStr,
-                    NeoForgeStreamCodecs.enumCodec(Temperature.class), TemperatureSourceRecipe::getTemperature,
-                    ByteBufCodecs.DOUBLE, TemperatureSourceRecipe::getEfficiency,
-                    ItemStack.OPTIONAL_STREAM_CODEC, TemperatureSourceRecipe::getDisplayStack,
-                    ByteBufCodecs.BOOL, TemperatureSourceRecipe::hideFromJEI,
-                    factory::create
-            );
-        }
-
-        @Override
-        public MapCodec<T> codec() {
-            return codec;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, T> streamCodec() {
-            return streamCodec;
-        }
     }
 }

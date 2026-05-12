@@ -9,7 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,10 +31,10 @@ public class LootSummaryCollection {
 
     private static final StreamCodec<FriendlyByteBuf, ResourceKey<?>> RESOURCE_KEY_STREAM_CODEC = StreamCodec.of(
             (buffer, value) -> {
-                buffer.writeResourceLocation(value.registry());
-                buffer.writeResourceLocation(value.location());
+                buffer.writeIdentifier(value.registry());
+                buffer.writeIdentifier(value.identifier());
             },
-            buffer -> createKey(buffer.readResourceLocation(), buffer.readResourceLocation())
+            buffer -> createKey(buffer.readIdentifier(), buffer.readIdentifier())
     );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, LootSummaryCollection> STREAM_CODEC = StreamCodec.composite(
@@ -56,7 +56,7 @@ public class LootSummaryCollection {
         this(new HashMap<>(), new HashMap<>());
     }
 
-    public void addEntry(ResourceKey<Block> key, ResourceLocation tableId, LootParams lootParams) {
+    public void addEntry(ResourceKey<Block> key, Identifier tableId, LootParams lootParams) {
         ResourceKey<LootTable> tableKey = ResourceKey.create(Registries.LOOT_TABLE, tableId);
         LootTable lootTable = lootParams.getLevel().getServer().reloadableRegistries().getLootTable(tableKey);
         LootSummary summary = LootSummary.forLootTable(lootTable, lootParams);
@@ -65,7 +65,7 @@ public class LootSummaryCollection {
     }
 
     private static LootParams makeBlockParams(ServerPlayer serverPlayer, BlockState state) {
-        return new LootParams.Builder(serverPlayer.serverLevel())
+        return new LootParams.Builder(serverPlayer.level())
                 .withParameter(LootContextParams.BLOCK_STATE, state)
                 .withParameter(LootContextParams.ORIGIN, Vec3.ZERO)
                 .withParameter(LootContextParams.TOOL, Items.DIAMOND_PICKAXE.getDefaultInstance())
@@ -83,7 +83,7 @@ public class LootSummaryCollection {
         return CLIENT_SUMMARY;
     }
 
-    private static <T> ResourceKey<T> createKey(ResourceLocation reg, ResourceLocation loc) {
+    private static <T> ResourceKey<T> createKey(Identifier reg, Identifier loc) {
         ResourceKey<Registry<T>> key = ResourceKey.createRegistryKey(reg);
         return ResourceKey.create(key, loc);
     }

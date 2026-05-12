@@ -13,21 +13,27 @@ import dev.ftb.mods.ftbstuffnthings.items.MeshType;
 import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
-import net.minecraft.Util;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -36,6 +42,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -47,17 +54,21 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class RecipesGenerator extends RecipeProvider {
-    public RecipesGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    public RecipesGenerator(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
+    }
+
+    private static ResourceKey<Recipe<?>> key(String id) {
+        return ResourceKey.create(Registries.RECIPE, FTBStuffNThings.id(id));
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput output) {
+    protected void buildRecipes() {
         // cast iron nuggets/ingots/blocks/etc.
         shaped(ItemsRegistry.CAST_IRON_INGOT.get(), Items.IRON_INGOT,
                 "NNN/NNN/NNN",
                 'N', FTBStuffTags.Items.NUGGETS_CAST_IRON
-        ).save(output, FTBStuffNThings.id("cast_iron_ingot_from_nugget"));
+        ).save(output, key("cast_iron_ingot_from_nugget"));
         shaped(BlocksRegistry.CAST_IRON_BLOCK.get(), ItemsRegistry.CAST_IRON_INGOT.get(),
                 "III/III/III",
                 'I', FTBStuffTags.Items.INGOTS_CAST_IRON
@@ -67,20 +78,20 @@ public class RecipesGenerator extends RecipeProvider {
                 'I', FTBStuffTags.Items.INGOTS_CAST_IRON
         ).save(output);
         shapeless(ItemsRegistry.CAST_IRON_INGOT.get(), 9, BlocksRegistry.CAST_IRON_BLOCK.get())
-                .save(output, FTBStuffNThings.id("cast_iron_ingot_from_block"));
+                .save(output, key("cast_iron_ingot_from_block"));
         shapeless(ItemsRegistry.CAST_IRON_NUGGET.get(), 9, ItemsRegistry.CAST_IRON_INGOT.get())
                 .save(output);
-        SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(Tags.Items.INGOTS_IRON), RecipeCategory.MISC,
+        SimpleCookingRecipeBuilder.campfireCooking(tagIngredient(Tags.Items.INGOTS_IRON), RecipeCategory.MISC,
                 ItemsRegistry.CAST_IRON_INGOT.get(), 0.1f, 600
-        ).unlockedBy("has_ingot", has(Tags.Items.INGOTS_IRON)).save(output, FTBStuffNThings.id("cast_iron_ingot_from_campfire"));
+        ).unlockedBy("has_ingot", has(Tags.Items.INGOTS_IRON)).save(output, key("cast_iron_ingot_from_campfire"));
 
         // tempered glass
-        SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(Tags.Items.GLASS_PANES), RecipeCategory.MISC,
+        SimpleCookingRecipeBuilder.campfireCooking(tagIngredient(Tags.Items.GLASS_PANES), RecipeCategory.MISC,
                 ItemsRegistry.TEMPERED_GLASS.get(), 0.1f, 600
-        ).unlockedBy("has_glass", has(Tags.Items.GLASS_PANES)).save(output, FTBStuffNThings.id("tempered_glass_from_campfire"));
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Tags.Items.GLASS_PANES), RecipeCategory.MISC,
-                ItemsRegistry.TEMPERED_GLASS.get(), 0.1f, 200
-        ).unlockedBy("has_glass", has(Tags.Items.GLASS_PANES)).save(output, FTBStuffNThings.id("tempered_glass_from_furnace"));
+        ).unlockedBy("has_glass", has(Tags.Items.GLASS_PANES)).save(output, key("tempered_glass_from_campfire"));
+        SimpleCookingRecipeBuilder.smelting(tagIngredient(Tags.Items.GLASS_PANES), RecipeCategory.MISC, CookingBookCategory.BLOCKS,
+                ItemsRegistry.TEMPERED_GLASS, 0.1f, 200
+        ).unlockedBy("has_glass", has(Tags.Items.GLASS_PANES)).save(output, key("tempered_glass_from_furnace"));
 
         // jars
         shaped(ItemsRegistry.TEMPERED_JAR.get(), ItemsRegistry.TEMPERED_GLASS,
@@ -167,7 +178,7 @@ public class RecipesGenerator extends RecipeProvider {
         shaped(BlocksRegistry.IRON_SLUICE.get(), Items.STICK,
                 "IC/SI",
                 'I', Tags.Items.INGOTS_IRON,
-                'C', Items.CHAIN,
+                'C', Items.IRON_CHAIN,
                 'S', FTBStuffTags.Items.WOODEN_SLUICES
         ).save(output);
         shaped(BlocksRegistry.DIAMOND_SLUICE.get(), Items.STICK,
@@ -175,7 +186,7 @@ public class RecipesGenerator extends RecipeProvider {
                 'D', Tags.Items.GEMS_DIAMOND,
                 'S', BlocksRegistry.IRON_SLUICE.get()
         ).save(output);
-        netheriteSmithing(output, BlocksRegistry.DIAMOND_SLUICE.asItem(), RecipeCategory.TOOLS, BlocksRegistry.NETHERITE_SLUICE.asItem());
+        netheriteSmithing(BlocksRegistry.DIAMOND_SLUICE.asItem(), RecipeCategory.TOOLS, BlocksRegistry.NETHERITE_SLUICE.asItem());
 
         // hammers & autohammers
         shapedHammer(ItemsRegistry.STONE_HAMMER, Items.COBBLESTONE, Tags.Items.COBBLESTONES, output);
@@ -212,7 +223,7 @@ public class RecipesGenerator extends RecipeProvider {
 
     private void compressedBlockRecipe(RecipeOutput output, String id) {
         BlocksRegistry.compressedBlocks(id).forEach(block -> {
-            Block baseBlock = BuiltInRegistries.BLOCK.getOptional(ResourceLocation.withDefaultNamespace(id))
+            Block baseBlock = BuiltInRegistries.BLOCK.getOptional(Identifier.withDefaultNamespace(id))
                     .orElseGet(() -> BuiltInRegistries.BLOCK.getOptional(FTBStuffNThings.id(id)).orElseThrow());
             Block prevBlock = null;
             String path = block.getId().getPath();
@@ -228,9 +239,9 @@ public class RecipesGenerator extends RecipeProvider {
 
             prevBlock = Objects.requireNonNullElse(prevBlock, baseBlock);
             shaped(block.get(), baseBlock, "AAA/AAA/AAA", 'A', prevBlock)
-                    .save(output, FTBStuffNThings.id("compressed/" + block.getId().getPath() + "_3x3"));
+                    .save(output, key("compressed/" + block.getId().getPath() + "_3x3"));
             shapeless(prevBlock, 9, baseBlock, block.get())
-                    .save(output, FTBStuffNThings.id("compressed/" + BuiltInRegistries.BLOCK.getKey(prevBlock).getPath() + "_shapeless"));
+                    .save(output, key("compressed/" + BuiltInRegistries.BLOCK.getKey(prevBlock).getPath() + "_shapeless"));
         });
     }
 
@@ -282,27 +293,30 @@ public class RecipesGenerator extends RecipeProvider {
     private void temperedJarRecipes(RecipeOutput output) {
         // testing recipes; note the use of DevEnvironmentCondition
 
-        temperedJar(List.of(SizedIngredient.of(Tags.Items.COBBLESTONES, 4)), List.of(),
+        temperedJar(List.of(new SizedIngredient(tagIngredient(Tags.Items.COBBLESTONES), 4)), List.of(),
                 List.of(), List.of(new FluidStack(Fluids.LAVA, 10)),
                 Temperature.SUPERHEATED
         ).saveTest(output, FTBStuffNThings.id("cobble_to_lava"));
 
         temperedJar(
-                List.of(SizedIngredient.of(Tags.Items.DUSTS_REDSTONE, 1)),
+                List.of(new SizedIngredient(tagIngredient(Tags.Items.DUSTS_REDSTONE), 1)),
                 List.of(SizedFluidIngredient.of(Fluids.WATER, 1000)),
                 List.of(),
                 List.of(new FluidStack(Fluids.LAVA, 1000)),
                 Temperature.HOT
         ).saveTest(output, FTBStuffNThings.id("redstone_to_lava"));
         temperedJar(
-                List.of(SizedIngredient.of(Tags.Items.DUSTS_REDSTONE, 8)),
+                List.of(new SizedIngredient(tagIngredient(Tags.Items.DUSTS_REDSTONE), 8)),
                 List.of(SizedFluidIngredient.of(Fluids.WATER, 8000)),
                 List.of(),
                 List.of(new FluidStack(Fluids.LAVA, 8000)),
                 Temperature.HOT
         ).saveTest(output, FTBStuffNThings.id("redstone_to_lava_x8"));
         temperedJar(
-                List.of(SizedIngredient.of(Tags.Items.DUSTS_REDSTONE, 1), SizedIngredient.of(Tags.Items.DUSTS_GLOWSTONE, 1)),
+                List.of(
+                        new SizedIngredient(tagIngredient(Tags.Items.DUSTS_REDSTONE), 1),
+                        new SizedIngredient(tagIngredient(Tags.Items.DUSTS_GLOWSTONE), 1)
+                ),
                 List.of(SizedFluidIngredient.of(Fluids.WATER, 1000)),
                 List.of(),
                 List.of(new FluidStack(Fluids.LAVA, 2000)),
@@ -394,38 +408,38 @@ public class RecipesGenerator extends RecipeProvider {
     }
 
     private void woodenBasinRecipes(RecipeOutput output) {
-        new WoodenBasinRecipeBuilder("#minecraft:leaves", new FluidStack(Fluids.WATER, 125))
+        new WoodenBasinRecipeBuilder("#minecraft:leaves", new FluidStackTemplate(Fluids.WATER, 125))
                 .withBlockConsumeChance(0.1f)
                 .saveTest(output, FTBStuffNThings.id("leaves_to_water"));
 
-        new WoodenBasinRecipeBuilder("ftbstuff:blue_magma_block", new FluidStack(Fluids.LAVA, 10))
+        new WoodenBasinRecipeBuilder("ftbstuff:blue_magma_block", new FluidStackTemplate(Fluids.LAVA, 10))
                 .withBlockConsumeChance(0.5f)
                 .dropItems()
                 .saveTest(output, FTBStuffNThings.id("blue_magma_to_lava"));
     }
 
     private void crookRecipes(RecipeOutput output) {
-        new CrookRecipeBuilder(Ingredient.of(ItemTags.LEAVES), List.of(
-                new ItemWithChance(new ItemStack(Items.GOLD_NUGGET), 0.5),
-                new ItemWithChance(new ItemStack(Items.IRON_NUGGET), 0.5)
+        new CrookRecipeBuilder(tagIngredient(ItemTags.LEAVES), List.of(
+                ItemWithChance.create(new ItemStack(Items.GOLD_NUGGET), 0.5),
+                ItemWithChance.create(new ItemStack(Items.IRON_NUGGET), 0.5)
         )).saveTest(output, FTBStuffNThings.id("nuggets_from_leaves"));
 
         new CrookRecipeBuilder(Ingredient.of(Blocks.SHORT_GRASS), List.of(
-                new ItemWithChance(new ItemStack(Items.STRING), 0.5)
+                ItemWithChance.create(new ItemStack(Items.STRING), 0.5)
         )).keepExistingDrops().saveTest(output, FTBStuffNThings.id("string_from_grass"));
     }
 
     private void sluiceRecipes(RecipeOutput output) {
         new SluiceRecipeBuilder(Ingredient.of(Items.COBBLESTONE), List.of(
-                new ItemWithChance(new ItemStack(Blocks.GRAVEL), 1)
+                ItemWithChance.create(new ItemStack(Blocks.GRAVEL), 1)
         ), List.of(MeshType.CLOTH, MeshType.IRON)).saveTest(output, FTBStuffNThings.id("gravel_from_cobblestone"));
         new SluiceRecipeBuilder(Ingredient.of(Items.GRAVEL), List.of(
-                new ItemWithChance(new ItemStack(Blocks.SAND), 0.5)
+                ItemWithChance.create(new ItemStack(Blocks.SAND), 0.5)
         ), List.of(MeshType.CLOTH, MeshType.IRON, MeshType.DIAMOND))
                 .fluid(new FluidStack(Fluids.WATER, 1000)
                 ).saveTest(output, FTBStuffNThings.id("sand_from_gravel"));
         new SluiceRecipeBuilder(Ingredient.of(Items.SOUL_SAND), List.of(
-                new ItemWithChance(new ItemStack(Items.BLAZE_POWDER), 1)
+                ItemWithChance.create(new ItemStack(Items.BLAZE_POWDER), 1)
         ), List.of(MeshType.BLAZING)).saveTest(output, FTBStuffNThings.id("blaze_from_soul_sand"));
     }
 
@@ -469,24 +483,24 @@ public class RecipesGenerator extends RecipeProvider {
     private void fusingMachineRecipes(RecipeOutput output) {
         new FusingMachineRecipeBuilder(
                 List.of(Ingredient.of(Items.COBBLESTONE), Ingredient.of(Items.GRAVEL)),
-                new FluidStack(Fluids.LAVA, 1000),
+                new FluidStackTemplate(Fluids.LAVA, 1000),
                 100, 60
         ).saveTest(output, FTBStuffNThings.id("lava_from_cobble_gravel"));
         new FusingMachineRecipeBuilder(
                 List.of(Ingredient.of(Items.COBBLESTONE)),
-                new FluidStack(Fluids.LAVA, 250),
+                new FluidStackTemplate(Fluids.LAVA, 250),
                 50, 40
         ).saveTest(output, FTBStuffNThings.id("lava_from_cobble"));
         new FusingMachineRecipeBuilder(
                 List.of(Ingredient.of(Items.ICE)),
-                new FluidStack(Fluids.WATER, 1000),
+                new FluidStackTemplate(Fluids.WATER, 1000),
                 5, 20
         ).saveTest(output, FTBStuffNThings.id("water_from_ice"));
     }
 
     private void superCoolerRecipes(RecipeOutput output) {
         new SuperCoolerRecipeBuilder(
-                List.of(Ingredient.of(ItemTags.SAND), Ingredient.of(Tags.Items.GRAVELS), Ingredient.of(Tags.Items.DYES_WHITE)),
+                List.of(tagIngredient(ItemTags.SAND), tagIngredient(Tags.Items.GRAVELS), tagIngredient(Tags.Items.DYES_WHITE)),
                 SizedFluidIngredient.of(Fluids.WATER, FluidType.BUCKET_VOLUME),
                 50, 20,
                 new ItemStack(Items.WHITE_CONCRETE, 2)
@@ -507,12 +521,12 @@ public class RecipesGenerator extends RecipeProvider {
         return new TemperedJarRecipeBuilder(itemsIn, fluidsIn, itemsOut, fluidsOut, requiredTemp).withTime(time);
     }
 
-    private static <T extends ItemLike> ShapedRecipeBuilder shaped(T result, T required, String pattern, Object... keys) {
+    private <T extends ItemLike> ShapedRecipeBuilder shaped(T result, T required, String pattern, Object... keys) {
         return shaped(result, 1, required, pattern, keys);
     }
 
-    private static <T extends ItemLike> ShapedRecipeBuilder shaped(T result, int count, T required, String pattern, Object... keys) {
-        ShapedRecipeBuilder b = ShapedRecipeBuilder.shaped(RecipeCategory.MISC, result, count);
+    private <T extends ItemLike> ShapedRecipeBuilder shaped(T result, int count, T required, String pattern, Object... keys) {
+        ShapedRecipeBuilder b = ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, result, count);
         Arrays.stream(pattern.split("/")).forEach(b::pattern);
         for (int i = 0; i < keys.length; i += 2) {
             Object v = keys[i + 1];
@@ -529,19 +543,19 @@ public class RecipesGenerator extends RecipeProvider {
         return b;
     }
 
-    private static <T extends ItemLike> ShapelessRecipeBuilder shapeless(T result, T required, Object... ingredients) {
+    private <T extends ItemLike> ShapelessRecipeBuilder shapeless(T result, T required, Object... ingredients) {
         return shapeless(result, 1, required, ingredients);
     }
 
-    private static <T extends ItemLike> ShapelessRecipeBuilder shapeless(T result, int count, T required, Object... ingredients) {
-        return _shapeless(ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, result, count), required, ingredients);
+    private <T extends ItemLike> ShapelessRecipeBuilder shapeless(T result, int count, T required, Object... ingredients) {
+        return _shapeless(ShapelessRecipeBuilder.shapeless(items, RecipeCategory.MISC, result, count), required, ingredients);
     }
 
-    private <T extends ItemLike> ShapelessRecipeBuilder shapelessStack(ItemStack result, T required, Object... ingredients) {
-        return _shapeless(ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, result), required, ingredients);
+    private <T extends ItemLike> ShapelessRecipeBuilder shapelessStack(ItemStackTemplate result, T required, Object... ingredients) {
+        return _shapeless(ShapelessRecipeBuilder.shapeless(items, RecipeCategory.MISC, result), required, ingredients);
     }
 
-    private static <T extends ItemLike> ShapelessRecipeBuilder _shapeless(ShapelessRecipeBuilder b, T required, Object... ingredients) {
+    private <T extends ItemLike> ShapelessRecipeBuilder _shapeless(ShapelessRecipeBuilder b, T required, Object... ingredients) {
         if (ingredients.length == 0) {
             ingredients = new Object[] { required };
         }
@@ -560,7 +574,7 @@ public class RecipesGenerator extends RecipeProvider {
     }
 
     private static <T extends ItemLike> String safeName(T itemLike) {
-        ResourceLocation key = BuiltInRegistries.ITEM.getKey(itemLike.asItem());
+        Identifier key = BuiltInRegistries.ITEM.getKey(itemLike.asItem());
         return key.getPath().replace('/', '_');
     }
 
@@ -570,5 +584,26 @@ public class RecipesGenerator extends RecipeProvider {
 
     private static String stateStr(Block block) {
         return BlockStateParser.serialize(block.defaultBlockState());
+    }
+
+
+    private Ingredient tagIngredient(TagKey<Item> tag) {
+        return Ingredient.of(items.getOrThrow(tag));
+    }
+
+    public static class Runner extends RecipeProvider.Runner {
+        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+            super(output, registries);
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new RecipesGenerator(registries, output);
+        }
+
+        @Override
+        public String getName() {
+            return "FTB Stuff & Things Recipes";
+        }
     }
 }

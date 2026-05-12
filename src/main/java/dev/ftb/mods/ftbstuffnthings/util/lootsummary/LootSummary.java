@@ -2,7 +2,6 @@ package dev.ftb.mods.ftbstuffnthings.util.lootsummary;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -72,7 +71,7 @@ public class LootSummary {
 
     private static LootTable getNestedLootTable(NestedLootTable nested, LootContext ctx) {
         return nested.contents.map(
-                resourceKey -> ctx.getResolver().get(Registries.LOOT_TABLE, resourceKey).map(Holder::value).orElse(LootTable.EMPTY),
+                resourceKey -> ctx.getResolver().get(resourceKey).map(Holder::value).orElse(LootTable.EMPTY),
                 table -> table
         );
     }

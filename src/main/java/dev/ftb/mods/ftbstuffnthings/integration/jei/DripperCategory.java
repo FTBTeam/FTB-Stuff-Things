@@ -28,17 +28,17 @@ public class DripperCategory extends BaseStuffCategory<DripperRecipe> {
 	public void setRecipe(IRecipeLayoutBuilder builder, DripperRecipe recipe, IFocusGroup focuses) {
 		IRecipeSlotBuilder outputBuilder = builder.addSlot(RecipeIngredientRole.OUTPUT, 68, 7);
 		recipe.getOutputItemOrFluid()
-				.ifLeft(outputBuilder::addItemStack)
-				.ifRight(outputBuilder::addFluidStack);
+				.ifLeft(outputBuilder::add)
+				.ifRight(outputBuilder::add);
 
 		IRecipeSlotBuilder inputBuilder = builder.addSlot(RecipeIngredientRole.INPUT, 23, 7);
 		recipe.getInputsForDisplay().forEach(input ->
-				input.ifLeft(stack -> inputBuilder.addIngredient(VanillaTypes.ITEM_STACK, stack))
-						.ifRight(fluid -> inputBuilder.addFluidStack(fluid, 1000L))
+				input.ifLeft(stack -> inputBuilder.add(VanillaTypes.ITEM_STACK, stack))
+						.ifRight(fluid -> inputBuilder.add(fluid, 1000L))
 		);
 
 		builder.addSlot(RecipeIngredientRole.INPUT, 3, 7)
-				.addIngredient(NeoForgeTypes.FLUID_STACK, recipe.getFluid())
+				.add(NeoForgeTypes.FLUID_STACK, recipe.getFluid())
 				.setOverlay(new FluidAmountDrawable(recipe.getFluid().getAmount()), 0, 0)
 				.addRichTooltipCallback((recipeSlotView, tooltipBuilder) -> addTooltipInfo(recipe, tooltipBuilder));
 	}

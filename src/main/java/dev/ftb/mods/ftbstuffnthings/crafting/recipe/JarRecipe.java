@@ -5,12 +5,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.ftb.mods.ftblibrary.util.NetworkHelper;
+import dev.ftb.mods.ftbstuffnthings.crafting.BaseRecipe;
 import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.integration.stages.StageHelper;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,38 +17,74 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class JarRecipe implements Recipe<NoInventory>, Comparable<JarRecipe> {
+public class JarRecipe extends BaseRecipe<JarRecipe> implements Comparable<JarRecipe> {
+	private static final MapCodec<JarRecipe> RAW_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+			SizedIngredient.NESTED_CODEC.listOf(0, 3).optionalFieldOf("input_items", List.of())
+					.forGetter(JarRecipe::getInputItems),
+			SizedFluidIngredient.CODEC.listOf(0, 3).optionalFieldOf("input_fluids", List.of())
+					.forGetter(JarRecipe::getInputFluids),
+			ItemStackTemplate.CODEC.listOf(0, 3).optionalFieldOf("output_items", List.of())
+					.forGetter(JarRecipe::getOutputItems),
+			FluidStackTemplate.CODEC.listOf(0, 3).optionalFieldOf("output_fluids", List.of())
+					.forGetter(JarRecipe::getOutputFluids),
+			StringRepresentable.fromEnum(Temperature::values).optionalFieldOf("temperature", Temperature.NORMAL)
+					.forGetter(JarRecipe::getTemperature),
+			ExtraCodecs.POSITIVE_INT.optionalFieldOf("time", 200)
+					.forGetter(JarRecipe::getTime),
+			Codec.BOOL.optionalFieldOf("can_repeat", true)
+					.forGetter(JarRecipe::canRepeat),
+			Codec.STRING.optionalFieldOf("stage", "")
+					.forGetter(JarRecipe::getStage)
+	).apply(builder, JarRecipe::new));
+	public static final MapCodec<JarRecipe> CODEC = RAW_CODEC.validate(JarRecipe::validateRecipe);
+
+	public static final StreamCodec<RegistryFriendlyByteBuf, JarRecipe> STREAM_CODEC = StreamCodec.composite(
+			SizedIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), JarRecipe::getInputItems,
+			SizedFluidIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), JarRecipe::getInputFluids,
+			ItemStackTemplate.STREAM_CODEC.apply(ByteBufCodecs.list()), JarRecipe::getOutputItems,
+			FluidStackTemplate.STREAM_CODEC.apply(ByteBufCodecs.list()), JarRecipe::getOutputFluids,
+			NeoForgeStreamCodecs.enumCodec(Temperature.class), JarRecipe::getTemperature,
+			ByteBufCodecs.VAR_INT, JarRecipe::getTime,
+			ByteBufCodecs.BOOL, JarRecipe::canRepeat,
+			ByteBufCodecs.STRING_UTF8, JarRecipe::getStage,
+			JarRecipe::new
+	);
+
+	public static final RecipeSerializer<JarRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+
 	private final Temperature temperature;
 	private final int time;
 	private final List<SizedIngredient> inputItems;
 	private final List<SizedFluidIngredient> inputFluids;
-	private final List<ItemStack> outputItems;
-	private final List<FluidStack> outputFluids;
+	private final List<ItemStackTemplate> outputItems;
+	private final List<FluidStackTemplate> outputFluids;
 	private final boolean canRepeat;
 	private final String stage;
 	private final Lazy<String> filterText = Lazy.of(this::buildFilterText);
 
 	public JarRecipe(List<SizedIngredient> inputItems, List<SizedFluidIngredient> inputFluids,
-					 List<ItemStack> outputItems, List<FluidStack> outputFluids,
-					 Temperature temperature, int time, boolean canRepeat, String stage)
+	                 List<ItemStackTemplate> outputItems, List<FluidStackTemplate> outputFluids,
+	                 Temperature temperature, int time, boolean canRepeat, String stage)
 	{
+		super(RecipesRegistry.TEMPERED_JAR_SERIALIZER, RecipesRegistry.TEMPERED_JAR_TYPE);
+
 		this.inputItems = inputItems;
 		this.inputFluids = inputFluids;
 		this.outputItems = outputItems;
@@ -58,36 +93,6 @@ public class JarRecipe implements Recipe<NoInventory>, Comparable<JarRecipe> {
 		this.time = time;
 		this.canRepeat = canRepeat;
 		this.stage = stage;
-	}
-
-	@Override
-	public boolean matches(NoInventory inv, Level world) {
-		return true;
-	}
-
-	@Override
-	public ItemStack assemble(NoInventory noInventory, HolderLookup.Provider provider) {
-		return ItemStack.EMPTY;
-	}
-
-	@Override
-	public boolean canCraftInDimensions(int width, int height) {
-		return true;
-	}
-
-	@Override
-	public ItemStack getResultItem(HolderLookup.Provider provider) {
-		return ItemStack.EMPTY;
-	}
-
-	@Override
-	public RecipeSerializer<?> getSerializer() {
-		return RecipesRegistry.TEMPERED_JAR_SERIALIZER.get();
-	}
-
-	@Override
-	public RecipeType<?> getType() {
-		return RecipesRegistry.TEMPERED_JAR_TYPE.get();
 	}
 
 	public Temperature getTemperature() {
@@ -106,11 +111,11 @@ public class JarRecipe implements Recipe<NoInventory>, Comparable<JarRecipe> {
 		return inputFluids;
 	}
 
-	public List<ItemStack> getOutputItems() {
+	public List<ItemStackTemplate> getOutputItems() {
 		return outputItems;
 	}
 
-	public List<FluidStack> getOutputFluids() {
+	public List<FluidStackTemplate> getOutputFluids() {
 		return outputFluids;
 	}
 
@@ -145,24 +150,24 @@ public class JarRecipe implements Recipe<NoInventory>, Comparable<JarRecipe> {
 	private String buildFilterText() {
 		LinkedHashSet<String> set = new LinkedHashSet<>();
 
-		for (ItemStack stack : outputItems) {
-			set.add(stack.getHoverName().getString().trim().toLowerCase());
+		for (ItemStackTemplate stack : outputItems) {
+			set.add(stack.create().getHoverName().getString().trim().toLowerCase());
 		}
 
-		for (FluidStack stack : outputFluids) {
-			set.add(stack.getHoverName().getString().trim().toLowerCase());
+		for (FluidStackTemplate stack : outputFluids) {
+			set.add(stack.create().getHoverName().getString().trim().toLowerCase());
 		}
 
 		for (SizedIngredient ingredient : inputItems) {
-			for (ItemStack stack : ingredient.ingredient().getItems()) {
-				set.add(stack.getHoverName().getString().trim().toLowerCase());
-			}
+			ingredient.ingredient().getValues().forEach(holder -> {
+				set.add(holder.value().getDefaultInstance().getHoverName().getString().trim().toLowerCase());
+			});
 		}
 
 		for (SizedFluidIngredient ingredient : inputFluids) {
-			for (FluidStack stack : ingredient.ingredient().getStacks()) {
-				set.add(stack.getHoverName().getString().trim().toLowerCase());
-			}
+			ingredient.ingredient().fluids().forEach(holder -> {
+				set.add(new FluidStack(holder.value(), 1000).getHoverName().getString().trim().toLowerCase());
+			});
 		}
 
 		return String.join(" ", set);
@@ -184,15 +189,15 @@ public class JarRecipe implements Recipe<NoInventory>, Comparable<JarRecipe> {
 	 * @param checkAmounts		true to check ingredient amounts too, false to just check for the right items/fluids
 	 * @return true if the recipe matches, false otherwise
 	 */
-	public boolean test(Temperature jarTemperature, IItemHandler jarItems, IFluidHandler jarFluids, boolean checkAmounts) {
+	public boolean test(Temperature jarTemperature, ResourceHandler<ItemResource> jarItems, ResourceHandler<FluidResource> jarFluids, boolean checkAmounts) {
 		if (jarTemperature != getTemperature()) {
 			return false;
 		}
 
 		int matched = 0;
 		for (SizedIngredient inputItem : inputItems) {
-			for (int i = 0; i < jarItems.getSlots(); i++) {
-				ItemStack toTest = jarItems.getStackInSlot(i);
+			for (int i = 0; i < jarItems.size(); i++) {
+				ItemStack toTest = jarItems.getResource(i).toStack(jarItems.getAmountAsInt(i));
 				if (checkAmounts ? inputItem.test(toTest) : inputItem.ingredient().test(toTest)) {
 					matched++;
 					break;
@@ -203,8 +208,8 @@ public class JarRecipe implements Recipe<NoInventory>, Comparable<JarRecipe> {
 
 		matched = 0;
 		for (SizedFluidIngredient inputFluid : inputFluids) {
-			for (int i = 0; i < jarFluids.getTanks(); i++) {
-				FluidStack toTest = jarFluids.getFluidInTank(i);
+			for (int i = 0; i < jarFluids.size(); i++) {
+				FluidStack toTest = jarFluids.getResource(i).toStack(jarFluids.getAmountAsInt(i));
 				if (checkAmounts ? inputFluid.test(toTest) : inputFluid.ingredient().test(toTest)) {
 					matched++;
 					break;
@@ -219,7 +224,7 @@ public class JarRecipe implements Recipe<NoInventory>, Comparable<JarRecipe> {
 	}
 
 	@Override
-	public int compareTo(@NotNull JarRecipe o) {
+	public int compareTo(JarRecipe o) {
 		// compare by temperature, then by number of input ingredients, then by total item count, then by total fluid count
 		// the largest number and/or count of ingredients sorts first
 
@@ -241,72 +246,19 @@ public class JarRecipe implements Recipe<NoInventory>, Comparable<JarRecipe> {
 		);
 	}
 
-	public interface IFactory<T extends JarRecipe> {
-		T create(List<SizedIngredient> inputItems, List<SizedFluidIngredient> inputFluids, List<ItemStack> outputItems, List<FluidStack> outputFluids, Temperature temperature, int time, boolean canRepeat, String stage);
-	}
-
-	public static class Serializer<T extends JarRecipe> implements RecipeSerializer<T> {
-		private final MapCodec<T> codec;
-		private final StreamCodec<RegistryFriendlyByteBuf,T> streamCodec;
-
-		public Serializer(IFactory<T> factory) {
-			codec = RecordCodecBuilder.<T>mapCodec(builder -> builder.group(
-							SizedIngredient.FLAT_CODEC.listOf(0, 3).optionalFieldOf("input_items", List.of())
-									.forGetter(JarRecipe::getInputItems),
-							SizedFluidIngredient.FLAT_CODEC.listOf(0, 3).optionalFieldOf("input_fluids", List.of())
-									.forGetter(JarRecipe::getInputFluids),
-							ItemStack.CODEC.listOf(0, 3).optionalFieldOf("output_items", List.of())
-									.forGetter(JarRecipe::getOutputItems),
-							FluidStack.CODEC.listOf(0, 3).optionalFieldOf("output_fluids", List.of())
-									.forGetter(JarRecipe::getOutputFluids),
-							StringRepresentable.fromEnum(Temperature::values).optionalFieldOf("temperature", Temperature.NORMAL)
-									.forGetter(JarRecipe::getTemperature),
-							ExtraCodecs.POSITIVE_INT.optionalFieldOf("time", 200)
-									.forGetter(JarRecipe::getTime),
-							Codec.BOOL.optionalFieldOf("can_repeat", true)
-									.forGetter(JarRecipe::canRepeat),
-							Codec.STRING.optionalFieldOf("stage", "")
-									.forGetter(JarRecipe::getStage)
-					).apply(builder, factory::create))
-					.validate(Serializer::validateRecipe);
-
-			streamCodec = NetworkHelper.composite(
-					SizedIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), JarRecipe::getInputItems,
-					SizedFluidIngredient.STREAM_CODEC.apply(ByteBufCodecs.list()), JarRecipe::getInputFluids,
-					ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), JarRecipe::getOutputItems,
-					FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()), JarRecipe::getOutputFluids,
-					NeoForgeStreamCodecs.enumCodec(Temperature.class), JarRecipe::getTemperature,
-					ByteBufCodecs.VAR_INT, JarRecipe::getTime,
-					ByteBufCodecs.BOOL, JarRecipe::canRepeat,
-					ByteBufCodecs.STRING_UTF8, JarRecipe::getStage,
-					factory::create
-			);
+	private static <T extends JarRecipe> DataResult<T> validateRecipe(T recipe) {
+		if (recipe.getInputItems().isEmpty() && recipe.getInputFluids().isEmpty()) {
+			return DataResult.error(() -> "at least one of input_items & input_fluids must be non-empty!");
 		}
-
-		private static <T extends JarRecipe> @NotNull DataResult<T> validateRecipe(T recipe) {
-			if (recipe.getInputItems().isEmpty() && recipe.getInputFluids().isEmpty()) {
-				return DataResult.error(() -> "at least one of input_items & input_fluids must be non-empty!");
-			}
-			if (recipe.getOutputItems().isEmpty() && recipe.getOutputFluids().isEmpty()) {
-				return DataResult.error(() -> "at least one of output_items & output_fluids must be non-empty!");
-			}
-			if (recipe.inputIngredientCount() > 3) {
-				return DataResult.error(() -> "must be 1-3 item & fluid inputs combined!");
-			}
-			if (recipe.getOutputItems().size() + recipe.getOutputFluids().size() > 3) {
-				return DataResult.error(() -> "must be 1-3 item & fluid outputs combined!");
-			}
-			return DataResult.success(recipe);
+		if (recipe.getOutputItems().isEmpty() && recipe.getOutputFluids().isEmpty()) {
+			return DataResult.error(() -> "at least one of output_items & output_fluids must be non-empty!");
 		}
-
-		@Override
-		public MapCodec<T> codec() {
-			return codec;
+		if (recipe.inputIngredientCount() > 3) {
+			return DataResult.error(() -> "must be 1-3 item & fluid inputs combined!");
 		}
-
-		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, T> streamCodec() {
-			return streamCodec;
+		if (recipe.getOutputItems().size() + recipe.getOutputFluids().size() > 3) {
+			return DataResult.error(() -> "must be 1-3 item & fluid outputs combined!");
 		}
+		return DataResult.success(recipe);
 	}
 }

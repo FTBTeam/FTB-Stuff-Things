@@ -6,6 +6,6 @@ import net.minecraft.world.level.block.Block;
 
 public record WrappedLootSummary(Block inputStack, LootSummary summary) {
     public static WrappedLootSummary create(ResourceKey<Block> key, LootSummary summary) {
-        return new WrappedLootSummary(BuiltInRegistries.BLOCK.get(key), summary);
+        return new WrappedLootSummary(BuiltInRegistries.BLOCK.getValueOrThrow(key), summary);
     }
 }

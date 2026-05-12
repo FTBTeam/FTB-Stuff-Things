@@ -1,6 +1,5 @@
 package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import dev.ftb.mods.ftbstuffnthings.util.lootsummary.LootSummary;
 import dev.ftb.mods.ftbstuffnthings.util.lootsummary.WrappedLootSummary;
@@ -11,9 +10,9 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import java.util.HashMap;
@@ -47,7 +46,7 @@ public class LootSummaryCategory extends BaseStuffCategory<WrappedLootSummary> {
         nItems = 0;
 
         builder.addSlot(RecipeIngredientRole.INPUT, 5, 5)
-                .addItemStack(recipe.inputStack().asItem().getDefaultInstance());
+                .add(recipe.inputStack().asItem().getDefaultInstance());
 
         var poolMap = recipe.summary().entryMap();
         int nPools = poolMap.keySet().size();
@@ -65,7 +64,7 @@ public class LootSummaryCategory extends BaseStuffCategory<WrappedLootSummary> {
                 if (!summaryEntry.stack().isEmpty()) {
                     if (nItems <= MAX_DISPLAYABLE_IDX) {
                         builder.addSlot(RecipeIngredientRole.OUTPUT, 28 + (nItems % 7 * 18), 5 + nItems / 7 * 24)
-                                .addItemStack(summaryEntry.stack())
+                                .add(summaryEntry.stack())
                                 .addRichTooltipCallback((recipeSlotView, tooltip) -> {
                                     if (nPools > 1) {
                                         Component poolComp = Component.literal(poolName).withStyle(poolColor(pool2idx.getOrDefault(poolName, 0)));
@@ -101,17 +100,17 @@ public class LootSummaryCategory extends BaseStuffCategory<WrappedLootSummary> {
     }
 
     @Override
-    public void draw(WrappedLootSummary recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(WrappedLootSummary recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
 
         var poolMap = recipe.summary().entryMap();
 
         if (poolMap.keySet().size() > 1) {
             // multiple pools
-            guiGraphics.blit(ResourceLocation.parse("ftblibrary:textures/icons/info.png"), 5, 25, 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(Identifier.parse("ftblibrary:textures/icons/info.png"), 5, 25, 0, 0, 16, 16, 16, 16);
         }
         if (nItems >= MAX_DISPLAYABLE_IDX) {
-            guiGraphics.blit(ResourceLocation.withDefaultNamespace("textures/gui/sprites/icon/unseen_notification.png"), 5, 110, 0, 0, 16, 16, 16, 16);
+            guiGraphics.blit(Identifier.withDefaultNamespace("textures/gui/sprites/icon/unseen_notification.png"), 5, 110, 0, 0, 16, 16, 16, 16);
         }
 
         int idx = 0;
@@ -119,14 +118,14 @@ public class LootSummaryCategory extends BaseStuffCategory<WrappedLootSummary> {
         for (var entryList : poolMap.values()) {
             for (LootSummary.SummaryEntry summaryEntry : entryList) {
                 if (!summaryEntry.stack().isEmpty()) {
-                    PoseStack stack = guiGraphics.pose();
-                    stack.pushPose();
+                    var stack = guiGraphics.pose();
+                    stack.pushMatrix();
                     //noinspection IntegerDivisionInFloatingPointContext
-                    stack.translate(36 + (idx % 7 * 18), 23.5f + (idx / 7 * 24), 100);  // int division is what we need here
-                    stack.scale(.5F, .5F, 1F);
+                    stack.translate(36 + (idx % 7 * 18), 23.5f + (idx / 7 * 24));  // int division is what we need here
+                    stack.scale(.5F, .5F);
                     String weightStr = String.format("%.2f%%", summaryEntry.weight() * 100f);
-                    guiGraphics.drawCenteredString(Minecraft.getInstance().font, Component.literal(weightStr).withStyle(poolColor(poolIdx)), 0, 0, 0xFFFFFF);
-                    stack.popPose();
+                    guiGraphics.centeredText(Minecraft.getInstance().font, Component.literal(weightStr).withStyle(poolColor(poolIdx)), 0, 0, 0xFFFFFF);
+                    stack.popMatrix();
                     if (idx++ >= MAX_DISPLAYABLE_IDX) {
                         return;
                     }

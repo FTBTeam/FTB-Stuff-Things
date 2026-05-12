@@ -4,7 +4,7 @@ import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.pump.PumpBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
@@ -14,14 +14,13 @@ import snownee.jade.api.config.IPluginConfig;
 public enum PumpComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    private static final ResourceLocation ID = FTBStuffNThings.id("pump");
+    private static final Identifier ID = FTBStuffNThings.id("pump");
 
     @Override
     public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
         CompoundTag serverData = blockAccessor.getServerData();
-        if (serverData.contains("timeLeft")) {
-            iTooltip.add(Component.translatable("ftbstuff.jade.time_left", getTimeString(serverData.getInt("timeLeft"))));
-        }
+        serverData.getInt("timeLeft").ifPresent(timeLeft ->
+                iTooltip.add(Component.translatable("ftbstuff.jade.time_left", timeLeft)));
     }
 
     @Override
@@ -32,7 +31,7 @@ public enum PumpComponentProvider implements IBlockComponentProvider, IServerDat
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 

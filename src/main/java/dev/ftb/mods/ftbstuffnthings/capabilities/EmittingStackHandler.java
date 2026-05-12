@@ -1,10 +1,11 @@
 package dev.ftb.mods.ftbstuffnthings.capabilities;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
 import java.util.function.Consumer;
 
-public class EmittingStackHandler extends ItemStackHandler {
+public class EmittingStackHandler extends ItemStacksResourceHandler {
     private final Consumer<EmittingStackHandler> onChange;
 
     public EmittingStackHandler(int size, Consumer<EmittingStackHandler> onChange) {
@@ -13,8 +14,9 @@ public class EmittingStackHandler extends ItemStackHandler {
     }
 
     @Override
-    protected void onContentsChanged(int slot) {
-        super.onContentsChanged(slot);
+    protected void onContentsChanged(int index, ItemStack previousContents) {
+        super.onContentsChanged(index, previousContents);
+
         onChange.accept(this);
     }
 }

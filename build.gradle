@@ -1,41 +1,33 @@
 plugins {
     id 'java-library'
+    id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '1.0.17'
+    id 'net.neoforged.moddev' version '2.0.140'
     id "me.modmuss50.mod-publish-plugin" version "1.1.0"
 }
-
-apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/main/gradle/changelog.gradle'
 
 tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = mod_version
-group = mod_group_id
+apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/v1/gradle/maven.gradle'
+apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/v1/gradle/publishing-2.gradle'
+apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/v1/gradle/utils.gradle'
+apply from: 'https://raw.githubusercontent.com/FTBTeam/mods-meta/v1/gradle/changelog.gradle'
 
-// needs to be done AFTER version is set
-apply from: "https://raw.githubusercontent.com/FTBTeam/mods-meta/main/gradle/publishing.gradle"
-
-repositories {
-    mavenLocal()
-}
+version = createModVersion(project)
+group = project.maven_group
 
 base {
-    archivesName = archives_base_name
+    archivesName = project.archives_base_name
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
     version = project.neo_version
 
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
-
-    accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
+    //accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
             client()
@@ -53,8 +45,13 @@ neoForge {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
-        data {
-            data()
+        clientData {
+            clientData()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources-client/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath(), '--existing', file('src/generated/resources/').getAbsolutePath()
+        }
+
+        serverData {
+            serverData()
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
 
@@ -71,25 +68,13 @@ neoForge {
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+    srcDir 'src/generated/resources-client'
+}
 
 configurations {
     runtimeClasspath.extendsFrom localRuntime
-}
-
-dependencies {
-    implementation "dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}"
-
-    // JEI
-    compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
-    compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
-    // at runtime, use the full JEI jar for NeoForge
-    runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
-
-    implementation("curse.maven:jade-324717:${jade_curse_id}")
-
-    compileOnly("dev.latvian.mods:kubejs-neoforge:${kubejs_version}")
-    compileOnly("dev.latvian.mods:rhino:${rhino_version}")
 }
 
 repositories {
@@ -110,71 +95,82 @@ repositories {
     }
 }
 
-// This block of code expands all declared replace properties in the specified resource targets.
-// A missing property will result in an error. Properties are expanded using ${} Groovy notation.
-var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+dependencies {
+    implementation "dev.ftb.mods:ftb-library-neoforge:${ftb_library_version}"
+
+    // JEI
+    compileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+    compileOnly("mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}")
+    // at runtime, use the full JEI jar for NeoForge
+    runtimeOnly("mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}")
+
+    implementation("curse.maven:jade-324717:${jade_curse_id}")
+
+    compileOnly("dev.latvian.mods:kubejs-neoforge:${kubejs_version}")
+    compileOnly("dev.latvian.mods:rhino:${rhino_version}")
+}
+
+tasks.named("jar") {
+    dependsOn("sourcesJar")
+}
+
+tasks.named("jar") {
+    dependsOn("sourcesJar")
+    // Uncomment this if you want to create an API jar
+    // dependsOn("apiJar")
+}
+
+tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
-            minecraft_version      : minecraft_version,
+            version: version,
+            mod_id: mod_id,
+            mod_name: mod_name,
+            neoforge_version_range: neoforge_version_range,
+            neoforge_loader_version: neoforge_loader_version,
             minecraft_version_range: minecraft_version_range,
-            neo_version            : neo_version,
-            neo_version_range      : neo_version_range,
-            loader_version_range   : loader_version_range,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : mod_version,
-            mod_authors            : mod_authors,
-            mod_description        : mod_description,
-            ftb_library_version    : ftb_library_version,
-            jei_version            : jei_version,
-            kubejs_version         : kubejs_version
+            ftb_library_version_range: ftb_library_version_range,
+            jei_version: jei_version,
+            kubejs_version: kubejs_version
     ]
+
     inputs.properties replaceProperties
-    expand replaceProperties
-    from "src/main/templates"
-    into "build/generated/sources/modMetadata"
-}
 
-sourceSets.main.resources.srcDir generateModMetadata
-neoForge.ideSyncTask generateModMetadata
-
-// Example configuration to allow publishing using the maven-publish plugin
-publishing {
-    publications {
-        register('mavenJava', MavenPublication) {
-            artifactId = archives_base_name
-            version ftbPublishing.mavenVersion
-            from components.java
-        }
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
     }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/repo"
-        }
-        if (ftbPublishing.ftbToken) {
-            maven {
-                url ftbPublishing.ftbURL
-                credentials {
-                    username = ftbPublishing.ftbUser
-                    password = ftbPublishing.ftbToken
-                }
-            }
-        }
+
+    // Copy in the repos license file
+    from(project.rootDir) {
+        include 'LICENSE.md'
     }
 }
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
+
+createMavenPublishingBlock(project)
 
 publishMods {
-    dryRun = providers.environmentVariable("CURSEFORGE_KEY").getOrNull() == null
+    dryRun = providers.environmentVariable("CURSEFORGE_KEY").getOrNull() == null || providers.environmentVariable("SKIP_CURSEFORGE").getOrNull() != null
     changelog = createChangelog(project)
-    version = mod_version
+    version = project.version
+    type = createReleaseType(project)
 
     def tag = providers.environmentVariable("TAG").getOrElse("release")
     type = tag.endsWith("-beta") ? BETA : (tag.endsWith("-alpha") ? ALPHA : STABLE)
 
     def createOptions = (String projectName) -> {
         publishOptions {
-            file = jar.archiveFile
-            displayName = "[${projectName.toUpperCase()}] ${mod_name} ${mod_version}"
+            file = project.provider { project(":$projectName").tasks.jar }.flatMap { it.archiveFile }
+            displayName = "${readable_name} ${projectName.capitalize()} ${project.version}"
             modLoaders.add(projectName.toLowerCase())
         }
     }
@@ -183,8 +179,10 @@ publishMods {
 
     def curseForgeOptions = curseforgeOptions {
         accessToken = providers.environmentVariable("CURSEFORGE_KEY")
-        minecraftVersions.add("${minecraft_version}")
-        javaVersions.add(JavaVersion.VERSION_21)
+        supported_minecraft_versions.split(",").each {
+            minecraftVersions.add(it.trim())
+        }
+        javaVersions.add(JavaVersion.VERSION_25)
     }
 
     curseforge("curseforgeNeoForge") {
@@ -194,16 +192,5 @@ publishMods {
         optional('jei')
         optional('kubejs')
         optional('jade')
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
-
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
     }
 }

@@ -21,13 +21,13 @@ public class TemperatureSourceCategory extends BaseStuffCategory<TemperatureSour
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, TemperatureSourceRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.OUTPUT, 48, 7)
-                .addIngredient(FTBStuffIngredientTypes.TEMPERATURE, recipe.getTemperature())
+                .add(FTBStuffIngredientTypes.TEMPERATURE, recipe.getTemperature())
                 .addRichTooltipCallback((recipeSlotView, tooltip) ->
                         tooltip.add(Component.translatable("ftbstuff.efficiency", recipe.getTemperatureAndEfficiency().formatEfficiency())));
 
         if (!recipe.getDisplayStack().isEmpty()) {
-            builder.addSlot(RecipeIngredientRole.CATALYST, 3, 7)
-                    .addIngredient(VanillaTypes.ITEM_STACK, recipe.getDisplayStack());
+            builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 3, 7)
+                    .add(VanillaTypes.ITEM_STACK, recipe.getDisplayStack());
         }
     }
 }

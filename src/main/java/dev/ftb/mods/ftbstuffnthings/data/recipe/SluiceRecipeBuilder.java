@@ -4,11 +4,14 @@ package dev.ftb.mods.ftbstuffnthings.data.recipe;
 import dev.ftb.mods.ftbstuffnthings.crafting.ItemWithChance;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.SluiceRecipe;
 import dev.ftb.mods.ftbstuffnthings.items.MeshType;
+import net.minecraft.data.recipes.RecipeBuilder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.List;
@@ -38,7 +41,7 @@ public class SluiceRecipeBuilder extends BaseRecipeBuilder<SluiceRecipe> {
     }
 
     public SluiceRecipeBuilder fluid(FluidStack fluid) {
-        this.fluid = SizedFluidIngredient.of(fluid);
+        this.fluid = SizedFluidIngredient.of(fluid.getFluid(), fluid.amount());
         return this;
     }
 
@@ -55,5 +58,10 @@ public class SluiceRecipeBuilder extends BaseRecipeBuilder<SluiceRecipe> {
     @Override
     protected SluiceRecipe buildRecipe() {
         return new SluiceRecipe(ingredient, results, maxResults, Optional.ofNullable(fluid), processingTimeMultiplier, List.copyOf(meshTypes));
+    }
+
+    @Override
+    public ResourceKey<Recipe<?>> defaultId() {
+        return RecipeBuilder.getDefaultRecipeId(results.getFirst().item());
     }
 }

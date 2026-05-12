@@ -8,7 +8,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Arrays;
@@ -16,9 +15,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
-public class EmittingFluidTank extends FluidTank {
+public class EmittingFluidTank extends SimpleFluidTank {
     private final Consumer<EmittingFluidTank> onChange;
     private boolean syncAllObservers;
     private final Set<ServerPlayer> toSync = Collections.newSetFromMap(new WeakHashMap<>());
@@ -28,14 +26,10 @@ public class EmittingFluidTank extends FluidTank {
         this.onChange = onChange;
     }
 
-    public EmittingFluidTank(int capacity, Predicate<FluidStack> validator, Consumer<EmittingFluidTank> onChange) {
-        super(capacity, validator);
-        this.onChange = onChange;
-    }
-
     @Override
-    protected void onContentsChanged() {
-        super.onContentsChanged();
+    protected void onContentsChanged(int index, FluidStack previousContents) {
+        super.onContentsChanged(index, previousContents);
+
         onChange.accept(this);
         needSync();
     }
@@ -55,7 +49,7 @@ public class EmittingFluidTank extends FluidTank {
                     .forEach(toSync::add);
         }
         if (!toSync.isEmpty()) {
-            SyncDisplayFluidPacket syncDisplayFluidPacket = new SyncDisplayFluidPacket(blockEntity.getBlockPos(), fluid);
+            SyncDisplayFluidPacket syncDisplayFluidPacket = new SyncDisplayFluidPacket(blockEntity.getBlockPos(), getResource(0).toStack(getAmountAsInt(0)));
             toSync.forEach(p -> PacketDistributor.sendToPlayer(p, syncDisplayFluidPacket));
             toSync.clear();
         }
@@ -64,8 +58,8 @@ public class EmittingFluidTank extends FluidTank {
 
     public void syncToTrackers(AbstractMachineBlockEntity machine) {
         if (machine.getLevel() instanceof ServerLevel sl) {
-            SyncDisplayFluidPacket packet = new SyncDisplayFluidPacket(machine.getBlockPos(), fluid);
-            PacketDistributor.sendToPlayersTrackingChunk(sl, new ChunkPos(machine.getBlockPos()), packet);
+            SyncDisplayFluidPacket packet = new SyncDisplayFluidPacket(machine.getBlockPos(), getResource(0).toStack(getAmountAsInt(0)));
+            PacketDistributor.sendToPlayersTrackingChunk(sl, ChunkPos.containing(machine.getBlockPos()), packet);
         }
     }
 }

@@ -6,10 +6,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.IndexModifier;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class WaterStrainerMenu extends AbstractMachineMenu<WaterStrainerBlockEntity> {
@@ -20,24 +21,26 @@ public class WaterStrainerMenu extends AbstractMachineMenu<WaterStrainerBlockEnt
     public WaterStrainerMenu(int containerId, Inventory playerInv, BlockPos pos) {
         super(ContentRegistry.WATER_STRAINER_MENU.get(), containerId, playerInv, pos);
 
-        IItemHandler itemHandler = Objects.requireNonNull(blockEntity.getItemHandler());
-
-        for (int j = 0; j < 3; j++) {
-            for (int k = 0; k < 9; k++) {
-                this.addSlot(new OutputOnlySlot(itemHandler, k + j * 9, 8 + k * 18, 18 + j * 18));
+        WaterStrainerBlockEntity strainer = getBlockEntity();
+        if (strainer != null) {
+            ResourceHandler<ItemResource> itemHandler = Objects.requireNonNull(strainer.getItemHandler());
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 9; k++) {
+                    this.addSlot(new OutputOnlySlot(itemHandler, strainer::indexModifier, k + j * 9, 8 + k * 18, 18 + j * 18));
+                }
             }
         }
 
         addPlayerSlots(playerInv, 8, 85);
     }
 
-    private static class OutputOnlySlot extends SlotItemHandler {
-        OutputOnlySlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
-            super(itemHandler, index, xPosition, yPosition);
+    private static class OutputOnlySlot extends ResourceHandlerSlot {
+        OutputOnlySlot(ResourceHandler<ItemResource> itemHandler, IndexModifier<ItemResource> indexModifier, int index, int xPosition, int yPosition) {
+            super(itemHandler, indexModifier, index, xPosition, yPosition);
         }
 
         @Override
-        public boolean mayPlace(@Nonnull ItemStack stack) {
+        public boolean mayPlace(ItemStack stack) {
             return false;
         }
     }

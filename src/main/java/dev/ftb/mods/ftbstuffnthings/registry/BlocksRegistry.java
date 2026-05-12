@@ -40,7 +40,7 @@ import java.util.*;
 import java.util.function.Function;
 
 public class BlocksRegistry {
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(FTBStuffNThings.MODID);
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(FTBStuffNThings.MOD_ID);
 
     // Sluices
     public static final DeferredBlock<SluiceBlock> OAK_SLUICE
@@ -152,9 +152,9 @@ public class BlocksRegistry {
                     .lightLevel(state -> 3)
                     .randomTicks()
                     .strength(0.5F)
-                    .isValidSpawn((state, level, pos, entity) -> entity.fireImmune())
-                    .hasPostProcess((state, level, pos) -> true)
-                    .emissiveRendering((state, level, pos) -> true)
+                    .isValidSpawn((_, _, _, entity) -> entity.fireImmune())
+                    .postProcess((_, _, pos) -> pos.above())
+                    .emissiveRendering((_, _, _) -> true)
     ));
     public static final DeferredBlock<Block> CREATIVE_HOT_TEMPERATURE_SOURCE
             = BLOCKS.register("creative_low_temperature_source", CreativeTemperatureSourceBlock::new);
@@ -165,21 +165,27 @@ public class BlocksRegistry {
 
     // Misc resource blocks
     public static final DeferredBlock<Block> CAST_IRON_BLOCK
-            = BLOCKS.registerBlock("cast_iron_block", Block::new, net.minecraft.world.level.block.state.BlockBehaviour.Properties.of()
+            = BLOCKS.registerBlock("cast_iron_block", Block::new, () -> BlockBehaviour.Properties.of()
             .mapColor(MapColor.METAL)
             .strength(5F, 6F)
             .sound(SoundType.METAL)
             .requiresCorrectToolForDrops()
     );
-    public static final DeferredBlock<Block> DUST_BLOCK = BLOCKS.registerBlock("dust", SimpleFallingBlock::new,
-            dustBlockProperties());
+    public static final DeferredBlock<Block> DUST_BLOCK
+            = BLOCKS.registerBlock("dust", SimpleFallingBlock::new, BlocksRegistry::dustBlockProperties);
 
-    public static final DeferredBlock<Block> CRUSHED_NETHERRACK = BLOCKS.registerBlock("crushed_netherrack", SimpleFallingBlock::new,
-            net.minecraft.world.level.block.state.BlockBehaviour.Properties.ofFullCopy(Blocks.SAND).mapColor(MapColor.NETHER).requiresCorrectToolForDrops().strength(0.35F).sound(SoundType.NETHERRACK));
-    public static final DeferredBlock<Block> CRUSHED_BASALT = BLOCKS.registerBlock("crushed_basalt", SimpleFallingBlock::new,
-            net.minecraft.world.level.block.state.BlockBehaviour.Properties.ofFullCopy(Blocks.SAND).mapColor(DyeColor.BLACK).requiresCorrectToolForDrops().strength(0.8F, 2.75F).sound(SoundType.BASALT));
-    public static final DeferredBlock<Block> CRUSHED_ENDSTONE = BLOCKS.registerBlock("crushed_endstone", SimpleFallingBlock::new,
-            BlockBehaviour.Properties.ofFullCopy(Blocks.SAND).mapColor(MapColor.SAND).requiresCorrectToolForDrops().strength(2.0F, 6.0F));
+    public static final DeferredBlock<Block> CRUSHED_NETHERRACK
+            = BLOCKS.registerBlock("crushed_netherrack", SimpleFallingBlock::new,
+            () -> BlockBehaviour.Properties.ofFullCopy(Blocks.SAND)
+                    .mapColor(MapColor.NETHER).requiresCorrectToolForDrops().strength(0.35F).sound(SoundType.NETHERRACK));
+    public static final DeferredBlock<Block> CRUSHED_BASALT
+            = BLOCKS.registerBlock("crushed_basalt", SimpleFallingBlock::new,
+            () -> BlockBehaviour.Properties.ofFullCopy(Blocks.SAND)
+                    .mapColor(DyeColor.BLACK).requiresCorrectToolForDrops().strength(0.8F, 2.75F).sound(SoundType.BASALT));
+    public static final DeferredBlock<Block> CRUSHED_ENDSTONE
+            = BLOCKS.registerBlock("crushed_endstone", SimpleFallingBlock::new,
+            () -> BlockBehaviour.Properties.ofFullCopy(Blocks.SAND)
+                    .mapColor(MapColor.SAND).requiresCorrectToolForDrops().strength(2.0F, 6.0F));
 
     // Barrels
     public static final DeferredBlock<Block> WHITE_BARREL = BLOCKS.register("white_barrel", BarrelBlock::new);
@@ -273,7 +279,7 @@ public class BlocksRegistry {
 
     private static DeferredBlock<WaterStrainerBlock> registerStrainer(WoodType type) {
         var block = BLOCKS.registerBlock(type.name() + "_water_strainer",
-                props -> new WaterStrainerBlock(props, type), WaterStrainerBlock.defaultProps());
+                props -> new WaterStrainerBlock(props, type), WaterStrainerBlock::defaultProps);
         WATER_STRAINERS.add(block);
         return block;
     }
@@ -285,7 +291,8 @@ public class BlocksRegistry {
         ImmutableList.Builder<DeferredBlock<Block>> blocks = ImmutableList.builder();
         for (int level = 1; level <= maxLevel; level++) {
             String name = String.format("compressed_%s%s", baseName, level > 1 ? "_" + level : "");
-            DeferredBlock<Block> deferredBlock = BLOCKS.registerBlock(name, factory, props.destroyTime(baseDestroyTime + level));
+            final float destroyTime = baseDestroyTime + level;
+            DeferredBlock<Block> deferredBlock = BLOCKS.registerBlock(name, factory, () -> props.destroyTime(destroyTime));
             ALL_COMPRESSED.add(deferredBlock);
             blocks.add(deferredBlock);
         }

@@ -2,7 +2,6 @@ package dev.ftb.mods.ftbstuffnthings.blocks.tube;
 
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.util.DirectionUtil;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -11,12 +10,16 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.data.ModelProperty;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelProperty;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -31,19 +34,19 @@ public class TubeBlockEntity extends BlockEntity implements ITubeConnectable {
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
 
-        sidesClosed = tag.getInt("sides_closed");
-        sidesConnected = tag.getInt("sides_connected");
+        sidesClosed = input.getIntOr("sides_closed", 0);
+        sidesConnected = input.getIntOr("sides_connected", 0);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
 
-        if (sidesClosed != 0) tag.putInt("sides_closed", sidesClosed);
-        if (sidesConnected != 0) tag.putInt("sides_connected", sidesConnected);
+        if (sidesClosed != 0) output.putInt("sides_closed", sidesClosed);
+        if (sidesConnected != 0) output.putInt("sides_connected", sidesConnected);
     }
 
     public int getShapeCacheKey() {
@@ -53,13 +56,14 @@ public class TubeBlockEntity extends BlockEntity implements ITubeConnectable {
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         // server side, chunk sending
-        return Util.make(new CompoundTag(), tag -> saveAdditional(tag, registries));
+        TagValueOutput t = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        saveAdditional(t);
+        return t.buildResult();
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
-        // client side, chunk sending
-        super.handleUpdateTag(tag, lookupProvider);
+    public void handleUpdateTag(ValueInput input) {
+        super.handleUpdateTag(input);
 
         requestModelDataUpdate();
     }
@@ -72,9 +76,8 @@ public class TubeBlockEntity extends BlockEntity implements ITubeConnectable {
     }
 
     @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider lookupProvider) {
-        // client side, block update
-        super.onDataPacket(net, pkt, lookupProvider);
+    public void onDataPacket(Connection net, ValueInput valueInput) {
+        super.onDataPacket(net, valueInput);
 
         requestModelDataUpdate();
         level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
@@ -92,7 +95,7 @@ public class TubeBlockEntity extends BlockEntity implements ITubeConnectable {
     }
 
     public void setSideClosed(Direction dir, boolean closed) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             int prevSidesClosed = sidesClosed;
             sidesClosed = DirectionUtil.setDirectionBit(sidesClosed, dir, closed);
             if (sidesClosed != prevSidesClosed) {

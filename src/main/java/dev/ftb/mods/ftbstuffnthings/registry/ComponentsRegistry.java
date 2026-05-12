@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 public class ComponentsRegistry {
     private static final DeferredRegister.DataComponents COMPONENTS
-            = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, FTBStuffNThings.MODID);
+            = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, FTBStuffNThings.MOD_ID);
 
     // capsules and machines with one fluid tank
     public static final Supplier<DataComponentType<SimpleFluidContent>> STORED_FLUID

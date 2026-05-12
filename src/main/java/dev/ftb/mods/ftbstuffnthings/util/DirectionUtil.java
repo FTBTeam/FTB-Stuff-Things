@@ -2,7 +2,7 @@ package dev.ftb.mods.ftbstuffnthings.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import static net.minecraft.core.Direction.*;
 

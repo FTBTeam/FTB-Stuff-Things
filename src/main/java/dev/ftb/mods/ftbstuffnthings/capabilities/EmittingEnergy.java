@@ -1,11 +1,11 @@
 package dev.ftb.mods.ftbstuffnthings.capabilities;
 
 import net.minecraft.util.Mth;
-import net.neoforged.neoforge.energy.EnergyStorage;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
 
 import java.util.function.Consumer;
 
-public class EmittingEnergy extends EnergyStorage {
+public class EmittingEnergy extends SimpleEnergyHandler {
     private final Consumer<EmittingEnergy> onChange;
 
     public EmittingEnergy(int capacity, Consumer<EmittingEnergy> onChange) {
@@ -38,22 +38,9 @@ public class EmittingEnergy extends EnergyStorage {
     }
 
     @Override
-    public int receiveEnergy(int maxReceive, boolean simulate) {
-        var result = super.receiveEnergy(maxReceive, simulate);
-        if (!simulate) {
-            this.onChange.accept(this);
-        }
+    protected void onEnergyChanged(int previousAmount) {
+        super.onEnergyChanged(previousAmount);
 
-        return result;
-    }
-
-    @Override
-    public int extractEnergy(int maxExtract, boolean simulate) {
-        var result = super.extractEnergy(maxExtract, simulate);
-        if (!simulate) {
-            this.onChange.accept(this);
-        }
-
-        return result;
+        onChange.accept(this);
     }
 }

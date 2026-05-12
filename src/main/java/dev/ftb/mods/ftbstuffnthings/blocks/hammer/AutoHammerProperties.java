@@ -1,7 +1,7 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.hammer;
 
-import dev.ftb.mods.ftblibrary.snbt.config.IntValue;
-import dev.ftb.mods.ftbstuffnthings.Config;
+import dev.ftb.mods.ftblibrary.config.value.IntValue;
+import dev.ftb.mods.ftbstuffnthings.ModConfig;
 import dev.ftb.mods.ftbstuffnthings.items.HammerItem;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import net.minecraft.core.BlockPos;
@@ -13,10 +13,10 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import java.util.function.BiFunction;
 
 public enum AutoHammerProperties {
-    IRON(ItemsRegistry.IRON_HAMMER, Config.IRON_HAMMER_SPEED, AutoHammerBlockEntity.Iron::new),
-    GOLD(ItemsRegistry.GOLD_HAMMER , Config.GOLD_HAMMER_SPEED, AutoHammerBlockEntity.Gold::new),
-    DIAMOND(ItemsRegistry.DIAMOND_HAMMER, Config.DIAMOND_HAMMER_SPEED, AutoHammerBlockEntity.Diamond::new),
-    NETHERITE(ItemsRegistry.NETHERITE_HAMMER, Config.NETHERITE_HAMMER_SPEED, AutoHammerBlockEntity.Netherite::new);
+    IRON(ItemsRegistry.IRON_HAMMER, ModConfig.IRON_HAMMER_SPEED, AutoHammerBlockEntity.Iron::new),
+    GOLD(ItemsRegistry.GOLD_HAMMER , ModConfig.GOLD_HAMMER_SPEED, AutoHammerBlockEntity.Gold::new),
+    DIAMOND(ItemsRegistry.DIAMOND_HAMMER, ModConfig.DIAMOND_HAMMER_SPEED, AutoHammerBlockEntity.Diamond::new),
+    NETHERITE(ItemsRegistry.NETHERITE_HAMMER, ModConfig.NETHERITE_HAMMER_SPEED, AutoHammerBlockEntity.Netherite::new);
 
     private final DeferredItem<HammerItem> hammerItem;
     private final IntValue hammerSpeed;

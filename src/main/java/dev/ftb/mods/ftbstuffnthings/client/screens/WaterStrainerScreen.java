@@ -4,11 +4,11 @@ import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 public class WaterStrainerScreen extends AbstractContainerScreen<WaterStrainerMenu> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
+    private static final Identifier TEXTURE = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
     private static final int ROWS = 3;
 
     public WaterStrainerScreen(WaterStrainerMenu menu, Inventory playerInventory, Component title) {

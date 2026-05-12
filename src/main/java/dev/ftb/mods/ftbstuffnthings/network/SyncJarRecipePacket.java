@@ -8,7 +8,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.Optional;
@@ -20,12 +20,12 @@ import java.util.Optional;
  * @param pos jar blockpos
  * @param recipeId the new recipe ID
  */
-public record SyncJarRecipePacket(BlockPos pos, Optional<ResourceLocation> recipeId) implements CustomPacketPayload {
+public record SyncJarRecipePacket(BlockPos pos, Optional<Identifier> recipeId) implements CustomPacketPayload {
     public static final Type<SyncJarRecipePacket> TYPE = new Type<>(FTBStuffNThings.id("sync_jar_recipe"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, SyncJarRecipePacket> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, SyncJarRecipePacket::pos,
-            ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), SyncJarRecipePacket::recipeId,
+            ByteBufCodecs.optional(Identifier.STREAM_CODEC), SyncJarRecipePacket::recipeId,
             SyncJarRecipePacket::new
     );
 

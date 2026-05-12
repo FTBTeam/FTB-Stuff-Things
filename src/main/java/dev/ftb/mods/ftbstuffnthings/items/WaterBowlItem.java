@@ -21,12 +21,20 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.fluids.SimpleFluidContent;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.ItemAccessFluidHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class WaterBowlItem extends Item {
+	protected static final int BOWL_CAPACITY = FluidType.BUCKET_VOLUME / 4;
+
 	public WaterBowlItem() {
-		super(new Properties().stacksTo(1));
+		super(new Properties()
+				.stacksTo(1)
+				.component(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(new FluidStack(Fluids.WATER, BOWL_CAPACITY))));
 	}
 
 	public static boolean fillBowl(Level level, Player player) {
@@ -41,27 +49,30 @@ public class WaterBowlItem extends Item {
 		return false;
 	}
 
-	public static class WaterBowlFluidHandler extends FluidHandlerItemStack.SwapEmpty {
-		protected static final int BOWL_CAPACITY = FluidType.BUCKET_VOLUME / 4;
-
+	public static class WaterBowlFluidHandler extends ItemAccessFluidHandler {
 		public WaterBowlFluidHandler(ItemStack container) {
-			super(ComponentsRegistry.STORED_FLUID, container, new ItemStack(Items.BOWL), BOWL_CAPACITY);
-
-			setFluid(new FluidStack(Fluids.WATER, BOWL_CAPACITY));
+			super(ItemAccess.forStack(container), ComponentsRegistry.STORED_FLUID.get(), BOWL_CAPACITY);
 		}
 
 		@Override
-		public boolean canFillFluidType(FluidStack fluid) {
-			return false;
+		protected ItemResource update(ItemResource accessResource, int index, FluidResource newResource, int newAmount) {
+			return ItemResource.of(Items.BOWL);
 		}
 
 		@Override
-		public boolean canDrainFluidType(FluidStack fluid) {
-			return fluid.getFluid() == Fluids.WATER;
+		public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+			return 0;
+		}
+
+		@Override
+		public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+			return amount >= BOWL_CAPACITY && resource.getFluid() == Fluids.WATER ?
+					super.extract(index, resource, amount, transaction) :
+					0;
 		}
 	}
 
-	@EventBusSubscriber(modid = FTBStuffNThings.MODID)
+	@EventBusSubscriber(modid = FTBStuffNThings.MOD_ID)
 	public static class Listener {
 		@SubscribeEvent
 		public static void onItemRightClick(PlayerInteractEvent.RightClickItem event) {
@@ -70,11 +81,15 @@ public class WaterBowlItem extends Item {
 				event.getItemStack().shrink(1);
 
 				if (!event.getLevel().isClientSide()) {
-					ItemHandlerHelper.giveItemToPlayer(player, ItemsRegistry.WATER_BOWL.toStack(), player.getInventory().selected);
+					if (event.getItemStack().isEmpty()) {
+						player.setItemInHand(event.getHand(), ItemsRegistry.WATER_BOWL.toStack());
+					} else {
+						player.getInventory().placeItemBackInInventory(ItemsRegistry.WATER_BOWL.toStack());
+					}
 				}
 
 				player.swing(event.getHand());
-				event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
+				event.setCancellationResult(player.level().isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER);
 				event.setCanceled(true);
 			}
 		}

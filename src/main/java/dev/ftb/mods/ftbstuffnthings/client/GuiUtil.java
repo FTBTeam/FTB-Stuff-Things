@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -33,7 +33,7 @@ public class GuiUtil {
 
         Fluid fluid = fluidStack.getFluid();
         IClientFluidTypeExtensions renderProps = IClientFluidTypeExtensions.of(fluid);
-        ResourceLocation fluidStill = Objects.requireNonNullElse(renderProps.getStillTexture(fluidStack), MissingTextureAtlasSprite.getLocation());
+        Identifier fluidStill = Objects.requireNonNullElse(renderProps.getStillTexture(fluidStack), MissingTextureAtlasSprite.getLocation());
         TextureAtlasSprite fluidStillSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidStill);
 
         int scaledAmount = tank == null ? bounds.getHeight() : fluidStack.getAmount() * bounds.getHeight() / tank.getCapacity();

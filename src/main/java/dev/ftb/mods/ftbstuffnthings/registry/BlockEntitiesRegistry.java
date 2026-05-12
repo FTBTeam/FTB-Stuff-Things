@@ -16,109 +16,119 @@ import dev.ftb.mods.ftbstuffnthings.blocks.tube.TubeBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.woodbasin.WoodenBasinBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 public class BlockEntitiesRegistry {
-    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, FTBStuffNThings.MODID);
+    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, FTBStuffNThings.MOD_ID);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Oak>> OAK_SLUICE
-            = BLOCK_ENTITIES.register("oak_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Oak::new, BlocksRegistry.OAK_SLUICE.get()).build(null));
+            = register("oak_sluice", SluiceBlockEntity.Oak::new, BlocksRegistry.OAK_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Spruce>> SPRUCE_SLUICE
-            = BLOCK_ENTITIES.register("spruce_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Spruce::new, BlocksRegistry.SPRUCE_SLUICE.get()).build(null));
-
+            = register("spruce_sluice", SluiceBlockEntity.Spruce::new, BlocksRegistry.SPRUCE_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Birch>> BIRCH_SLUICE
-            = BLOCK_ENTITIES.register("birch_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Birch::new, BlocksRegistry.BIRCH_SLUICE.get()).build(null));
-
+            = register("birch_sluice", SluiceBlockEntity.Birch::new, BlocksRegistry.BIRCH_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Jungle>> JUNGLE_SLUICE
-            = BLOCK_ENTITIES.register("jungle_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Jungle::new, BlocksRegistry.JUNGLE_SLUICE.get()).build(null));
-
+            = register("jungle_sluice", SluiceBlockEntity.Jungle::new, BlocksRegistry.JUNGLE_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Acacia>> ACACIA_SLUICE
-            = BLOCK_ENTITIES.register("acacia_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Acacia::new, BlocksRegistry.ACACIA_SLUICE.get()).build(null));
-
+            = register("acacia_sluice", SluiceBlockEntity.Acacia::new, BlocksRegistry.ACACIA_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.DarkOak>> DARK_OAK_SLUICE
-            = BLOCK_ENTITIES.register("dark_oak_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.DarkOak::new, BlocksRegistry.DARK_OAK_SLUICE.get()).build(null));
-
+            = register("dark_oak_sluice", SluiceBlockEntity.DarkOak::new, BlocksRegistry.DARK_OAK_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Mangrove>> MANGROVE_SLUICE
-            = BLOCK_ENTITIES.register("mangrove_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Mangrove::new, BlocksRegistry.MANGROVE_SLUICE.get()).build(null));
-
+            = register("mangrove_sluice", SluiceBlockEntity.Mangrove::new, BlocksRegistry.MANGROVE_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Cherry>> CHERRY_SLUICE
-            = BLOCK_ENTITIES.register("cherry_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Cherry::new, BlocksRegistry.CHERRY_SLUICE.get()).build(null));
+            = register("cherry_sluice", SluiceBlockEntity.Cherry::new, BlocksRegistry.CHERRY_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.PaleOak>> PALE_OAK_SLUICE
-            = BLOCK_ENTITIES.register("pale_oak_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.PaleOak::new, BlocksRegistry.PALE_OAK_SLUICE.get()).build(null));
+            = register("pale_oak_sluice", SluiceBlockEntity.PaleOak::new, BlocksRegistry.PALE_OAK_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Crimson>> CRIMSON_SLUICE
-            = BLOCK_ENTITIES.register("crimson_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Crimson::new, BlocksRegistry.CRIMSON_SLUICE.get()).build(null));
+            = register("crimson_sluice", SluiceBlockEntity.Crimson::new, BlocksRegistry.CRIMSON_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Warped>> WARPED_SLUICE
-            = BLOCK_ENTITIES.register("warped_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Warped::new, BlocksRegistry.WARPED_SLUICE.get()).build(null));
+            = register("warped_sluice", SluiceBlockEntity.Warped::new, BlocksRegistry.WARPED_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Bamboo>> BAMBOO_SLUICE
-            = BLOCK_ENTITIES.register("bamboo_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Bamboo::new, BlocksRegistry.BAMBOO_SLUICE.get()).build(null));
+            = register("bamboo_sluice", SluiceBlockEntity.Bamboo::new, BlocksRegistry.BAMBOO_SLUICE);
 
-
-   public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Iron>> IRON_SLUICE
-            = BLOCK_ENTITIES.register("iron_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Iron::new, BlocksRegistry.IRON_SLUICE.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Iron>> IRON_SLUICE
+            = register("iron_sluice", SluiceBlockEntity.Iron::new, BlocksRegistry.IRON_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Diamond>> DIAMOND_SLUICE
-            = BLOCK_ENTITIES.register("diamond_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_SLUICE.get()).build(null));
+            = register("diamond_sluice", SluiceBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_SLUICE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Netherite>> NETHERITE_SLUICE
-            = BLOCK_ENTITIES.register("netherite_sluice", () -> BlockEntityType.Builder.of(SluiceBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_SLUICE.get()).build(null));
+            = register("netherite_sluice", SluiceBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_SLUICE);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoHammerBlockEntity.Iron>> IRON_HAMMER
-            = BLOCK_ENTITIES.register("iron_hammer", () -> BlockEntityType.Builder.of(AutoHammerBlockEntity.Iron::new, BlocksRegistry.IRON_AUTO_HAMMER.get()).build(null));
+            = register("iron_hammer", AutoHammerBlockEntity.Iron::new, BlocksRegistry.IRON_AUTO_HAMMER);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoHammerBlockEntity.Gold>> GOLD_HAMMER
-            = BLOCK_ENTITIES.register("gold_hammer", () -> BlockEntityType.Builder.of(AutoHammerBlockEntity.Gold::new, BlocksRegistry.GOLD_AUTO_HAMMER.get()).build(null));
+            = register("gold_hammer", AutoHammerBlockEntity.Gold::new, BlocksRegistry.GOLD_AUTO_HAMMER);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoHammerBlockEntity.Diamond>> DIAMOND_HAMMER
-            = BLOCK_ENTITIES.register("diamond_hammer", () -> BlockEntityType.Builder.of(AutoHammerBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_AUTO_HAMMER.get()).build(null));
+            = register("diamond_hammer", AutoHammerBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_AUTO_HAMMER);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoHammerBlockEntity.Netherite>> NETHERITE_HAMMER
-            = BLOCK_ENTITIES.register("netherite_hammer", () -> BlockEntityType.Builder.of(AutoHammerBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_AUTO_HAMMER.get()).build(null));
+            = register("netherite_hammer", AutoHammerBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_AUTO_HAMMER);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Stone>> STONE_COBBLEGEN
-            = BLOCK_ENTITIES.register("stone_cobblegen", () -> BlockEntityType.Builder.of(CobblegenBlockEntity.Stone::new, BlocksRegistry.STONE_COBBLESTONE_GENERATOR.get()).build(null));
+            = register("stone_cobblegen", CobblegenBlockEntity.Stone::new, BlocksRegistry.STONE_COBBLESTONE_GENERATOR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Iron>> IRON_COBBLEGEN
-            = BLOCK_ENTITIES.register("iron_cobblegen", () -> BlockEntityType.Builder.of(CobblegenBlockEntity.Iron::new, BlocksRegistry.IRON_COBBLESTONE_GENERATOR.get()).build(null));
+            = register("iron_cobblegen", CobblegenBlockEntity.Iron::new, BlocksRegistry.IRON_COBBLESTONE_GENERATOR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Gold>> GOLD_COBBLEGEN
-            = BLOCK_ENTITIES.register("gold_cobblegen", () -> BlockEntityType.Builder.of(CobblegenBlockEntity.Gold::new, BlocksRegistry.GOLD_COBBLESTONE_GENERATOR.get()).build(null));
+            = register("gold_cobblegen", CobblegenBlockEntity.Gold::new, BlocksRegistry.GOLD_COBBLESTONE_GENERATOR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Diamond>> DIAMOND_COBBLEGEN
-            = BLOCK_ENTITIES.register("diamond_cobblegen", () -> BlockEntityType.Builder.of(CobblegenBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_COBBLESTONE_GENERATOR.get()).build(null));
+            = register("diamond_cobblegen", CobblegenBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_COBBLESTONE_GENERATOR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Netherite>> NETHERITE_COBBLEGEN
-            = BLOCK_ENTITIES.register("netherite_cobblegen", () -> BlockEntityType.Builder.of(CobblegenBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_COBBLESTONE_GENERATOR.get()).build(null));
+            = register("netherite_cobblegen", CobblegenBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_COBBLESTONE_GENERATOR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Stone>> STONE_BASALT_GENERATOR
-            = BLOCK_ENTITIES.register("stone_basalt_generator", () -> BlockEntityType.Builder.of(BasaltgenBlockEntity.Stone::new, BlocksRegistry.STONE_BASALT_GENERATOR.get()).build(null));
+            = register("stone_basalt_generator", BasaltgenBlockEntity.Stone::new, BlocksRegistry.STONE_BASALT_GENERATOR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Iron>> IRON_BASALT_GENERATOR
-            = BLOCK_ENTITIES.register("iron_basalt_generator", () -> BlockEntityType.Builder.of(BasaltgenBlockEntity.Iron::new, BlocksRegistry.IRON_BASALT_GENERATOR.get()).build(null));
+            = register("iron_basalt_generator", BasaltgenBlockEntity.Iron::new, BlocksRegistry.IRON_BASALT_GENERATOR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Gold>> GOLD_BASALT_GENERATOR
-            = BLOCK_ENTITIES.register("gold_basalt_generator", () -> BlockEntityType.Builder.of(BasaltgenBlockEntity.Gold::new, BlocksRegistry.GOLD_BASALT_GENERATOR.get()).build(null));
+            = register("gold_basalt_generator", BasaltgenBlockEntity.Gold::new, BlocksRegistry.GOLD_BASALT_GENERATOR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Diamond>> DIAMOND_BASALT_GENERATOR
-            = BLOCK_ENTITIES.register("diamond_basalt_generator", () -> BlockEntityType.Builder.of(BasaltgenBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_BASALT_GENERATOR.get()).build(null));
+            = register("diamond_basalt_generator", BasaltgenBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_BASALT_GENERATOR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Netherite>> NETHERITE_BASALT_GENERATOR
-            = BLOCK_ENTITIES.register("netherite_basalt_generator", () -> BlockEntityType.Builder.of(BasaltgenBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_BASALT_GENERATOR.get()).build(null));
+            = register("netherite_basalt_generator", BasaltgenBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_BASALT_GENERATOR);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PumpBlockEntity>> PUMP
-            = BLOCK_ENTITIES.register("pump", () -> BlockEntityType.Builder.of(PumpBlockEntity::new, BlocksRegistry.PUMP.get()).build(null));
+            = register("pump", PumpBlockEntity::new, BlocksRegistry.PUMP);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TubeBlockEntity>> TUBE
-            = BLOCK_ENTITIES.register("tube", () -> BlockEntityType.Builder.of(TubeBlockEntity::new, BlocksRegistry.TUBE.get()).build(null));
+            = register("tube", TubeBlockEntity::new, BlocksRegistry.TUBE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<JarBlockEntity>> JAR
-            = BLOCK_ENTITIES.register("jar", () -> BlockEntityType.Builder.of(JarBlockEntity::new, BlocksRegistry.JAR.get()).build(null));
+            = register("jar", JarBlockEntity::new, BlocksRegistry.JAR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TemperedJarBlockEntity>> TEMPERED_JAR
-            = BLOCK_ENTITIES.register("tempered_jar", () -> BlockEntityType.Builder.of(TemperedJarBlockEntity::new, BlocksRegistry.TEMPERED_JAR.get()).build(null));
+            = register("tempered_jar", TemperedJarBlockEntity::new, BlocksRegistry.TEMPERED_JAR);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DripperBlockEntity>> DRIPPER
-            = BLOCK_ENTITIES.register("dripper", () -> BlockEntityType.Builder.of(DripperBlockEntity::new, BlocksRegistry.DRIPPER.get()).build(null));
+            = register("dripper", DripperBlockEntity::new, BlocksRegistry.DRIPPER);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WoodenBasinBlockEntity>> WOODEN_BASIN
-            = BLOCK_ENTITIES.register("wooden_basin", () -> BlockEntityType.Builder.of(WoodenBasinBlockEntity::new, BlocksRegistry.WOODEN_BASIN.get()).build(null));
+            = register("wooden_basin", WoodenBasinBlockEntity::new, BlocksRegistry.WOODEN_BASIN);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FusingMachineBlockEntity>> FUSING_MACHINE
-            = BLOCK_ENTITIES.register("fusing_machine", () -> BlockEntityType.Builder.of(FusingMachineBlockEntity::new, BlocksRegistry.FUSING_MACHINE.get()).build(null));
+            = register("fusing_machine", FusingMachineBlockEntity::new, BlocksRegistry.FUSING_MACHINE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SuperCoolerBlockEntity>> SUPER_COOLER
-            = BLOCK_ENTITIES.register("super_cooler", () -> BlockEntityType.Builder.of(SuperCoolerBlockEntity::new, BlocksRegistry.SUPER_COOLER.get()).build(null));
+            = register("super_cooler", SuperCoolerBlockEntity::new, BlocksRegistry.SUPER_COOLER);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WaterStrainerBlockEntity>> WATER_STRAINER
-            = BLOCK_ENTITIES.register("water_strainer", () -> BlockEntityType.Builder.of(WaterStrainerBlockEntity::new, strainerBlocks()).build(null));
+            = registerBlockSet("water_strainer", WaterStrainerBlockEntity::new, BlockEntitiesRegistry::strainerBlocks);
 
-    private static Block[] strainerBlocks() {
-        return BlocksRegistry.waterStrainers().stream().map(DeferredHolder::get).toArray(Block[]::new);
+    private static Set<Block> strainerBlocks() {
+        return BlocksRegistry.waterStrainers().stream().map(DeferredHolder::get).collect(Collectors.toSet());
+    }
+
+    @SafeVarargs
+    private static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> register(String name, BlockEntityType.BlockEntitySupplier<T> supplier, Supplier<? extends Block>... blocks) {
+        //noinspection ConstantConditions
+        return BLOCK_ENTITIES.register(name, () -> new BlockEntityType<>(supplier, Arrays.stream(blocks).map(Supplier::get).collect(Collectors.toSet())));
+    }
+
+    private static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> registerBlockSet(String name, BlockEntityType.BlockEntitySupplier<T> supplier, Supplier<Set<Block>> blocks) {
+        //noinspection ConstantConditions
+        return BLOCK_ENTITIES.register(name, () -> new BlockEntityType<>(supplier, blocks.get()));
     }
 
     public static void init(IEventBus bus) {

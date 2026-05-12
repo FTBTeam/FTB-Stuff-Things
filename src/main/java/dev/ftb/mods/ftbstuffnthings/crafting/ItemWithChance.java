@@ -8,18 +8,24 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
 
-public record ItemWithChance(ItemStack item, double chance) {
+public record ItemWithChance(ItemStackTemplate item, double chance) {
 	public static final Codec<ItemWithChance> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-			ItemStack.CODEC.fieldOf("item").forGetter(ItemWithChance::item),
+			ItemStackTemplate.CODEC.fieldOf("item").forGetter(ItemWithChance::item),
 			Codec.DOUBLE.validate(MiscUtil::validateChanceRange).fieldOf("chance").forGetter(ItemWithChance::chance)
 	).apply(builder, ItemWithChance::new));
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, ItemWithChance> STREAM_CODEC = StreamCodec.composite(
-			ItemStack.STREAM_CODEC, ItemWithChance::item,
+			ItemStackTemplate.STREAM_CODEC, ItemWithChance::item,
 			ByteBufCodecs.DOUBLE, ItemWithChance::chance,
 			ItemWithChance::new
 	);
+
+	public static ItemWithChance create(ItemStack stack, double chance) {
+		return new ItemWithChance(ItemStackTemplate.fromNonEmptyStack(stack), chance);
+	}
 
 	@Override
 	public String toString() {
@@ -29,7 +35,7 @@ public record ItemWithChance(ItemStack item, double chance) {
 			.toString();
 	}
 
-	public ItemWithChance copy(){
-		return new ItemWithChance(item.copy(), chance);
-	}
+//	public ItemWithChance copy(){
+//		return new ItemWithChance(item, chance);
+//	}
 }

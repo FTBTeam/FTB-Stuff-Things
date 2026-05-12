@@ -1,56 +1,89 @@
 package dev.ftb.mods.ftbstuffnthings.capabilities;
 
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.TransferPreconditions;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.function.BiConsumer;
 
-public class IOStackHandler implements IItemHandler {
-    private final ItemStackHandler input;
-    private final ItemStackHandler output;
+public class IOStackHandler implements ResourceHandler<ItemResource> {
+    private final EmittingStackHandler input;
+    private final EmittingStackHandler output;
 
     public IOStackHandler(int inputSlots, int outputSlots, BiConsumer<IOStackHandler, IO> onChange) {
-        this.input = new EmittingStackHandler(inputSlots, (contents) -> onChange.accept(this, IO.INPUT));
-        this.output = new EmittingStackHandler(outputSlots, (contents) -> onChange.accept(this, IO.OUTPUT));
+        this.input = new EmittingStackHandler(inputSlots, _ -> onChange.accept(this, IO.INPUT));
+        this.output = new EmittingStackHandler(outputSlots, _ -> onChange.accept(this, IO.OUTPUT));
     }
 
     @Override
-    public int getSlots() {
-        return input.getSlots() + output.getSlots();
+    public int size() {
+        return input.size() + output.size();
     }
 
     @Override
-    public @NotNull ItemStack getStackInSlot(int i) {
-        return i < input.getSlots() ? input.getStackInSlot(i) : output.getStackInSlot(i - input.getSlots());
+    public ItemResource getResource(int index) {
+        return index < input.size() ? input.getResource(index) : output.getResource(index - input.size());
     }
 
     @Override
-    public @NotNull ItemStack insertItem(int i, @NotNull ItemStack arg, boolean bl) {
-        return i < input.getSlots() ? input.insertItem(i, arg, bl) : arg;
+    public long getAmountAsLong(int index) {
+        return index < input.size() ? input.getAmountAsLong(index) : output.getAmountAsLong(index - input.size());
     }
 
     @Override
-    public @NotNull ItemStack extractItem(int i, int j, boolean bl) {
-        return i < input.getSlots() ? ItemStack.EMPTY : output.extractItem(i - input.getSlots(), j, bl);
+    public long getCapacityAsLong(int index, ItemResource resource) {
+        return index < input.size() ? input.getAmountAsLong(index) : output.getAmountAsLong(index - input.size());
     }
 
     @Override
-    public int getSlotLimit(int i) {
-        return i < input.getSlots() ? input.getSlotLimit(i) : output.getSlotLimit(i - input.getSlots());
+    public boolean isValid(int index, ItemResource resource) {
+        return index < input.size() && input.isValid(index, resource);
     }
 
     @Override
-    public boolean isItemValid(int i, @NotNull ItemStack arg) {
-        return i < input.getSlots() && input.isItemValid(i, arg);
+    public int insert(ItemResource resource, int amount, TransactionContext transaction) {
+        TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+
+        int inserted = 0;
+        int size = input.size();
+        for (int index = 0; index < size; index++) {
+            inserted += insert(index, resource, amount - inserted, transaction);
+            if (inserted == amount) break;
+        }
+        return inserted;
     }
 
-    public ItemStackHandler getInput() {
+    @Override
+    public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        return index < input.size() ? input.insert(index, resource, amount, transaction) : 0;
+    }
+
+    @Override
+    public int extract(ItemResource resource, int amount, TransactionContext transaction) {
+        TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
+
+        int extracted = 0;
+        int inputSize = input.size();
+        int outputSize = output.size();
+        for (int index = inputSize; index < inputSize + outputSize; index++) {
+            extracted += extract(index, resource, amount - extracted, transaction);
+            if (extracted == amount) break;
+        }
+        return extracted;
+    }
+
+    @Override
+    public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+        return index < input.size() ? 0 : output.extract(index - input.size(), resource, amount, transaction);
+    }
+
+    public ItemStacksResourceHandler getInput() {
         return input;
     }
 
-    public ItemStackHandler getOutput() {
+    public ItemStacksResourceHandler getOutput() {
         return output;
     }
 

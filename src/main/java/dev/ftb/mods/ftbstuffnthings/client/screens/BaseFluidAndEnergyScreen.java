@@ -8,7 +8,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -21,9 +21,9 @@ import java.util.Optional;
 public abstract class BaseFluidAndEnergyScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
     private final int fluidXOffset;
     private final int progressXOffset;
-    private final ResourceLocation texture;
+    private final Identifier texture;
 
-    public BaseFluidAndEnergyScreen(T menu, Inventory inventory, Component title, int fluidXOffset, int progressXOffset, ResourceLocation texture) {
+    public BaseFluidAndEnergyScreen(T menu, Inventory inventory, Component title, int fluidXOffset, int progressXOffset, Identifier texture) {
         super(menu, inventory, title);
         this.fluidXOffset = fluidXOffset;
         this.progressXOffset = progressXOffset;

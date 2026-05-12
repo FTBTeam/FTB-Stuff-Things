@@ -4,14 +4,14 @@ import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class TemperedJarMenu extends AbstractContainerMenu {
     public static final int PLAYER_INV_Y = 132;
@@ -21,7 +21,7 @@ public class TemperedJarMenu extends AbstractContainerMenu {
 
     public static TemperedJarMenu fromNetwork(int containerId, Inventory invPlayer, FriendlyByteBuf extraData) {
         TemperedJarMenu menu = new TemperedJarMenu(containerId, invPlayer, extraData.readBlockPos());
-        ResourceLocation recipeId = extraData.readOptional(FriendlyByteBuf::readResourceLocation).orElse(null);
+        Identifier recipeId = extraData.readOptional(FriendlyByteBuf::readIdentifier).orElse(null);
         menu.getJar().setCurrentRecipeId(recipeId);
         return menu;
     }
@@ -46,7 +46,7 @@ public class TemperedJarMenu extends AbstractContainerMenu {
 
         // item input slots
         for (int y = 0; y < 3; y++) {
-            addSlot(new SlotItemHandler(jar.getInputItemHandler(), y, 17, INPUT_ITEMS_Y + 18 * y));
+            addSlot(new ResourceHandlerSlot(jar.getInputItemHandler(), jar::itemIndexModifer, y, 17, INPUT_ITEMS_Y + 18 * y));
         }
 
         addDataSlots(jar.getContainerData());

@@ -13,41 +13,46 @@ import dev.ftb.mods.ftbstuffnthings.items.WaterBowlItem;
 import dev.ftb.mods.ftbstuffnthings.network.SyncLootSummaryPacket;
 import dev.ftb.mods.ftbstuffnthings.registry.*;
 import dev.ftb.mods.ftbstuffnthings.util.lootsummary.LootSummaryCollection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
-@Mod(FTBStuffNThings.MODID)
+@Mod(FTBStuffNThings.MOD_ID)
 public class FTBStuffNThings {
-    public static final String MODID = "ftbstuff";
+    public static final String MOD_ID = "ftbstuff";
+    public static final String MOD_NAME = "FTB Stuff & Things";
 
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public FTBStuffNThings(IEventBus modEventBus) {
-        ConfigManager.getInstance().registerServerConfig(Config.CONFIG, MODID, false);
+        ConfigManager.getInstance().registerServerConfig(ModConfig.CONFIG, MOD_ID, false);
 
         BlocksRegistry.init(modEventBus);
         ItemsRegistry.init(modEventBus);
@@ -61,6 +66,7 @@ public class FTBStuffNThings {
 
         NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
         NeoForge.EVENT_BUS.addListener(this::onPlayerJoin);
+        NeoForge.EVENT_BUS.addListener(this::onDatapackSync);
     }
 
     private void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
@@ -70,11 +76,18 @@ public class FTBStuffNThings {
         }
     }
 
+    private void onDatapackSync(OnDatapackSyncEvent event) {
+        List<RecipeType<?>> types = RecipesRegistry.RECIPE_TYPES.getEntries().stream()
+                .map(DeferredHolder::get)
+                .collect(Collectors.toList());
+        event.sendRecipes(types);
+    }
+
     public static void syncLootSummaries(ServerPlayer serverPlayer) {
         // sent to players when they log in, and when a /reload is done on the server
         LootSummaryCollection lsc = new LootSummaryCollection();
 
-        Config.getStrainerLootTable().ifPresent(lootTableId -> BlocksRegistry.waterStrainers().forEach(b ->
+        ModConfig.getStrainerLootTable().ifPresent(lootTableId -> BlocksRegistry.waterStrainers().forEach(b ->
                 lsc.addEntry(b.getKey(), lootTableId, makeBlockParams(serverPlayer, b.get().defaultBlockState())))
         );
         BlocksRegistry.BARRELS.forEach(b ->
@@ -88,7 +101,7 @@ public class FTBStuffNThings {
     }
 
     private static LootParams makeBlockParams(ServerPlayer serverPlayer, BlockState state) {
-        return new LootParams.Builder(serverPlayer.serverLevel())
+        return new LootParams.Builder(serverPlayer.level())
                 .withParameter(LootContextParams.BLOCK_STATE, state)
                 .withParameter(LootContextParams.ORIGIN, Vec3.ZERO)
                 .withParameter(LootContextParams.TOOL, Items.DIAMOND_PICKAXE.getDefaultInstance())
@@ -96,31 +109,31 @@ public class FTBStuffNThings {
                 .create(LootContextParamSets.BLOCK);
     }
 
-    private static ResourceLocation blockLootTable(DeferredBlock<Block> db) {
-        return ResourceLocation.fromNamespaceAndPath(db.getId().getNamespace(), "blocks/" + db.getId().getPath());
+    private static Identifier blockLootTable(DeferredBlock<Block> db) {
+        return Identifier.fromNamespaceAndPath(db.getId().getNamespace(), "blocks/" + db.getId().getPath());
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
+                Capabilities.Fluid.BLOCK,
                 BlockEntitiesRegistry.JAR.get(),
-                (blockEntity, side) -> blockEntity.getFluidHandler()
+                (blockEntity, _) -> blockEntity.getFluidHandler()
         );
 
         event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
+                Capabilities.Item.BLOCK,
                 BlockEntitiesRegistry.TEMPERED_JAR.get(),
                 TemperedJarBlockEntity::getInputItemHandler
         );
 
         event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
+                Capabilities.Fluid.BLOCK,
                 BlockEntitiesRegistry.TEMPERED_JAR.get(),
                 TemperedJarBlockEntity::getFluidHandler
         );
 
         event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
+                Capabilities.Item.BLOCK,
                 BlockEntitiesRegistry.WATER_STRAINER.get(),
                 WaterStrainerBlockEntity::getItemHandler
         );
@@ -142,35 +155,35 @@ public class FTBStuffNThings {
                 .forEach(hammer -> AutoHammerBlockEntity.registerCapabilities(event, hammer.get()));
 
         event.registerItem(
-                Capabilities.FluidHandler.ITEM,
+                Capabilities.Fluid.ITEM,
                 (stack, ctx) -> new FluidCapsuleItem.FluidHandler(stack),
                 ItemsRegistry.FLUID_CAPSULE
         );
         event.registerItem(
-                Capabilities.FluidHandler.ITEM,
-                (stack, ctx) -> new WaterBowlItem.WaterBowlFluidHandler(stack),
+                Capabilities.Fluid.ITEM,
+                (stack, _) -> new WaterBowlItem.WaterBowlFluidHandler(stack),
                 ItemsRegistry.WATER_BOWL
         );
 
         event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
+                Capabilities.Fluid.BLOCK,
                 BlockEntitiesRegistry.WOODEN_BASIN.get(),
                 (blockEntity, side) -> blockEntity.getFluidHandler()
         );
     }
 
-    private void addReloadListeners(AddReloadListenerEvent event) {
-        event.addListener(new CacheReloadListener());
+    private void addReloadListeners(AddServerReloadListenersEvent event) {
+        event.addListener(FTBStuffNThings.id("reload"), new CacheReloadListener());
     }
 
-    public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
     public static class CacheReloadListener implements PreparableReloadListener {
         @Override
-        public CompletableFuture<Void> reload(PreparationBarrier stage, ResourceManager resourceManager, ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
-            return CompletableFuture.runAsync(RecipeCaches::clearAll, gameExecutor).thenCompose(stage::wait);
+        public CompletableFuture<Void> reload(SharedState sharedState, Executor taskExecutor, PreparationBarrier preparationBarrier, Executor reloadExecutor) {
+            return CompletableFuture.runAsync(RecipeCaches::clearAll, reloadExecutor).thenCompose(preparationBarrier::wait);
         }
     }
 }

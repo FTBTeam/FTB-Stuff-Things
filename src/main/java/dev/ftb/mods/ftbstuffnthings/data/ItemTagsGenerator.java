@@ -6,22 +6,21 @@ import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.common.data.ItemTagsProvider;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 public class ItemTagsGenerator extends ItemTagsProvider {
-    public ItemTagsGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagLookup<Block>> blockTags, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, blockTags, FTBStuffNThings.MODID, existingFileHelper);
+
+    public ItemTagsGenerator(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> providerCompletableFuture, CompletableFuture<TagLookup<Block>> ignored) {
+        super(packOutput, providerCompletableFuture, FTBStuffNThings.MOD_ID);
     }
 
     @Override
@@ -53,6 +52,6 @@ public class ItemTagsGenerator extends ItemTagsProvider {
 
     @Override
     public String getName() {
-        return FTBStuffNThings.MODID + " Item Tags";
+        return FTBStuffNThings.MOD_ID + " Item Tags";
     }
 }

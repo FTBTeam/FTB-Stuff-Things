@@ -5,10 +5,12 @@ import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,7 +25,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class WaterStrainerBlock extends AbstractMachineBlock {
     private static final VoxelShape SHAPE0 = VoxelShapeUtils.or(
@@ -67,18 +69,19 @@ public class WaterStrainerBlock extends AbstractMachineBlock {
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext arg) {
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext arg) {
         FluidState fluidState = arg.getLevel().getFluidState(arg.getClickedPos());
-        return super.getStateForPlacement(arg).setValue(BlockStateProperties.WATERLOGGED, fluidState.getType() == Fluids.WATER);
+        BlockState state = super.getStateForPlacement(arg);
+        return state == null ? null : state.setValue(BlockStateProperties.WATERLOGGED, fluidState.getType() == Fluids.WATER);
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos pos, BlockPos facingPos) {
+    protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {
         if (state.getValue(BlockStateProperties.WATERLOGGED)) {
-            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+            ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
-        return super.updateShape(state, facing, facingState, level, pos, facingPos);
+        return super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
     }
 
     @Override
@@ -101,7 +104,7 @@ public class WaterStrainerBlock extends AbstractMachineBlock {
     }
 
     @Override
-    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         return level.getBlockEntity(pos, BlockEntitiesRegistry.WATER_STRAINER.get())
                 .map(WaterStrainerBlockEntity::getComparatorLevel)
                 .orElse(0);

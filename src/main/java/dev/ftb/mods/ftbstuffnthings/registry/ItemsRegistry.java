@@ -1,21 +1,24 @@
 package dev.ftb.mods.ftbstuffnthings.registry;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
+import dev.ftb.mods.ftbstuffnthings.blocks.jar.JarBlock;
+import dev.ftb.mods.ftbstuffnthings.blocks.jar.TemperedJarBlock;
 import dev.ftb.mods.ftbstuffnthings.items.*;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ItemsRegistry {
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(FTBStuffNThings.MODID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(FTBStuffNThings.MOD_ID);
 
     public static final DeferredItem<MeshItem> CLOTH_MESH = ITEMS.register("cloth_mesh", () -> new MeshItem(MeshType.CLOTH));
     public static final DeferredItem<MeshItem> IRON_MESH = ITEMS.register("iron_mesh", () -> new MeshItem(MeshType.IRON));
@@ -32,18 +35,14 @@ public class ItemsRegistry {
     public static final DeferredItem<Item> CAST_IRON_GEAR = simpleItem("cast_iron_gear");
     public static final DeferredItem<Item> TEMPERED_GLASS = simpleItem("tempered_glass");
 
-    public static final DeferredItem<HammerItem> STONE_HAMMER = registerHammer("stone_hammer", Tiers.STONE);
-    public static final DeferredItem<HammerItem> IRON_HAMMER = registerHammer("iron_hammer", Tiers.IRON);
-    public static final DeferredItem<HammerItem> GOLD_HAMMER = registerHammer("gold_hammer", Tiers.GOLD);
-    public static final DeferredItem<HammerItem> DIAMOND_HAMMER = registerHammer("diamond_hammer", Tiers.DIAMOND);
-    public static final DeferredItem<HammerItem> NETHERITE_HAMMER = registerHammer("netherite_hammer", Tiers.NETHERITE);
+    public static final DeferredItem<HammerItem> STONE_HAMMER = registerHammer("stone_hammer", ToolMaterial.STONE);
+    public static final DeferredItem<HammerItem> IRON_HAMMER = registerHammer("iron_hammer", ToolMaterial.IRON);
+    public static final DeferredItem<HammerItem> GOLD_HAMMER = registerHammer("gold_hammer", ToolMaterial.GOLD);
+    public static final DeferredItem<HammerItem> DIAMOND_HAMMER = registerHammer("diamond_hammer", ToolMaterial.DIAMOND);
+    public static final DeferredItem<HammerItem> NETHERITE_HAMMER = registerHammer("netherite_hammer", ToolMaterial.NETHERITE);
     public static final List<DeferredItem<HammerItem>> ALL_HAMMERS = List.of(STONE_HAMMER, IRON_HAMMER, GOLD_HAMMER, DIAMOND_HAMMER, NETHERITE_HAMMER);
 
-    public static final DeferredItem<CrookItem> CROOK = ITEMS.register("stone_crook",
-            () -> new CrookItem(Tiers.STONE, new Item.Properties().attributes(
-                    DiggerItem.createAttributes(Tiers.STONE, 2, -2.8F)
-            ))
-    );
+    public static final DeferredItem<CrookItem> CROOK = ITEMS.register("stone_crook", CrookItem::new);
     public static final DeferredItem<Item> STONE_ROD = simpleItem("stone_rod");
 
     //#region Block Items
@@ -96,9 +95,12 @@ public class ItemsRegistry {
     public static final DeferredItem<BlockItem> CRUSHED_ENDSTONE = blockItem("crushed_endstone", BlocksRegistry.CRUSHED_ENDSTONE);
     public static final DeferredItem<BlockItem> CRUSHED_NETHERRACK = blockItem("crushed_netherrack", BlocksRegistry.CRUSHED_NETHERRACK);
 
-    public static final DeferredItem<BlockItem> TUBE = blockItem("tube", BlocksRegistry.TUBE);
-    public static final DeferredItem<BlockItem> JAR = blockItem("jar", BlocksRegistry.JAR);
-    public static final DeferredItem<BlockItem> TEMPERED_JAR = blockItem("tempered_jar", BlocksRegistry.TEMPERED_JAR);
+    public static final DeferredItem<BlockItem> TUBE
+            = blockItem("tube", BlocksRegistry.TUBE);
+    public static final DeferredItem<JarBlock.JarBlockItem> JAR
+            = blockItem("jar", BlocksRegistry.JAR, JarBlock.JarBlockItem::new);
+    public static final DeferredItem<TemperedJarBlock.TemperedJarBlockItem> TEMPERED_JAR
+            = blockItem("tempered_jar", BlocksRegistry.TEMPERED_JAR, TemperedJarBlock.TemperedJarBlockItem::new);
     public static final DeferredItem<BlockItem> AUTO_PROCESSING_BLOCK
             = blockItem("auto_processing_block", BlocksRegistry.JAR_AUTOMATER);
     public static final DeferredItem<BlockItem> BLUE_MAGMA_BLOCK
@@ -145,16 +147,22 @@ public class ItemsRegistry {
     }
 
     public static DeferredItem<Item> simpleItem(String id) {
-        return ITEMS.registerSimpleItem(id, new Item.Properties());
+        return ITEMS.registerSimpleItem(id, Item.Properties::new);
     }
 
     public static DeferredItem<BlockItem> blockItem(String id, Supplier<? extends Block> sup) {
         return ITEMS.registerSimpleBlockItem(id, sup);
     }
 
-    private static DeferredItem<HammerItem> registerHammer(String name, Tiers tier) {
-        return ITEMS.registerItem(name, props -> new HammerItem(tier,
-                new Item.Properties().attributes(DiggerItem.createAttributes(tier, 1.0F, -2.8F))
-        ));
+    public static <B extends Block, I extends BlockItem> DeferredItem<I> blockItem(String name, Supplier<B> block, BiFunction<B, Item.Properties, I> factory) {
+        return ITEMS.registerItem(name, props -> factory.apply(block.get(), props), () -> new Item.Properties().useBlockDescriptionPrefix());
+    }
+
+    public static <B extends Block, I extends BlockItem> DeferredItem<I> blockItem(String name, Supplier<B> block, Supplier<Item.Properties> properties, BiFunction<B, Item.Properties, I> factory) {
+        return ITEMS.registerItem(name, props -> factory.apply(block.get(), props), () -> properties.get().useBlockDescriptionPrefix());
+    }
+
+    private static DeferredItem<HammerItem> registerHammer(String name, ToolMaterial material) {
+        return ITEMS.registerItem(name, props -> new HammerItem(material));
     }
 }

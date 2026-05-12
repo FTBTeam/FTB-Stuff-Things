@@ -21,19 +21,19 @@ import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.gui.GuiGraphics;
+import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public abstract class BaseStuffCategory<T> implements IRecipeCategory<T> {
-    private final RecipeType<T> type;
+    private final IRecipeType<T> type;
     private final Component localizedName;
     private final IDrawable background;
     private final IDrawable icon;
 
-    protected BaseStuffCategory(RecipeType<T> type, Component localizedName, IDrawable background, IDrawable icon) {
+    protected BaseStuffCategory(IRecipeType<T> type, Component localizedName, IDrawable background, IDrawable icon) {
         this.type = type;
         this.localizedName = localizedName;
         this.background = background;
@@ -56,7 +56,7 @@ public abstract class BaseStuffCategory<T> implements IRecipeCategory<T> {
     }
 
     @Override
-    public void draw(T recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(T recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         background.draw(guiGraphics);
     }
 
@@ -66,7 +66,7 @@ public abstract class BaseStuffCategory<T> implements IRecipeCategory<T> {
     }
 
     @Override
-    public RecipeType<T> getRecipeType() {
+    public IRecipeType<T> getRecipeType() {
         return type;
     }
 
@@ -74,7 +74,7 @@ public abstract class BaseStuffCategory<T> implements IRecipeCategory<T> {
         return FTBStuffJeiPlugin.jeiHelpers.getGuiHelper();
     }
 
-    static ResourceLocation bgTexture(String name) {
+    static Identifier bgTexture(String name) {
         return FTBStuffNThings.id("textures/gui/jei/" + name);
     }
 }

@@ -6,6 +6,7 @@ import dev.ftb.mods.ftbstuffnthings.crafting.recipe.JarRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import dev.ftb.mods.ftbstuffnthings.temperature.TemperatureAndEfficiency;
+import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -20,7 +21,6 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -45,30 +45,32 @@ public class TemperedJarCategory extends BaseStuffCategory<JarRecipe> {
         int nItemsOut = recipe.getOutputItems().size();
 
         for (int i = 0; i < nFluidsIn; i++) {
+            var stacks = MiscUtil.getFluidsForSizedIngredient(recipe.getInputFluids().get(i));
             builder.addSlot(RecipeIngredientRole.INPUT, 1 + i * 20, 1)
-                    .addIngredients(NeoForgeTypes.FLUID_STACK, Arrays.asList(recipe.getInputFluids().get(i).getFluids()))
+                    .addIngredients(NeoForgeTypes.FLUID_STACK, stacks)
                     .setOverlay(new FluidAmountDrawable(recipe.getInputFluids().get(i).amount()), 0, 0);
         }
         for (int i = 0; i < nItemsIn; i++) {
+            var stacks = MiscUtil.getItemsForSizedIngredient(recipe.getInputItems().get(i));
             builder.addSlot(RecipeIngredientRole.INPUT, 1 + (i + nFluidsIn) * 20, 1)
-                    .addIngredients(VanillaTypes.ITEM_STACK, Arrays.asList(recipe.getInputItems().get(i).getItems()));
+                    .addIngredients(VanillaTypes.ITEM_STACK, stacks);
         }
 
-        builder.addSlot(RecipeIngredientRole.CATALYST, 67, 1)
-                .addIngredient(FTBStuffIngredientTypes.TEMPERATURE, recipe.getTemperature())
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 67, 1)
+                .add(FTBStuffIngredientTypes.TEMPERATURE, recipe.getTemperature())
                 .addRichTooltipCallback((recipeSlotView, tooltip) -> {
                     String time = String.format("%.1f", recipe.getTime() / 20f);
-                    tooltip.add(Component.translatable(FTBStuffNThings.MODID + ".processing_time", time));
+                    tooltip.add(Component.translatable(FTBStuffNThings.MOD_ID + ".processing_time", time));
                 });
 
         for (int i = 0; i < nFluidsOut; i++) {
             builder.addSlot(RecipeIngredientRole.OUTPUT, 93 + i * 20, 1)
-                    .addIngredient(NeoForgeTypes.FLUID_STACK, recipe.getOutputFluids().get(i))
-                    .setOverlay(new FluidAmountDrawable(recipe.getOutputFluids().get(i).getAmount()), 0, 0);
+                    .add(NeoForgeTypes.FLUID_STACK, recipe.getOutputFluids().get(i).create())
+                    .setOverlay(new FluidAmountDrawable(recipe.getOutputFluids().get(i).amount()), 0, 0);
         }
         for (int i = 0; i < nItemsOut; i++) {
             builder.addSlot(RecipeIngredientRole.OUTPUT, 93 + (i + nFluidsOut) * 20, 1)
-                    .addIngredient(VanillaTypes.ITEM_STACK, recipe.getOutputItems().get(i));
+                    .add(VanillaTypes.ITEM_STACK, recipe.getOutputItems().get(i).create());
         }
     }
 

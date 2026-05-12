@@ -7,11 +7,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-@EventBusSubscriber(modid = FTBStuffNThings.MODID)
+@EventBusSubscriber(modid = FTBStuffNThings.MOD_ID)
 public class NetworkHandler {
     @SubscribeEvent
     public static void register(final RegisterPayloadHandlersEvent event) {
-        final PayloadRegistrar registrar = event.registrar(FTBStuffNThings.MODID).versioned("1.0");
+        final PayloadRegistrar registrar = event.registrar(FTBStuffNThings.MOD_ID).versioned("1.0");
 
         // clientbound
         registrar.playToClient(SyncJarContentsPacket.TYPE, SyncJarContentsPacket.STREAM_CODEC, SyncJarContentsPacket::handleData);

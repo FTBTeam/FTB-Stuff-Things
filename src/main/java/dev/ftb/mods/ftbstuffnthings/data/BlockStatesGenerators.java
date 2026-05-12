@@ -13,12 +13,11 @@ import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.WoodType;
-import net.neoforged.neoforge.client.model.generators.*;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
@@ -31,7 +30,7 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 
 public class BlockStatesGenerators extends BlockStateProvider {
     public BlockStatesGenerators(PackOutput output, ExistingFileHelper exFileHelper) {
-        super(output, FTBStuffNThings.MODID, exFileHelper);
+        super(output, FTBStuffNThings.MOD_ID, exFileHelper);
     }
 
     private static final List<DirRotation> HORIZONTALS = Util.make(new ArrayList<>(), l -> {
@@ -195,8 +194,8 @@ public class BlockStatesGenerators extends BlockStateProvider {
         // Compressed Blocks
         BlocksRegistry.allCompressedBlocks().forEach(db -> {
             if (db.get() instanceof RotatedPillarBlock pillar) {
-                ResourceLocation side = FTBStuffNThings.id("block/" + db.getId().getPath() + "_side");
-                ResourceLocation end = FTBStuffNThings.id("block/" + db.getId().getPath() + "_top");
+                Identifier side = FTBStuffNThings.id("block/" + db.getId().getPath() + "_side");
+                Identifier end = FTBStuffNThings.id("block/" + db.getId().getPath() + "_top");
                 axisBlock(pillar, side, end);
             } else {
                 simpleBlock(db.get());

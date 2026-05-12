@@ -1,7 +1,5 @@
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
+
+@NullMarked
 package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
-
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.jspecify.annotations.NullMarked;

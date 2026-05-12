@@ -2,37 +2,52 @@ package dev.ftb.mods.ftbstuffnthings.client;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.client.model.TubeModel;
-import dev.ftb.mods.ftbstuffnthings.client.renders.*;
+import dev.ftb.mods.ftbstuffnthings.client.render.*;
 import dev.ftb.mods.ftbstuffnthings.client.screens.FusingMachineScreen;
 import dev.ftb.mods.ftbstuffnthings.client.screens.SuperCoolerScreen;
 import dev.ftb.mods.ftbstuffnthings.client.screens.TemperedJarScreen;
 import dev.ftb.mods.ftbstuffnthings.client.screens.WaterStrainerScreen;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
-import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BiomeColors;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.common.NeoForge;
 
-@Mod(value = FTBStuffNThings.MODID, dist = Dist.CLIENT)
+import java.util.Collection;
+
+@Mod(value = FTBStuffNThings.MOD_ID, dist = Dist.CLIENT)
 public class FTBStuffNThingsClient {
+    private static FTBStuffNThingsClient INSTANCE;
+    private RecipeMap recipeMap = RecipeMap.EMPTY;
+
     public FTBStuffNThingsClient(IEventBus modBus) {
+        INSTANCE = this;
+
         modBus.addListener(this::registerModelLoaders);
         modBus.addListener(this::registerRenderers);
         modBus.addListener(this::registerScreens);
         modBus.addListener(this::registerColorHandlers);
         modBus.addListener(this::registerBlockColourHandlers);
+
+        NeoForge.EVENT_BUS.addListener(this::receiveRecipes);
+        NeoForge.EVENT_BUS.addListener(this::playerDisconnect);
+    }
+
+    public static FTBStuffNThingsClient getInstance() {
+        return INSTANCE;
+    }
+
+    private void receiveRecipes(RecipesReceivedEvent event) {
+        recipeMap = event.getRecipeMap();
+    }
+
+    private void playerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
+        recipeMap = RecipeMap.EMPTY;
     }
 
     private void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -73,7 +88,7 @@ public class FTBStuffNThingsClient {
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.WOODEN_BASIN.get(), BasinBlockEntityRenderer::new);
     }
 
-    private void registerModelLoaders(ModelEvent.RegisterGeometryLoaders event) {
+    private void registerModelLoaders(ModelEvent.RegisterLoaders event) {
         event.register(TubeModel.Loader.ID, TubeModel.Loader.INSTANCE);
     }
 
@@ -84,36 +99,40 @@ public class FTBStuffNThingsClient {
         event.register(ContentRegistry.WATER_STRAINER_MENU.get(), WaterStrainerScreen::new);
     }
 
-    private void registerColorHandlers(RegisterColorHandlersEvent.Item event) {
-        event.register((stack, tintIndex) -> switch (tintIndex) {
-            case 0 -> 0xFFFFFFFF;
-            case 1 -> FluidCapsuleColorHandler.getColor(stack);
-            default -> 0xFF000000;
-        }, ItemsRegistry.FLUID_CAPSULE.get());
-
-        event.register(
-                (stack, index) -> {
-                    if (index != 1) {
-                        return -1;
-                    }
-
-                    Minecraft instance = Minecraft.getInstance();
-                    return instance.level != null && instance.player != null ? BiomeColors.getAverageWaterColor(instance.level, instance.player.blockPosition()) : 4159204;
-                },
-                BlocksRegistry.COBBLEGENS.stream().map(DeferredHolder::get).map(ItemStack::new).map(ItemStack::getItem).toArray(ItemLike[]::new)
-        );
+    private void registerColorHandlers(RegisterColorHandlersEvent.ItemTintSources event) {
+//        event.register((stack, tintIndex) -> switch (tintIndex) {
+//            case 0 -> 0xFFFFFFFF;
+//            case 1 -> FluidCapsuleColorHandler.getColor(stack);
+//            default -> 0xFF000000;
+//        }, ItemsRegistry.FLUID_CAPSULE.get());
+//
+//        event.register(
+//                (stack, index) -> {
+//                    if (index != 1) {
+//                        return -1;
+//                    }
+//
+//                    Minecraft instance = Minecraft.getInstance();
+//                    return instance.level != null && instance.player != null ? BiomeColors.getAverageWaterColor(instance.level, instance.player.blockPosition()) : 4159204;
+//                },
+//                BlocksRegistry.COBBLEGENS.stream().map(DeferredHolder::get).map(ItemStack::new).map(ItemStack::getItem).toArray(ItemLike[]::new)
+//        );
     }
 
-    public void registerBlockColourHandlers(final RegisterColorHandlersEvent.Block event) {
-        event.register(
-                (state, env, pos, index) -> {
-                    if (index != 1) {
-                        return -1;
-                    }
+    public void registerBlockColourHandlers(final RegisterColorHandlersEvent.BlockTintSources event) {
+//        event.register(
+//                (state, env, pos, index) -> {
+//                    if (index != 1) {
+//                        return -1;
+//                    }
+//
+//                    return env != null && pos != null ? BiomeColors.getAverageWaterColor(env, pos) : 4159204;
+//                },
+//                BlocksRegistry.COBBLEGENS.stream().map(DeferredHolder::get).toArray(Block[]::new)
+//        );
+    }
 
-                    return env != null && pos != null ? BiomeColors.getAverageWaterColor(env, pos) : 4159204;
-                },
-                BlocksRegistry.COBBLEGENS.stream().map(DeferredHolder::get).toArray(Block[]::new)
-        );
+    public RecipeMap getRecipeMap() {
+        return recipeMap;
     }
 }

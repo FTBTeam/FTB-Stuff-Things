@@ -9,12 +9,13 @@ import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingEnergy;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingFluidTank;
 import dev.ftb.mods.ftbstuffnthings.capabilities.IOStackHandler;
 import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
+import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.SuperCoolerRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ComponentsRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
-import net.minecraft.ResourceLocationException;
+import net.minecraft.IdentifierException;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +23,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -34,12 +35,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
@@ -54,7 +58,7 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
     private int progressRequired = 0;
     private boolean recheckRecipe = false;
     private RecipeHolder<SuperCoolerRecipe> currentRecipe = null;
-    private ResourceLocation pendingRecipeId = null;  // set when loading from NBT
+    private Identifier pendingRecipeId = null;  // set when loading from NBT
     boolean tickLock = false;
 
     public SuperCoolerBlockEntity(BlockPos pos, BlockState state) {
@@ -62,17 +66,17 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
     }
 
     @Override
-    public IOStackHandler getItemHandler(@Nullable Direction side) {
+    public @Nullable ResourceHandler<ItemResource> getItemHandler(@Nullable Direction side) {
         return itemHandler;
     }
 
     @Override
-    public IFluidHandler getFluidHandler(@Nullable Direction side) {
+    public @Nullable ResourceHandler<FluidResource> getFluidHandler(@Nullable Direction side) {
         return fluidHandler;
     }
 
     @Override
-    public IEnergyStorage getEnergyHandler(@Nullable Direction side) {
+    public @Nullable EnergyHandler getEnergyHandler(@Nullable Direction side) {
         return energyHandler;
     }
 
@@ -142,16 +146,16 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
         }
     }
 
-    private Optional<RecipeHolder<SuperCoolerRecipe>> findValidRecipe() {
-        return level.getRecipeManager().getAllRecipesFor(RecipesRegistry.SUPER_COOLER_TYPE.get()).stream()
+    private Optional<RecipeHolder<SuperCoolerRecipe>> findValidRecipe(ServerLevel level) {
+        return level.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.SUPER_COOLER_TYPE.get(), NoInventory.INSTANCE, level)
                 .sorted((a, b) -> b.value().getInputs().size() - a.value().getInputs().size())  // prioritise recipes with more ingredients
-                .filter(r -> r.value().test(itemHandler, fluidHandler.getFluid()))
+                .filter(r -> r.value().test(itemHandler, fluidHandler.copyStack()))
                 .findFirst();
     }
 
     private int genIngredientHash() {
         List<Integer> l = new ArrayList<>();
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
+        for (int i = 0; i < itemHandler.size(); i++) {
             if (!itemHandler.getStackInSlot(i).isEmpty()) {
                 l.add(ItemStack.hashItemAndComponents(itemHandler.getStackInSlot(i)));
             }
@@ -300,8 +304,8 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
         // Write the recipe id
         if (tag.contains("recipe")) {
             try {
-                pendingRecipeId = ResourceLocation.parse(tag.getString("recipe"));
-            } catch (ResourceLocationException e) {
+                pendingRecipeId = Identifier.parse(tag.getString("recipe"));
+            } catch (IdentifierException e) {
                 pendingRecipeId = null;
             }
         }

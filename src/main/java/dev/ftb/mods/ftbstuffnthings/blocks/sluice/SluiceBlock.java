@@ -1,7 +1,7 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.sluice;
 
 import com.mojang.datafixers.util.Pair;
-import dev.ftb.mods.ftbstuffnthings.Config;
+import dev.ftb.mods.ftbstuffnthings.ModConfig;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
@@ -47,7 +47,7 @@ import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -115,7 +115,11 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
                 .setValue(PART, Part.MAIN)
                 .setValue(HORIZONTAL_FACING, Direction.NORTH));
 
-        this.props = Config.makeSluiceProperties(sluiceType);
+        this.props = ModConfig.makeSluiceProperties(sluiceType);
+    }
+
+    public SluiceType getSluiceType() {
+        return sluiceType;
     }
 
     @Override
@@ -154,7 +158,7 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, BlockGetter reader, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return true;
     }
 
@@ -177,7 +181,7 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (state.getValue(PART) == Part.FUNNEL || !(level.getBlockEntity(pos) instanceof SluiceBlockEntity sluice)) {
             return ItemInteractionResult.FAIL;
         }

@@ -7,14 +7,12 @@ import mezz.jei.api.recipe.advanced.ISimpleRecipeManagerPlugin;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public enum LootSummaryPlugin implements ISimpleRecipeManagerPlugin<WrappedLootSummary> {
     INSTANCE;
 
-    @NotNull
     private static final List<WrappedLootSummary> NONE = List.of();
 
     @Override
@@ -48,7 +46,7 @@ public enum LootSummaryPlugin implements ISimpleRecipeManagerPlugin<WrappedLootS
         return LootSummaryCollection.getClientSummary().getLootSummariesForOutput(ItemStack.EMPTY);
     }
 
-    private static @NotNull List<WrappedLootSummary> getWrappedLootSummariesForStack(ItemStack stack) {
+    private static List<WrappedLootSummary> getWrappedLootSummariesForStack(ItemStack stack) {
         Block block = Block.byItem(stack.getItem());
         if (block == Blocks.AIR) {
             return NONE;

@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  * Misc registry for anything that falls outside the scope of the other registry classes
  */
 public class ContentRegistry {
-    private static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, FTBStuffNThings.MODID);
+    private static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, FTBStuffNThings.MOD_ID);
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CREATIVE_TAB = CREATIVE_MODE_TABS.register("obb_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("ftbstuff.itemGroup.tab"))
@@ -44,7 +44,7 @@ public class ContentRegistry {
 
     //-----------------------------------------------
 
-    private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, FTBStuffNThings.MODID);
+    private static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, FTBStuffNThings.MOD_ID);
 
     public static final Supplier<MenuType<TemperedJarMenu>> TEMPERED_JAR_MENU = registerMenu("tempered_jar", TemperedJarMenu::fromNetwork);
     public static final Supplier<MenuType<FusingMachineMenu>> FUSING_MACHINE_MENU = registerMenu("fusing_machine", FusingMachineMenu::new);
@@ -54,7 +54,7 @@ public class ContentRegistry {
     //-----------------------------------------------
 
     public static final DeferredRegister<MapCodec<? extends ICondition>> CONDITIONS
-            = DeferredRegister.create(NeoForgeRegistries.CONDITION_SERIALIZERS, FTBStuffNThings.MODID);
+            = DeferredRegister.create(NeoForgeRegistries.CONDITION_SERIALIZERS, FTBStuffNThings.MOD_ID);
 
     public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<DevEnvironmentCondition>> DEV_ENVIRONMENT
             = CONDITIONS.register("dev_environment", () -> DevEnvironmentCondition.CODEC);
@@ -62,7 +62,7 @@ public class ContentRegistry {
     //-----------------------------------------------
 
     public static final DeferredRegister<MapCodec<? extends IGlobalLootModifier>> LOOT_MODIFIERS_REGISTRY
-            = DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, FTBStuffNThings.MODID);
+            = DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, FTBStuffNThings.MOD_ID);
 
     public static final Supplier<MapCodec<? extends IGlobalLootModifier>> HAMMER_LOOT_MODIFIER
             = LOOT_MODIFIERS_REGISTRY.register("hammer_loot_modifier", HammerModifier.CODEC);

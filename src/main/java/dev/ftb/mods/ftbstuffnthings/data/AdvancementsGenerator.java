@@ -10,11 +10,11 @@ import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.advancements.AdvancementProvider;
+import net.minecraft.data.advancements.AdvancementSubProvider;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.common.data.AdvancementProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -22,26 +22,26 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class AdvancementsGenerator extends AdvancementProvider {
-    private static final ResourceLocation BACKGROUND_TEXTURE
-            = ResourceLocation.withDefaultNamespace("textures/block/blue_concrete_powder.png");
+    private static final Identifier BACKGROUND_TEXTURE
+            = Identifier.withDefaultNamespace("textures/block/blue_concrete_powder.png");
 
-    public AdvancementsGenerator(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper) {
-        super(packOutput, lookupProvider, existingFileHelper, List.of(new FTBStuffAdvancements()));
+    public AdvancementsGenerator(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(packOutput, lookupProvider, List.of(new FTBStuffAdvancements()));
     }
 
-    private static class FTBStuffAdvancements implements AdvancementGenerator {
+    private static class FTBStuffAdvancements implements AdvancementSubProvider {
+        private static String id(String s) {
+            return FTBStuffNThings.MOD_ID + ":" + s;
+        }
+
         @Override
-        public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> saver, ExistingFileHelper existingFileHelper) {
+        public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> output) {
             AdvancementHolder root = customAdvancement(CriterionTriggerRegistry.FTBSTUFF_ROOT, AdvancementType.TASK, ItemsRegistry.CRATE, true)
-                    .save(saver, id("root"));
+                    .save(output, id("root"));
 
             customAdvancement(CriterionTriggerRegistry.SUPERCHARGED, AdvancementType.TASK, ItemsRegistry.PUMP.asItem(), false)
                     .parent(root)
-                    .save(saver, id("supercharged"));
-        }
-
-        private static String id(String s) {
-            return FTBStuffNThings.MODID + ":" + s;
+                    .save(output, id("supercharged"));
         }
 
         private Advancement.Builder customAdvancement(Supplier<CustomTrigger> triggerSupplier, AdvancementType type, ItemLike itemDisp, boolean stealth) {

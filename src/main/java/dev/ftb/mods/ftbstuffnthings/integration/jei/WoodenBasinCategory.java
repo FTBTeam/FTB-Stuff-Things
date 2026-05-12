@@ -10,9 +10,10 @@ import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class WoodenBasinCategory extends BaseStuffCategory<WoodenBasinRecipe> {
@@ -29,22 +30,23 @@ public class WoodenBasinCategory extends BaseStuffCategory<WoodenBasinRecipe> {
     public void setRecipe(IRecipeLayoutBuilder builder, WoodenBasinRecipe recipe, IFocusGroup focuses) {
         IRecipeSlotBuilder inputBuilder = builder.addInputSlot(6, 25);
         recipe.getInputsForDisplay().forEach(input ->
-                input.ifLeft(stack -> inputBuilder.addIngredient(VanillaTypes.ITEM_STACK, stack))
-                        .ifRight(fluid -> inputBuilder.addFluidStack(fluid, 1000L))
+                input.ifLeft(stack -> inputBuilder.add(VanillaTypes.ITEM_STACK, stack))
+                        .ifRight(fluid -> inputBuilder.add(fluid, 1000L))
         );
 
         builder.addOutputSlot(43, 43)
-                .addFluidStack(recipe.getFluid().getFluid(), recipe.getFluid().getAmount())
-                .setOverlay(new FluidAmountDrawable(recipe.getFluid().getAmount()), 0, 0);
+                .add(recipe.getFluidResult().fluid().value(), recipe.getFluidResult().amount())
+                .setOverlay(new FluidAmountDrawable(recipe.getFluidResult().amount()), 0, 0);
     }
 
     @Override
-    public void draw(WoodenBasinRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+    public void draw(WoodenBasinRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor guiGraphics, double mouseX, double mouseY) {
         super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
 
-        guiGraphics.renderItem(ItemsRegistry.WOODEN_BASIN.toStack(), 6, 43);
+        guiGraphics.item(ItemsRegistry.WOODEN_BASIN.toStack(), 6, 43);
 
-        guiGraphics.blit(ResourceLocation.fromNamespaceAndPath("ftblibrary", "textures/icons/info.png"), 42, 5, 0, 0, 16, 16,16, 16, 16);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath("ftblibrary", "textures/icons/info.png"),
+                42, 5, 0, 0, 16, 16,16, 16);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.ftb.mods.ftbstuffnthings.client.screens.FusingMachineScreen;
 import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.FusingMachineRecipe;
@@ -14,16 +13,16 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collection;
 import java.util.List;
 
 public class FusingMachineCategory extends BaseStuffCategory<FusingMachineRecipe> {
-    public static final ResourceLocation BACKGROUND = bgTexture("jei_fusing_machine.png");
+    public static final Identifier BACKGROUND = bgTexture("jei_fusing_machine.png");
 
     private static final Rect2i CLICK_AREA = new Rect2i(89, 26, 26, 19);
 
@@ -49,43 +48,43 @@ public class FusingMachineCategory extends BaseStuffCategory<FusingMachineRecipe
     }
 
     @Override
-    public void draw(FusingMachineRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+    public void draw(FusingMachineRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         super.draw(recipe, recipeSlotsView, graphics, mouseX, mouseY);
 
         this.powerBar.draw(graphics, 6, 6);
         this.progress.draw(graphics, 57, 6);
 
-        PoseStack stack = graphics.pose();
+        var stack = graphics.pose();
 
-        stack.pushPose();
-        stack.translate(5, 25, 0);
-        stack.scale(0.5F, 0.5F, 0.5F);
+        stack.pushMatrix();
+        stack.translate(5, 25);
+        stack.scale(0.5F, 0.5F);
 
         EnergyRequirement energyRequirement = recipe.getEnergyComponent();
         int ticks = energyRequirement.ticksToProcess();
         int energyPerTick = energyRequirement.fePerTick();
         int totalEnergy = ticks * energyPerTick;
 
-        graphics.drawString(Minecraft.getInstance().font, "%sFE/t (%sFE)".formatted(energyPerTick, totalEnergy), 0, 0, 0x404040, false);
+        graphics.text(Minecraft.getInstance().font, "%sFE/t (%sFE)".formatted(energyPerTick, totalEnergy), 0, 0, 0x404040, false);
 
-        stack.popPose();
+        stack.popMatrix();
 
-        stack.pushPose();
-        stack.translate(83, 25, 0);
-        stack.scale(0.5F, 0.5F, 0.5F);
-        graphics.drawString(Minecraft.getInstance().font, "%s ticks".formatted(ticks), 0, 0, 0x404040, false);
+        stack.pushMatrix();
+        stack.translate(83, 25);
+        stack.scale(0.5F, 0.5F);
+        graphics.text(Minecraft.getInstance().font, "%s ticks".formatted(ticks), 0, 0, 0x404040, false);
 
-        stack.popPose();
+        stack.popMatrix();
     }
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, FusingMachineRecipe fusingRecipe, IFocusGroup iFocusGroup) {
         for (int i = 0; i < fusingRecipe.getInputs().size(); i++) {
-            builder.addSlot(RecipeIngredientRole.INPUT, 18 + i * 18, 6).addIngredients(fusingRecipe.getInputs().get(i));
+            builder.addSlot(RecipeIngredientRole.INPUT, 18 + i * 18, 6).add(fusingRecipe.getInputs().get(i));
         }
 
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 84, 6).addFluidStack(fusingRecipe.getFluidResult().getFluid(), fusingRecipe.getFluidResult().getAmount())
-                .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(Component.literal(fusingRecipe.getFluidResult().getAmount() + " mB")));
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 84, 6).add(fusingRecipe.getFluidResult().fluid().value(), fusingRecipe.getFluidResult().amount())
+                .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(Component.literal(fusingRecipe.getFluidResult().amount() + " mB")));
     }
 
     enum ContainerHandler implements IGuiContainerHandler<FusingMachineScreen> {

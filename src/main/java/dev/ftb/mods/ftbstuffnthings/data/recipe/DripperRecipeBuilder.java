@@ -1,6 +1,14 @@
 package dev.ftb.mods.ftbstuffnthings.data.recipe;
 
+import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.DripperRecipe;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.recipes.RecipeBuilder;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.apache.commons.lang3.Validate;
 
@@ -31,5 +39,10 @@ public class DripperRecipeBuilder extends BaseRecipeBuilder<DripperRecipe> {
     @Override
     protected DripperRecipe buildRecipe() {
         return new DripperRecipe(inputStateStr, outputStateStr, fluid, chance, consumeFluidOnFail);
+    }
+
+    @Override
+    public ResourceKey<Recipe<?>> defaultId() {
+        return ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(FTBStuffNThings.MOD_ID, outputStateStr.replace(':', '_')));
     }
 }

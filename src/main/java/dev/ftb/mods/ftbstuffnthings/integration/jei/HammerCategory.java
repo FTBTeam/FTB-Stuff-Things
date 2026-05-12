@@ -20,10 +20,10 @@ public class HammerCategory extends BaseStuffCategory<HammerRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, HammerRecipe hammerRecipe, IFocusGroup iFocusGroup) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 5, 5).addIngredients(hammerRecipe.getIngredient());
+        builder.addSlot(RecipeIngredientRole.INPUT, 5, 5).add(hammerRecipe.getIngredient());
 
         for (int i = 0; i < hammerRecipe.getResults().size(); i++) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, 28 + (i % 7 * 18), 5 + i / 7 * 18).addItemStack(hammerRecipe.getResults().get(i));
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 28 + (i % 7 * 18), 5 + i / 7 * 18).add(hammerRecipe.getResults().get(i));
         }
     }
 }

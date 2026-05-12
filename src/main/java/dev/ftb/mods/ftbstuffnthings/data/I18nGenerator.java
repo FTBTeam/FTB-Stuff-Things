@@ -14,7 +14,7 @@ public class I18nGenerator extends LanguageProvider {
     private static final String[] COMPRESSED_PREFIXES = new String[] { "", "Double ", "Triple " };
 
     public I18nGenerator(PackOutput output) {
-        super(output, FTBStuffNThings.MODID, "en_us");
+        super(output, FTBStuffNThings.MOD_ID, "en_us");
     }
 
     @Override

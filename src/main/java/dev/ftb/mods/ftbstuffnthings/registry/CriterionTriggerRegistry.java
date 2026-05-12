@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 public class CriterionTriggerRegistry {
     public static final DeferredRegister<CriterionTrigger<?>> CRITERION_TRIGGERS =
-            DeferredRegister.create(Registries.TRIGGER_TYPE, FTBStuffNThings.MODID);
+            DeferredRegister.create(Registries.TRIGGER_TYPE, FTBStuffNThings.MOD_ID);
 
     public static final Supplier<CustomTrigger> FTBSTUFF_ROOT = register("root");
     public static final Supplier<CustomTrigger> SUPERCHARGED = register("supercharged");

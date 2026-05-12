@@ -26,7 +26,7 @@ public class ClientUtil {
     }
 
     public static void maybeAddBlockTooltip(ItemStack stack, List<Component> tooltips) {
-        String tooltipKey = stack.getDescriptionId() + ".tooltip";
+        String tooltipKey = stack.getItem().getDescriptionId() + ".tooltip";
         if (I18n.exists(tooltipKey)) {
             tooltips.add(Component.translatable(tooltipKey).withStyle(ChatFormatting.GRAY));
         }

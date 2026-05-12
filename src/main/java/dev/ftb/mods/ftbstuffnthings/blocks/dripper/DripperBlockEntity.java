@@ -5,7 +5,6 @@ import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.DripperRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -13,66 +12,65 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
 
 public class DripperBlockEntity extends BlockEntity {
-	private final FluidTank tank;
-	private Fluid prevFluid = null;
+	private final FluidStacksResourceHandler tank;
 
     public DripperBlockEntity(BlockPos pos, BlockState state) {
 		super(BlockEntitiesRegistry.DRIPPER.get(), pos, state);
 
-		tank = new FluidTank(4000) {
+		tank = new FluidStacksResourceHandler(1, 4000) {
 			@Override
-			protected void onContentsChanged() {
-				fluidChanged();
+			protected void onContentsChanged(int index, FluidStack previousContents) {
+				fluidChanged(previousContents);
 			}
 		};
 	}
 
-	public FluidTank getTank() {
+	public FluidStacksResourceHandler getTank() {
 		return tank;
 	}
 
-	public void writeData(CompoundTag tag, HolderLookup.Provider provider) {
-		tag.put("Tank", tank.writeToNBT(provider, new CompoundTag()));
-	}
+	@Override
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
 
-	public void readData(CompoundTag tag, HolderLookup.Provider provider) {
-		tank.readFromNBT(provider, tag.getCompound("Tank"));
+		output.putChild("Tank", tank);
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-		writeData(tag, provider);
-	}
+	protected void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
 
-	@Override
-	protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-		super.loadAdditional(tag, provider);
-
-		readData(tag, provider);
+		tank.deserialize(input.childOrEmpty("Tank"));
 	}
 
 	@Override
 	public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
 		// server-side, chunk loading
-		return Util.make(new CompoundTag(), tag -> saveAdditional(tag, provider));
+		return Util.make(new CompoundTag(), tag -> saveAdditional(TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider)));
 	}
 
 	@Nullable
@@ -81,11 +79,10 @@ public class DripperBlockEntity extends BlockEntity {
 		return ClientboundBlockEntityDataPacket.create(this);
 	}
 
-	private void fluidChanged() {
+	private void fluidChanged(FluidStack previousContents) {
 		setChanged();
 
-		if (!level.isClientSide() && prevFluid != tank.getFluid().getFluid()) {
-			prevFluid = tank.getFluid().getFluid();
+		if (!level.isClientSide() && previousContents.getFluid() != tank.getResource(0).getFluid()) {
 			// sync contained fluid to client, so it knows what sort of drip particle to play
 			level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL_IMMEDIATE);
 		}
@@ -95,23 +92,29 @@ public class DripperBlockEntity extends BlockEntity {
         if (serverLevel.getGameTime() % 20 == 0 && getBlockState().hasProperty(DripperBlock.ACTIVE)) {
 			FluidState state = serverLevel.getFluidState(getBlockPos().above());
 			if (state.is(Tags.Fluids.WATER) && state.isSource()) {
-				tank.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
+				try (Transaction tx = Transaction.openRoot()) {
+					tank.insert(FluidResource.of(Fluids.WATER), FluidType.BUCKET_VOLUME, tx);
+					tx.commit();
+				}
 			}
 			boolean active = getBlockState().getValue(DripperBlock.ACTIVE);
 			boolean newActive = false;
-            if (!tank.isEmpty()) {
-                var currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(this::searchForRecipe, this::genRecipeHash);
+            if (!tank.getResource(0).isEmpty()) {
+                var currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(serverLevel, this::searchForRecipe, this::genRecipeHash);
                 if (currentRecipe.isPresent()) {
                     DripperRecipe recipe = currentRecipe.get().value();
                     boolean success = false;
-                    if (tank.getFluidAmount() >= recipe.getFluid().getAmount()) {
+                    if (tank.getAmountAsInt(0) >= recipe.getFluid().getAmount()) {
 						newActive = true;
-						if (serverLevel.random.nextDouble() < recipe.getChance()) {
+						if (serverLevel.getRandom().nextDouble() < recipe.getChance()) {
 							serverLevel.setBlock(getBlockPos().below(), recipe.getOutputState(), Block.UPDATE_ALL);
 							success = true;
 						}
 						if (success || recipe.consumeFluidOnFail()) {
-							tank.drain(recipe.getFluid().getAmount(), IFluidHandler.FluidAction.EXECUTE);
+							try (Transaction tx = Transaction.openRoot()) {
+								tank.extract(FluidResource.of(recipe.getFluid()), recipe.getFluid().amount(), tx);
+								tx.commit();
+							}
                         }
                     }
                 }
@@ -123,15 +126,15 @@ public class DripperBlockEntity extends BlockEntity {
 	}
 
 	private int genRecipeHash() {
-		int fluidHash = FluidStack.hashFluidAndComponents(tank.getFluid());
+		int fluidHash = FluidStack.hashFluidAndComponents(FluidUtil.getStack(tank, 0));
 		BlockState blockBelow = getLevel().getBlockState(getBlockPos().below());
 
 		return Objects.hash(fluidHash, blockBelow);
 	}
 
-	private Optional<RecipeHolder<DripperRecipe>> searchForRecipe() {
-		return level.getRecipeManager().getRecipesFor(RecipesRegistry.DRIP_TYPE.get(), NoInventory.INSTANCE, level).stream()
-				.filter(r -> r.value().testInput(tank.getFluid(), getLevel(), getBlockPos().below()))
+	private Optional<RecipeHolder<DripperRecipe>> searchForRecipe(ServerLevel serverLevel) {
+		return serverLevel.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.DRIP_TYPE.get(), NoInventory.INSTANCE, serverLevel)
+				.filter(r -> r.value().testInput(tank.getResource(0).toStack(tank.getAmountAsInt(0)), serverLevel, getBlockPos().below()))
 				.findFirst();
 	}
 }

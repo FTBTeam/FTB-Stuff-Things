@@ -21,11 +21,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -45,28 +46,25 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
     }
 
     @Nullable
-    public IItemHandler getItemHandler() {
+    public ResourceHandler<ItemResource> getItemHandler() {
         return getItemHandler(null);
     }
 
     @Nullable
-    public IFluidHandler getFluidHandler() {
+    public ResourceHandler<FluidResource> getFluidHandler() {
         return getFluidHandler(null);
     }
 
     @Nullable
-    public IEnergyStorage getEnergyHandler() {
+    public EnergyHandler getEnergyHandler() {
         return getEnergyHandler(null);
     }
 
-    @Nullable
-    public abstract IItemHandler getItemHandler(@Nullable Direction side);
+    public abstract @Nullable ResourceHandler<ItemResource> getItemHandler(@Nullable Direction side);
 
-    @Nullable
-    public abstract IFluidHandler getFluidHandler(@Nullable Direction side);
+    public abstract @Nullable ResourceHandler<FluidResource> getFluidHandler(@Nullable Direction side);
 
-    @Nullable
-    public abstract IEnergyStorage getEnergyHandler(@Nullable Direction side);
+    public abstract @Nullable EnergyHandler getEnergyHandler(@Nullable Direction side);
 
     @Override
     public Component getDisplayName() {
@@ -76,6 +74,13 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
         return null;
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+
+        dropItemContents();
     }
 
     public void syncFluidTank(boolean toGui) {
@@ -92,7 +97,7 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
         getActiveParticle().ifPresent(particle -> {
             if (getBlockState().hasProperty(AbstractMachineBlock.ACTIVE)
                     && getBlockState().getValue(AbstractMachineBlock.ACTIVE)
-                    && clientLevel.random.nextInt(5) == 0) {
+                    && clientLevel.getRandom().nextInt(5) == 0) {
                 Vec3 vec = Vec3.upFromBottomCenterOf(getBlockPos(), 1.05);
                 clientLevel.addParticle(particle, vec.x, vec.y, vec.z, 0, 0, 0);
             }
@@ -105,11 +110,11 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
 
     public abstract void tickServer(ServerLevel serverLevel);
 
-    public void dropItemContents() {
-        IItemHandler handler = getItemHandler();
+    protected void dropItemContents() {
+        var handler = getItemHandler();
         if (handler != null) {
-            for (int i = 0; i < handler.getSlots(); i++) {
-                Block.popResource(level, getBlockPos(), handler.getStackInSlot(i));
+            for (int i = 0; i < handler.size(); i++) {
+                Block.popResource(level, getBlockPos(), handler.getResource(i).toStack(handler.getAmountAsInt(i)));
             }
         }
     }
@@ -124,9 +129,9 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
     }
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event, BlockEntityType<? extends AbstractMachineBlockEntity> machine) {
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, machine, AbstractMachineBlockEntity::getItemHandler);
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, machine, AbstractMachineBlockEntity::getFluidHandler);
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, machine, AbstractMachineBlockEntity::getEnergyHandler);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, machine, AbstractMachineBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, machine, AbstractMachineBlockEntity::getFluidHandler);
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, machine, AbstractMachineBlockEntity::getEnergyHandler);
     }
 
     public void syncItemFromServer(ItemStack itemStack) {

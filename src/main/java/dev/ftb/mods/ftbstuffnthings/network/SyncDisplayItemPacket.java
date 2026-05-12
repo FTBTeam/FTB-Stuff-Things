@@ -9,6 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 public record SyncDisplayItemPacket(BlockPos pos, ItemStack stack) implements CustomPacketPayload {
     public static final Type<SyncDisplayItemPacket> TYPE = new Type<>(FTBStuffNThings.id("sync_display_item"));
@@ -20,7 +21,7 @@ public record SyncDisplayItemPacket(BlockPos pos, ItemStack stack) implements Cu
     );
 
     public static SyncDisplayItemPacket forSluice(AbstractMachineBlockEntity machine) {
-        return new SyncDisplayItemPacket(machine.getBlockPos(), machine.getItemHandler().getStackInSlot(0).copy());
+        return new SyncDisplayItemPacket(machine.getBlockPos(), ItemUtil.getStack(machine.getItemHandler(), 0));
     }
 
     @Override

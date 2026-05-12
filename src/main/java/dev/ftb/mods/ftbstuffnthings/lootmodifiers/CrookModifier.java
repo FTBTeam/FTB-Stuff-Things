@@ -4,15 +4,17 @@ import com.google.common.base.Suppliers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
+import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.CrookRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -31,16 +33,16 @@ public class CrookModifier extends LootModifier {
             builder -> codecStart(builder).apply(builder, CrookModifier::new))
     );
 
-    public CrookModifier(LootItemCondition[] conditionsIn) {
-        super(conditionsIn);
+    public CrookModifier(LootItemCondition[] conditionsIn, int priority) {
+        super(conditionsIn, priority);
     }
 
     @NotNull
     @Override
     protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> list, LootContext context) {
-        ItemStack crook = context.getParamOrNull(LootContextParams.TOOL);
-        Entity entity = context.getParamOrNull(LootContextParams.THIS_ENTITY);
-        BlockState blockState = context.getParamOrNull(LootContextParams.BLOCK_STATE);
+        ItemInstance crook = context.getOptionalParameter(LootContextParams.TOOL);
+        Entity entity = context.getOptionalParameter(LootContextParams.THIS_ENTITY);
+        BlockState blockState = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
 
         if (!(entity instanceof Player) || crook == null || blockState == null || !crook.is(FTBStuffTags.Items.CROOKS)) {
             return list;
@@ -59,7 +61,7 @@ public class CrookModifier extends LootModifier {
             }
             recipe.getResults().forEach(itemWithChance -> {
                 if (context.getRandom().nextDouble() <= itemWithChance.chance()) {
-                    crookDrops.add(itemWithChance.item().copy());
+                    crookDrops.add(itemWithChance.item().create());
                 }
             });
         }
@@ -74,10 +76,10 @@ public class CrookModifier extends LootModifier {
         return list;
     }
 
-    private List<RecipeHolder<CrookRecipe>> findRecipes(Level level, BlockState blockState) {
+    private List<RecipeHolder<CrookRecipe>> findRecipes(ServerLevel level, BlockState blockState) {
         ItemStack input = new ItemStack(blockState.getBlock());
 
-        return level.getRecipeManager().getAllRecipesFor(RecipesRegistry.CROOK_TYPE.get()).stream()
+        return level.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.CROOK_TYPE.get(), NoInventory.INSTANCE, level)
                 .filter(holder -> holder.value().getIngredient().test(input))
                 .toList();
     }

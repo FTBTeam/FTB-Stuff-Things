@@ -2,13 +2,15 @@ package dev.ftb.mods.ftbstuffnthings.data.recipe;
 
 import dev.ftb.mods.ftbstuffnthings.crafting.DevEnvironmentCondition;
 import net.minecraft.advancements.Criterion;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public abstract class BaseRecipeBuilder<T extends Recipe<?>> implements RecipeBuilder {
     @Override
@@ -21,23 +23,26 @@ public abstract class BaseRecipeBuilder<T extends Recipe<?>> implements RecipeBu
         return this;
     }
 
-    @Override
-    public Item getResult() {
-        return Items.AIR;
-    }
-
     abstract protected T buildRecipe();
 
-    @Override
-    public void save(RecipeOutput recipeOutput, ResourceLocation id) {
-        T recipe = buildRecipe();
-        ResourceLocation id1 = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), recipe.getType() + "/" + id.getPath());
-        recipeOutput.accept(id1, recipe, null);
+    public void save(RecipeOutput recipeOutput, Identifier id) {
+        save(recipeOutput, ResourceKey.create(Registries.RECIPE, id));
     }
 
-    public void saveTest(RecipeOutput recipeOutput, ResourceLocation id) {
+    public void saveTest(RecipeOutput recipeOutput, Identifier id) {
+        saveTest(recipeOutput, ResourceKey.create(Registries.RECIPE, id));
+    }
+
+    @Override
+    public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
         T recipe = buildRecipe();
-        ResourceLocation id1 = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), recipe.getType() + "/dev_test_" + id.getPath());
-        recipeOutput.withConditions(DevEnvironmentCondition.INSTANCE).accept(id1, recipe, null);
+        Identifier id1 = Identifier.fromNamespaceAndPath(id.identifier().getNamespace(), recipe.getType() + "/" + id.identifier().getPath());
+        recipeOutput.accept(ResourceKey.create(Registries.RECIPE, id1), recipe, null);
+    }
+
+    public void saveTest(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
+        T recipe = buildRecipe();
+        Identifier id1 = Identifier.fromNamespaceAndPath(id.identifier().getNamespace(), recipe.getType() + "/dev_test_" + id.identifier().getPath());
+        recipeOutput.withConditions(DevEnvironmentCondition.INSTANCE).accept(ResourceKey.create(Registries.RECIPE, id1), recipe, null);
     }
 }

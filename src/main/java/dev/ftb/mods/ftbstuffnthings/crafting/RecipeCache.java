@@ -1,10 +1,12 @@
 package dev.ftb.mods.ftbstuffnthings.crafting;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
@@ -26,13 +28,13 @@ public class RecipeCache<R extends Recipe<?>> {
      *                          future
      * @return a cached recipe, or {@code Optional.empty()} if no recipe exists for the generated hashcode
      */
-    public Optional<RecipeHolder<R>> getCachedRecipe(Supplier<Optional<RecipeHolder<R>>> recipeFinder, IntSupplier hashCodeGenerator) {
+    public Optional<RecipeHolder<R>> getCachedRecipe(ServerLevel level, Function<ServerLevel, Optional<RecipeHolder<R>>> recipeFinder, IntSupplier hashCodeGenerator) {
         int key = hashCodeGenerator.getAsInt();
 
         if (recipeCache.containsKey(key)) {
             return recipeCache.getAndMoveToFirst(key);
         } else {
-            Optional<RecipeHolder<R>> newRecipe = recipeFinder.get();
+            Optional<RecipeHolder<R>> newRecipe = recipeFinder.apply(level);
             while (recipeCache.size() >= MAX_CACHE_SIZE) {
                 recipeCache.removeLast();
             }

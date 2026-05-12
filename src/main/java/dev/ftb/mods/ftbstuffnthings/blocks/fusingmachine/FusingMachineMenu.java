@@ -5,8 +5,7 @@ import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 import java.util.Objects;
 
@@ -18,9 +17,10 @@ public class FusingMachineMenu extends AbstractMachineMenu<FusingMachineBlockEnt
     public FusingMachineMenu(int windowId, Inventory playerInventory, BlockPos pos) {
         super(ContentRegistry.FUSING_MACHINE_MENU.get(), windowId, playerInventory, pos);
 
-        IItemHandler itemHandler = Objects.requireNonNull(blockEntity.getItemHandler());
-        addSlot(new SlotItemHandler(itemHandler, 0, 43, 27));
-        addSlot(new SlotItemHandler(itemHandler, 1, 43 + 18, 27));
+        FusingMachineBlockEntity fusingMachine = Objects.requireNonNull(getBlockEntity());
+        var itemHandler = fusingMachine.getItemHandler();
+        addSlot(new ResourceHandlerSlot(itemHandler, fusingMachine::indexModifier, 0, 43, 27));
+        addSlot(new ResourceHandlerSlot(itemHandler, fusingMachine::indexModifier, 1, 43 + 18, 27));
 
         addPlayerSlots(playerInventory, 8, 84);
 

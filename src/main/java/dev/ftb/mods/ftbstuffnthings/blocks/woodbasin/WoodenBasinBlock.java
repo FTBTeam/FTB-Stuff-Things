@@ -2,8 +2,9 @@ package dev.ftb.mods.ftbstuffnthings.blocks.woodbasin;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -24,8 +25,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import org.jspecify.annotations.Nullable;
 
 public class WoodenBasinBlock extends Block implements EntityBlock {
     // same shape as a vanilla cauldron
@@ -63,27 +64,25 @@ public class WoodenBasinBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (!level.isClientSide()) {
-            if (level.getBlockEntity(pos) instanceof WoodenBasinBlockEntity basin
-                    && FluidUtil.interactWithFluidHandler(player, hand, basin.getFluidHandler()))
-            {
-                return ItemInteractionResult.CONSUME;
+            if (FluidUtil.interactWithFluidHandler(player, hand, level, pos, hitResult.getDirection())) {
+                return InteractionResult.CONSUME;
             }
         }
-        return stack.getCapability(Capabilities.FluidHandler.ITEM) == null ?
-                ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION :
-                ItemInteractionResult.SUCCESS;
+        return stack.getCapability(Capabilities.Fluid.ITEM, null) == null ?
+                InteractionResult.PASS :
+                InteractionResult.SUCCESS;
     }
 
-    @EventBusSubscriber(modid = FTBStuffNThings.MODID)
+    @EventBusSubscriber(modid = FTBStuffNThings.MOD_ID)
     public static class Listener {
         @SubscribeEvent
         public static void onEntityFall(LivingFallEvent event) {
-            if (!event.getEntity().level().isClientSide) {
+            if (event.getEntity().level() instanceof ServerLevel serverLevel) {
                 BlockPos pos = event.getEntity().getOnPos();
                 if (event.getDistance() > 0.5 && event.getEntity().level().getBlockEntity(pos.below()) instanceof WoodenBasinBlockEntity basin) {
-                    basin.trySqueezing(event.getEntity());
+                    basin.trySqueezing(serverLevel, event.getEntity());
                 }
             }
         }

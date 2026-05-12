@@ -28,11 +28,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-
-import javax.annotation.Nonnull;
+import org.jspecify.annotations.Nullable;
 
 public abstract class AbstractMachineMenu<T extends AbstractMachineBlockEntity> extends AbstractContainerMenu {
-    public final T blockEntity;
+    @Nullable
+    private final T blockEntity;
     private int playerSlotsStart;
     protected ContainerData containerData;
 
@@ -94,7 +94,6 @@ public abstract class AbstractMachineMenu<T extends AbstractMachineBlockEntity> 
     }
 
     @Override
-    @Nonnull
     public ItemStack quickMoveStack(Player player, int slot) {
         Slot srcSlot = slots.get(slot);
         if (srcSlot == null || !srcSlot.hasItem()) {
@@ -132,7 +131,8 @@ public abstract class AbstractMachineMenu<T extends AbstractMachineBlockEntity> 
         return this.blockEntity.getBlockPos().distManhattan(BlockPos.containing(position)) <= 8;
     }
 
-    public BlockEntity getBlockEntity() {
+    @Nullable
+    public T getBlockEntity() {
         return blockEntity;
     }
 }

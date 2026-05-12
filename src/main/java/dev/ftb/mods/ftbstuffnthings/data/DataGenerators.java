@@ -16,34 +16,37 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-@EventBusSubscriber(modid = FTBStuffNThings.MODID)
+@EventBusSubscriber(modid = FTBStuffNThings.MOD_ID)
 public class DataGenerators {
     @SubscribeEvent
-    public static void gatherData(GatherDataEvent event) {
+    public static void gatherData(GatherDataEvent.Client event) {
         DataGenerator generator = event.getGenerator();
         PackOutput packOutput = generator.getPackOutput();
-        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
-        generator.addProvider(event.includeClient(), new I18nGenerator(packOutput));
+        event.createProvider(ModelsGenerator::new);
+        event.createProvider(I18nGenerator::new);
+
         generator.addProvider(event.includeClient(), new BlockModelsGenerator(packOutput, existingFileHelper));
         generator.addProvider(event.includeClient(), new BlockStatesGenerators(packOutput, existingFileHelper));
         generator.addProvider(event.includeClient(), new ItemModelsGenerator(packOutput, existingFileHelper));
+    }
 
+    @SubscribeEvent
+    public static void gatherData(GatherDataEvent.Server event) {
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
-        BlockTagsProvider blockTagsProvider = new BlockTagsGenerator(packOutput, lookupProvider, existingFileHelper);
-        generator.addProvider(event.includeServer(), blockTagsProvider);
-        generator.addProvider(event.includeServer(), new ItemTagsGenerator(packOutput, lookupProvider, blockTagsProvider.contentsGetter(), existingFileHelper));
-        generator.addProvider(event.includeServer(), new RecipesGenerator(packOutput, lookupProvider));
-        generator.addProvider(event.includeServer(), new LootTablesGenerator(packOutput, lookupProvider));
-        generator.addProvider(event.includeServer(), new LootModifiersGenerator(packOutput, lookupProvider));
-        generator.addProvider(event.includeServer(), new AdvancementsGenerator(packOutput, lookupProvider,existingFileHelper));
+        event.createProvider(RecipesGenerator.Runner::new);
+        event.createBlockAndItemTags(BlockTagsGenerator::new, ItemTagsGenerator::new);
+        event.createProvider(LootTablesGenerator::new);
+        event.createProvider(LootModifiersGenerator::new);
+        event.createProvider(AdvancementsGenerator::new);
 
         RegistrySetBuilder builder = new RegistrySetBuilder()
                 .add(Registries.DAMAGE_TYPE, DamageTypesGenerator::bootstrap);
 
-        DatapackBuiltinEntriesProvider provider = generator.addProvider(event.includeServer(), new DatapackBuiltinEntriesProvider(packOutput, lookupProvider, builder, Set.of(FTBStuffNThings.MODID)));
-
-        generator.addProvider(event.includeServer(), new DamageTypeTagsGenerator(packOutput, provider.getRegistryProvider(), existingFileHelper));
+        DataGenerator generator = event.getGenerator();
+        DatapackBuiltinEntriesProvider provider = generator.addProvider(true,
+                new DatapackBuiltinEntriesProvider(generator.getPackOutput(), lookupProvider, builder, Set.of(FTBStuffNThings.MOD_ID)));
+        generator.addProvider(true, new DamageTypeTagsGenerator(generator.getPackOutput(), provider.getRegistryProvider()));
     }
 }

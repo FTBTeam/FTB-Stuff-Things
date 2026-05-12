@@ -11,7 +11,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -34,11 +34,11 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 public class DripperBlock extends Block implements EntityBlock {
 	public static final VoxelShape SHAPE = VoxelShapeUtils.or(
@@ -51,6 +51,7 @@ public class DripperBlock extends Block implements EntityBlock {
 	);
 
 	public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
+	public static final int WATER_BOTTLE_AMOUNT = 250;
 
 	public DripperBlock() {
 		super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(2F).randomTicks());
@@ -75,50 +76,50 @@ public class DripperBlock extends Block implements EntityBlock {
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (!level.isClientSide() && level.getBlockEntity(pos) instanceof DripperBlockEntity dripper) {
-			FluidTank tank = dripper.getTank();
+            var tank = dripper.getTank();
 
-			ItemInteractionResult bottleRes = tryUseWaterBottle(stack, level, pos, player, hand, tank);
+			InteractionResult bottleRes = tryUseWaterBottle(stack, level, pos, player, tank);
 			if (bottleRes != null) {
 				return bottleRes;
 			}
 
-			FluidUtil.interactWithFluidHandler(player, hand, tank);
+			FluidUtil.interactWithFluidHandler(player, hand, level, pos, hitResult.getDirection());
 
-			if (tank.getFluidAmount() == 0) {
-				player.displayClientMessage(Component.translatable("ftblibrary.empty"), true);
+			if (tank.getAmountAsInt(0) == 0) {
+				player.sendOverlayMessage(Component.translatable("ftblibrary.empty"));
 			} else {
-				player.displayClientMessage(Component.translatable("ftblibrary.mb",
-						tank.getFluidAmount(), tank.getFluid().getHoverName()), true);
+				player.sendOverlayMessage(Component.translatable("ftblibrary.mb",
+						tank.getAmountAsInt(0), tank.getResource(0).getHoverName()));
 			}
 		}
 
-		return ItemInteractionResult.sidedSuccess(level.isClientSide);
+		return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
 	}
 
 	@Nullable
-	private static ItemInteractionResult tryUseWaterBottle(ItemStack stack, Level level, BlockPos pos, Player player, InteractionHand hand, FluidTank tank) {
+	private static InteractionResult tryUseWaterBottle(ItemStack stack, Level level, BlockPos pos, Player player, ResourceHandler<FluidResource> tank) {
 		if (!stack.is(Items.POTION)) return null;
 
 		PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
 		if (contents == null || !contents.is(Potions.WATER)) return null;
 
-		FluidStack water = new FluidStack(Fluids.WATER, 250);
-
-		if (tank.fill(water, IFluidHandler.FluidAction.SIMULATE) < 250) {
-			return ItemInteractionResult.FAIL;
+		try (Transaction tx = Transaction.openRoot()) {
+			int filled = tank.insert(FluidResource.of(Fluids.WATER), WATER_BOTTLE_AMOUNT, tx);
+			if (filled < WATER_BOTTLE_AMOUNT) {
+				return InteractionResult.FAIL;
+			}
+			level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1F, 1F);
+			tx.commit();
 		}
-
-		level.playSound(null, pos, SoundEvents.BOTTLE_EMPTY, SoundSource.BLOCKS, 1F, 1F);
-		tank.fill(water, IFluidHandler.FluidAction.EXECUTE);
 
 		if (!player.isCreative()) {
 			stack.shrink(1);
 			player.addItem(new ItemStack(Items.GLASS_BOTTLE));
 		}
 
-		return ItemInteractionResult.sidedSuccess(level.isClientSide);
+		return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
 	}
 
 	@Override
@@ -127,8 +128,8 @@ public class DripperBlock extends Block implements EntityBlock {
 			BlockEntity entity = level.getBlockEntity(pos);
 			boolean foundParticle = false;
 
-			if (entity instanceof DripperBlockEntity dripper && !dripper.getTank().isEmpty()) {
-				FluidStack fluid = dripper.getTank().getFluid();
+			if (entity instanceof DripperBlockEntity dripper && dripper.getTank().getAmountAsInt(0) > 0) {
+				FluidResource fluid = dripper.getTank().getResource(0);
 
 				if (!fluid.isEmpty()) {
 					BlockState dripState = fluid.getFluid().defaultFluidState().createLegacyBlock();

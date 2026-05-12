@@ -7,7 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -17,6 +17,7 @@ import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.BoxStyle;
 import snownee.jade.api.ui.IElement;
 import snownee.jade.api.ui.IElementHelper;
+import snownee.jade.api.ui.JadeUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.List;
 enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    private static final ResourceLocation ID = FTBStuffNThings.id("autohammer");
+    private static final Identifier ID = FTBStuffNThings.id("autohammer");
 
     private static final Component WAITING = Component.literal(" ")
             .append(Component.translatable("ftbstuff.autohammer.waiting").withStyle(ChatFormatting.WHITE));
@@ -39,16 +40,16 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerData
             return;
         }
 
-        var helper = IElementHelper.get();
-        int timeout = serverData.getInt("timeout");
-        int maxTimeout = serverData.getInt("maxTimeout");
+//        var helper = IElementHelper.get();
+        int timeout = serverData.getIntOr("timeout", 0);
+        int maxTimeout = serverData.getIntOr("maxTimeout", 0);
 
         if (maxTimeout == 0) {
-            float progress = (float) serverData.getInt("progress") / (float) serverData.getInt("maxProgress");
-            iTooltip.add(helper.progress(progress, RUNNING, helper.progressStyle().color(0xAD00FF00), BoxStyle.getNestedBox(), false));
+            float progress = (float) serverData.getIntOr("progress", 0) / (float) serverData.getIntOr("maxProgress", 1);
+            iTooltip.add(JadeUI.progress(progress, RUNNING, JadeUI.progressStyle().color(0xAD00FF00), BoxStyle.nestedBox(), false));
         } else {
             float progress = (float) timeout / (float) maxTimeout;
-            iTooltip.add(helper.progress(progress, WAITING, helper.progressStyle().color(0xADFF0000), BoxStyle.getNestedBox(), true));
+            iTooltip.add(JadeUI.progress(progress, WAITING, JadeUI.progressStyle().color(0xADFF0000), BoxStyle.nestedBox(), true));
         }
 
         ItemStack processingStack = ItemStack.OPTIONAL_CODEC.parse(blockAccessor.nbtOps(), serverData.getCompound("processing")).result()
@@ -60,35 +61,35 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerData
         }
 
         if (!processingStack.isEmpty()) {
-            iTooltip.add(helper.item(processingStack));
-            ITooltip tooltip = helper.tooltip();
-            tooltip.append(helper.text(Component.translatable("ftbstuff.jade.processing")));
-            iTooltip.append(helper.box(tooltip, BoxStyle.getTransparent()).align(IElement.Align.RIGHT));
+            iTooltip.add(JadeUI.item(processingStack));
+            ITooltip tooltip = JadeUI.tooltip();
+            tooltip.append(JadeUI.text(Component.translatable("ftbstuff.jade.processing")));
+            iTooltip.append(JadeUI.box(tooltip, BoxStyle.transparent()).alignSelfEnd();
         }
 
         if (!outputItems.isEmpty()) {
-            iTooltip.add(helper.spacer(-5, 0));
-            ITooltip tooltip = helper.tooltip();
+            iTooltip.add(JadeUI.spacer(-5, 0));
+            ITooltip tooltip = JadeUI.tooltip();
 
             // Creates rows of 5 to prevent the box getting too big.
             int count = 0;
             float scale = outputItems.size() > 5 ? .8f : 1f;
             for (ItemStack outputItem : outputItems) {
                 if (count != 0 && count % 5 == 0) {
-                    tooltip.add(helper.item(outputItem, scale));
+                    tooltip.add(JadeUI.item(outputItem, scale));
                     count = 0;
                     continue;
                 }
-                tooltip.append(helper.item(outputItem, scale));
+                tooltip.append(JadeUI.item(outputItem, scale));
                 count++;
             }
 
-            iTooltip.append(helper.box(tooltip, BoxStyle.getTransparent()));
+            iTooltip.append(JadeUI.box(tooltip, BoxStyle.transparent()));
 
             // Hacks to make the boxes not look stupid
-            ITooltip text = helper.tooltip();
-            text.append(helper.text(Component.translatable("ftbstuff.jade.buffer")));
-            iTooltip.append(helper.box(text, BoxStyle.getTransparent()).align(IElement.Align.RIGHT));
+            ITooltip text = JadeUI.tooltip();
+            text.append(JadeUI.text(Component.translatable("ftbstuff.jade.buffer")));
+            iTooltip.append(JadeUI.box(text, BoxStyle.transparent()).alignSelfEnd();
         }
     }
 
@@ -115,7 +116,7 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerData
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 

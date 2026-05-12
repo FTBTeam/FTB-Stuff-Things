@@ -4,12 +4,12 @@ import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.fusingmachine.FusingMachineMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FusingMachineScreen extends BaseFluidAndEnergyScreen<FusingMachineMenu> {
-    private static final ResourceLocation TEXTURE = FTBStuffNThings.id("textures/gui/fusing_machine_background.png");
+    private static final Identifier TEXTURE = FTBStuffNThings.id("textures/gui/fusing_machine_background.png");
 
     public FusingMachineScreen(FusingMachineMenu menu, Inventory inv, Component title) {
         super(menu, inv, title, 140, 90, TEXTURE);

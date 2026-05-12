@@ -75,7 +75,7 @@ public enum TubeNetwork {
 //        return blockState.getBlock() == BlocksRegistry.AUTOPROCESSOR.get();
     }
 
-    @EventBusSubscriber(modid = FTBStuffNThings.MODID)
+    @EventBusSubscriber(modid = FTBStuffNThings.MOD_ID)
     public static class Listener {
         @SubscribeEvent
         public static void onServerShutdown(ServerStoppingEvent ignored) {

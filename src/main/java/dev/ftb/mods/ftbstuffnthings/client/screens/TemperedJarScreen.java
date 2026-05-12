@@ -13,7 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class TemperedJarScreen extends AbstractContainerScreen<TemperedJarMenu> {
-    private static final ResourceLocation TEXTURE = FTBStuffNThings.id("textures/gui/tempered_jar.png");
-    private static final ResourceLocation CRAFTING_ICON = FTBStuffNThings.id("textures/gui/crafting_icon.png");
+    private static final Identifier TEXTURE = FTBStuffNThings.id("textures/gui/tempered_jar.png");
+    private static final Identifier CRAFTING_ICON = FTBStuffNThings.id("textures/gui/crafting_icon.png");
 
     public static final Rect2i FLUID_AREA = new Rect2i(55, 30, 48, 76);
     public static final Rect2i TEMPERATURE_AREA = new Rect2i(55 + FLUID_AREA.getWidth() / 2 - 8, 30 + FLUID_AREA.getHeight() + 5, 16, 16);

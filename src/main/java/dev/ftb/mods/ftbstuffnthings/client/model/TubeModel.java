@@ -7,24 +7,25 @@ import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.tube.TubeBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.util.DirectionUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.block.dispatch.ModelState;
 import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.BakedModelWrapper;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
-import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
-import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
-import net.neoforged.neoforge.client.model.geometry.UnbakedGeometryHelper;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
+import net.neoforged.neoforge.client.model.UnbakedModelLoader;
+import net.neoforged.neoforge.model.data.ModelData;
+import org.jspecify.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.io.IOException;
@@ -36,40 +37,39 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-public class TubeModel extends BakedModelWrapper<BakedModel> {
-    private static final Map<Integer, List<BakedQuad>> MODEL_CACHE = new ConcurrentHashMap<>();
+public class TubeModel extends DelegateBlockStateModel {
+    private static final Map<Integer, List<BlockStateModelPart>> MODEL_CACHE = new ConcurrentHashMap<>();
 
-    private final BakedModel[] rotated;
+    private final BlockStateModel[] rotated;
 
-    public TubeModel(BakedModel centre, BakedModel[] rotated) {
+    public TubeModel(BlockStateModel centre, BlockStateModel[] rotated) {
         super(centre);
         this.rotated = rotated;
     }
 
     @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData extraData, @Nullable RenderType renderType) {
-        List<BakedQuad> quads = new ArrayList<>(super.getQuads(state, side, rand, extraData, renderType));
+    public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockStateModelPart> parts) {
+        super.collectParts(level, pos, state, random, parts);
 
+        ModelData extraData = level.getModelData(pos);
         Integer connected = extraData.get(TubeBlockEntity.CONNECTION_PROPERTY);
 
-        if (side == null && connected != null) {
-            List<BakedQuad> cachedQuads = MODEL_CACHE.get(connected);
-            if (cachedQuads == null) {
-                cachedQuads = new ArrayList<>();
+        if (connected != null) {
+            List<BlockStateModelPart> cachedParts = MODEL_CACHE.get(connected);
+            if (cachedParts == null) {
+                cachedParts = new ArrayList<>();
                 for (Direction dir : DirectionUtil.VALUES) {
                     if (DirectionUtil.getDirectionBit(connected, dir)) {
-                        cachedQuads.addAll(rotated[dir.get3DDataValue()].getQuads(state, null, rand, extraData, renderType));
+                        rotated[dir.get3DDataValue()].collectParts(level, pos, state, random, cachedParts);
                     }
                 }
-                MODEL_CACHE.put(connected, cachedQuads);
+                MODEL_CACHE.put(connected, cachedParts);
             }
-            quads.addAll(cachedQuads);
+            parts.addAll(cachedParts);
         }
-
-        return quads;
     }
 
-    public record Geometry(BlockModel centre, BlockModel tubePart) implements IUnbakedGeometry<Geometry> {
+    public record Geometry(BlockModel centre, BlockModel tubePart) implements UnbakedModel {
         private static final Vector3f BLOCK_CENTER = new Vector3f(0.5f, 0.5f, 0.5f);
 
         // JSON models for the tube arm is in the DOWN orientation
@@ -100,10 +100,10 @@ public class TubeModel extends BakedModelWrapper<BakedModel> {
         }
     }
 
-    public enum Loader implements IGeometryLoader<Geometry> {
+    public enum Loader implements UnbakedModelLoader<Geometry> {
         INSTANCE;
 
-        public static final ResourceLocation ID = FTBStuffNThings.id("tube");
+        public static final Identifier ID = FTBStuffNThings.id("tube");
 
         @Override
         public Geometry read(JsonObject jsonObject, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
@@ -113,11 +113,11 @@ public class TubeModel extends BakedModelWrapper<BakedModel> {
             return new Geometry(centre, tubePart);
         }
 
-        private static BlockModel loadModel(ResourceLocation location) {
+        private static BlockModel loadModel(Identifier location) {
             ResourceManager manager = Minecraft.getInstance().getResourceManager();
-            ResourceLocation file = ModelBakery.MODEL_LISTER.idToFile(location);
+            Identifier file = ModelBakery.MODEL_LISTER.idToFile(location);
             try (InputStream stream = manager.getResourceOrThrow(file).open()) {
-                return net.minecraft.client.renderer.block.model.BlockModel.fromStream(new InputStreamReader(stream));
+                return net.minecraft.client.renderer.block.model.BlockModel.Unbaked.fromStream(new InputStreamReader(stream));
             } catch (IOException e) {
                 throw new JsonParseException("Failed to load part model '" + file + "'", e);
             }

@@ -12,7 +12,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.data.loot.LootTableProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
@@ -87,7 +87,7 @@ public class LootTablesGenerator extends LootTableProvider {
             add(BlocksRegistry.PULSATING_CRATE.get(), LootTable.lootTable().withPool(LootPool.lootPool().name("pulsating_crate")));
         }
 
-        private void addStandardSerializedDrop(Block block, ResourceLocation blockId) {
+        private void addStandardSerializedDrop(Block block, Identifier blockId) {
             LootPoolSingletonContainer.Builder<?> lootBuilder = LootItem.lootTableItem(block)
                     .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY));
 

@@ -4,7 +4,7 @@ import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
@@ -13,10 +13,10 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 public class ItemModelsGenerator extends ItemModelProvider {
-    private static final ResourceLocation GENERATED = ResourceLocation.parse("item/generated");
+    private static final Identifier GENERATED = Identifier.parse("item/generated");
 
     public ItemModelsGenerator(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, FTBStuffNThings.MODID, existingFileHelper);
+        super(output, FTBStuffNThings.MOD_ID, existingFileHelper);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class ItemModelsGenerator extends ItemModelProvider {
         return simpleItem(item.getId(), textures);
     }
 
-    private ItemModelBuilder simpleItem(ResourceLocation itemKey, String... textures) {
+    private ItemModelBuilder simpleItem(Identifier itemKey, String... textures) {
         ItemModelBuilder builder = withExistingParent(itemKey.getPath(), GENERATED);
         for (int i = 0; i < textures.length; i++) {
             builder.texture("layer" + i, textures[i]);

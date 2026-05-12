@@ -7,12 +7,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
-import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.ItemAccessFluidHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 public class FluidCapsuleItem extends Item {
     public FluidCapsuleItem() {
@@ -30,24 +35,29 @@ public class FluidCapsuleItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+        super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
 
-        SimpleFluidContent content = stack.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY);
+        SimpleFluidContent content = itemStack.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY);
         if (!content.isEmpty()) {
-            tooltipComponents.add(MiscUtil.makeFluidStackDesc(content.copy()));
+            builder.accept(MiscUtil.makeFluidStackDesc(content.copy()));
         }
     }
 
-    public static class FluidHandler extends FluidHandlerItemStack.Consumable {
+    public static class FluidHandler extends ItemAccessFluidHandler {
         public FluidHandler(ItemStack container) {
-            super(ComponentsRegistry.STORED_FLUID, container, FluidType.BUCKET_VOLUME);
+            super(ItemAccess.forStack(container), ComponentsRegistry.STORED_FLUID.get(), FluidType.BUCKET_VOLUME);
         }
 
         @Override
-        public int fill(FluidStack resource, FluidAction doFill) {
+        protected ItemResource update(ItemResource accessResource, int index, FluidResource newResource, int newAmount) {
+            return newAmount == 0 ? ItemResource.EMPTY : super.update(accessResource, index, newResource, newAmount);
+        }
+
+        @Override
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
             // only allow filling if it's completely empty
-            return getFluid().isEmpty() ? super.fill(resource, doFill) : 0;
+            return getAmountAsInt(index) == 0 ? super.insert(index, resource, amount, transaction) : 0;
         }
     }
 }

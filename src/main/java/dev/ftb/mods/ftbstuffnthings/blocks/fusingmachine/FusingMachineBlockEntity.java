@@ -7,6 +7,7 @@ import dev.ftb.mods.ftbstuffnthings.blocks.ProgressProvider;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingEnergy;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingFluidTank;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingStackHandler;
+import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.FusingMachineRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
@@ -15,10 +16,12 @@ import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -27,11 +30,21 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -41,12 +54,13 @@ import java.util.function.Consumer;
 
 public class FusingMachineBlockEntity extends AbstractMachineBlockEntity implements MenuProvider, FluidEnergyProvider, ProgressProvider {
     private final EmittingEnergy energyHandler = new EmittingEnergy(1_000_000, 10_000, 10_000, (energy) -> setChanged());
-    private final ExtractOnlyFluidTank fluidHandler = new ExtractOnlyFluidTank(10000, (tank) -> setChanged());
-    private final EmittingStackHandler itemHandler = new EmittingStackHandler(2, (contents) -> onItemHandlerChange());
+    private final ExtractOnlyFluidTank fluidHandler = new ExtractOnlyFluidTank(10000, _ -> setChanged());
+    private final EmittingStackHandler itemHandler = new EmittingStackHandler(2, _ -> onItemHandlerChange());
 
     private int progress = 0;
     private int progressRequired = 0;
     private boolean recheckRecipe = false;
+    @Nullable
     private FusingMachineRecipe currentRecipe = null;
     private final FluidEnergyProcessorContainerData containerData = new FluidEnergyProcessorContainerData(this, this);
 
@@ -65,11 +79,11 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
         if (recheckRecipe || progress == 0) {
             recheckRecipe = false;
 
-            currentRecipe = RecipeCaches.FUSING_MACHINE.getCachedRecipe(this::searchForRecipe, this::genIngredientHash)
+            currentRecipe = RecipeCaches.FUSING_MACHINE.getCachedRecipe(serverLevel, this::searchForRecipe, this::genIngredientHash)
                     .map(RecipeHolder::value)
                     .orElse(null);
 
-            if (currentRecipe == null || !fluidHandler.isEmpty() && !FluidStack.isSameFluidSameComponents(fluidHandler.getFluid(), currentRecipe.getFluidResult())) {
+            if (currentRecipe == null || fluidHandler.getAmountAsInt(0) > 0 && !FluidStack.isSameFluidSameComponents(FluidUtil.getStack(fluidHandler, 0), currentRecipe.getFluidResult())) {
                 resetProgress(true);
                 return;
             }
@@ -96,8 +110,8 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
         }
     }
 
-    private Optional<RecipeHolder<FusingMachineRecipe>> searchForRecipe() {
-        return level.getRecipeManager().getAllRecipesFor(RecipesRegistry.FUSING_MACHINE_TYPE.get()).stream()
+    private Optional<RecipeHolder<FusingMachineRecipe>> searchForRecipe(ServerLevel serverLevel) {
+        return serverLevel.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.FUSING_MACHINE_TYPE.get(), NoInventory.INSTANCE, serverLevel)
                 .sorted((h1, h2) -> h2.value().getInputs().size() - h1.value().getInputs().size()) // prioritise recipes with more ingredients
                 .filter(holder -> holder.value().test(itemHandler))
                 .findFirst();
@@ -105,40 +119,37 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
 
     private int genIngredientHash() {
         List<Integer> l = new ArrayList<>();
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            if (!itemHandler.getStackInSlot(i).isEmpty()) {
-                l.add(ItemStack.hashItemAndComponents(itemHandler.getStackInSlot(i)));
+        for (int i = 0; i < itemHandler.size(); i++) {
+            ItemStack stack = ItemUtil.getStack(itemHandler, i);
+            if (!stack.isEmpty()) {
+                l.add(ItemStack.hashItemAndComponents(stack));
             }
         }
         return l.hashCode();
     }
 
     private void onItemHandlerChange() {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             setChanged();
             recheckRecipe = true;
         }
     }
 
     private boolean canAcceptOutput() {
-        return currentRecipe != null && currentRecipe.getFluidResult().getAmount() + fluidHandler.getFluidAmount() <= fluidHandler.getCapacity();
+        return currentRecipe != null && currentRecipe.getFluidResult().amount() + fluidHandler.getAmountAsInt(0) <= fluidHandler.getCapacityAsInt(0, FluidResource.EMPTY);
     }
 
     //#region BlockEntity processing
 
     private void executeRecipe() {
-        BitSet extractingSlots = new BitSet(itemHandler.getSlots());  // track which slots we need to extract from
+        assert currentRecipe != null;
+
+        BitSet extractingSlots = new BitSet(itemHandler.size());  // track which slots we need to extract from
 
         // Determine which input slots should be extracted from
         for (var ingredient : currentRecipe.getInputs()) {
-            for (int i = 0; i < itemHandler.getSlots(); i++) {
-                if (!extractingSlots.get(i) && ingredient.test(itemHandler.getStackInSlot(i))) {
-                    if (itemHandler.extractItem(i, 1, true).isEmpty()) {
-                        // this shouldn't happen, but let's be defensive
-                        resetProgress(true);
-                        currentRecipe = null;
-                        return;
-                    }
+            for (int i = 0; i < itemHandler.size(); i++) {
+                if (!extractingSlots.get(i) && ingredient.test(ItemUtil.getStack(itemHandler, i))) {
                     extractingSlots.set(i);
                 }
             }
@@ -146,13 +157,22 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
 
         // Do the actual extraction and fluid production
         if (extractingSlots.cardinality() == currentRecipe.getInputs().size()) {
-            for (int i = 0; i < itemHandler.getSlots(); i++) {
-                if (extractingSlots.get(i)) {
-                    itemHandler.extractItem(i, 1, false);
+            try (Transaction tx = Transaction.openRoot()) {
+                for (int i = 0; i < itemHandler.size(); i++) {
+                    if (extractingSlots.get(i)) {
+                        if (itemHandler.extract(i, itemHandler.getResource(i), 1, tx) != 1) {
+                            // shouldn't happen...
+                            tx.close();
+                            return;
+                        }
+                    }
+                }
+                FluidStackTemplate fluidResult = currentRecipe.getFluidResult();
+                if (fluidHandler.insert(FluidResource.of(fluidResult.fluid()), fluidResult.amount(), tx) == fluidResult.amount()) {
+                    resetProgress(false);
+                    tx.commit();
                 }
             }
-            fluidHandler.fillInternal(currentRecipe.getFluidResult(), IFluidHandler.FluidAction.EXECUTE);
-            resetProgress(false);
         } else {
             setActive(true);
         }
@@ -163,13 +183,14 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
             return;
         }
 
-        var result = energyHandler.extractEnergy(currentRecipe.getEnergyComponent().fePerTick(), true);
-        if (result < currentRecipe.getEnergyComponent().fePerTick()) {
-            resetProgress(true);
-            return;
+        try (Transaction tx = Transaction.openRoot()) {
+            int result = energyHandler.extract(currentRecipe.getEnergyComponent().fePerTick(), tx);
+            if (result < currentRecipe.getEnergyComponent().fePerTick()) {
+                resetProgress(true);
+            } else {
+                tx.commit();
+            }
         }
-
-        energyHandler.extractEnergy(currentRecipe.getEnergyComponent().fePerTick(), false);
     }
 
     private void resetProgress(boolean goInactive) {
@@ -181,12 +202,12 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
     }
 
     private boolean hasEnoughEnergy() {
-        return energyHandler.getEnergyStored() > (currentRecipe == null ? 0 : currentRecipe.getEnergyComponent().fePerTick());
+        return energyHandler.getAmountAsInt() > (currentRecipe == null ? 0 : currentRecipe.getEnergyComponent().fePerTick());
     }
 
     private boolean hasOccupiedInputSlots() {
-        for (int i = 0; i < itemHandler.getSlots(); i++) {
-            if (!itemHandler.getStackInSlot(i).isEmpty()) {
+        for (int i = 0; i < itemHandler.size(); i++) {
+            if (!itemHandler.getResource(i).isEmpty()) {
                 return true;
             }
         }
@@ -207,57 +228,54 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
 
-        itemHandler.deserializeNBT(provider, tag.getCompound("input"));
-        if (tag.contains("energy")) {
-            energyHandler.deserializeNBT(provider, tag.get("energy"));
-        }
-        fluidHandler.readFromNBT(provider, tag.getCompound("fluid"));
+        itemHandler.deserialize(input.childOrEmpty("input"));
+        energyHandler.deserialize(input.childOrEmpty("energy"));
+        fluidHandler.deserialize(input.childOrEmpty("fluid"));
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
 
-        tag.put("input", itemHandler.serializeNBT(provider));
-        tag.put("energy", energyHandler.serializeNBT(provider));
-        tag.put("fluid", fluidHandler.writeToNBT(provider, new CompoundTag()));
+        output.putChild("input", itemHandler);
+        output.putChild("energy", energyHandler);
+        output.putChild("fluid", fluidHandler);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag compoundTag = new CompoundTag();
-        saveAdditional(compoundTag, provider);
-        return compoundTag;
-    }
-
-
-    @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        loadAdditional(tag, provider);
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+        saveAdditional(output);
+        return output.buildResult();
     }
 
     @Override
-    protected void applyImplicitComponents(DataComponentInput componentInput) {
-        super.applyImplicitComponents(componentInput);
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
+    }
 
-        fluidHandler.setFluid(componentInput.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy());
-        energyHandler.overrideEnergy(componentInput.getOrDefault(ComponentsRegistry.STORED_ENERGY, 0));
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
+
+        fluidHandler.overrideFluidStack(components.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy());
+        energyHandler.overrideEnergy(components.getOrDefault(ComponentsRegistry.STORED_ENERGY, 0));
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
 
-        components.set(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(fluidHandler.getFluid()));
-        components.set(ComponentsRegistry.STORED_ENERGY, energyHandler.getEnergyStored());
+        components.set(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(fluidHandler.copyStack()));
+        components.set(ComponentsRegistry.STORED_ENERGY, energyHandler.getAmountAsInt());
     }
 
     @Override
     public void syncFluidFromServer(FluidStack fluidStack) {
-        fluidHandler.setFluid(fluidStack);
+        fluidHandler.overrideFluidStack(fluidStack);
     }
 
 //#endregion
@@ -266,22 +284,22 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
 
     @Override
     public int getEnergy() {
-        return energyHandler.getEnergyStored();
+        return energyHandler.getAmountAsInt();
     }
 
     @Override
     public int getMaxEnergy() {
-        return energyHandler.getMaxEnergyStored();
+        return energyHandler.getCapacityAsInt();
     }
 
     @Override
     public FluidStack getFluid() {
-        return fluidHandler.getFluid();
+        return fluidHandler.copyStack();
     }
 
     @Override
     public int getMaxFluid() {
-        return fluidHandler.getCapacity();
+        return fluidHandler.getCapacityAsInt(0, FluidResource.EMPTY);
     }
 
     @Override
@@ -315,23 +333,27 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
     }
 
     @Override
-    public EmittingStackHandler getItemHandler(@Nullable Direction side) {
+    public @Nullable ResourceHandler<ItemResource> getItemHandler(@Nullable Direction side) {
         return itemHandler;
     }
 
     @Override
-    public IFluidHandler getFluidHandler(@Nullable Direction side) {
+    public @Nullable ResourceHandler<FluidResource> getFluidHandler(@Nullable Direction side) {
         return fluidHandler;
     }
 
     @Override
-    public IEnergyStorage getEnergyHandler(@Nullable Direction side) {
+    public @Nullable EnergyHandler getEnergyHandler(@Nullable Direction side) {
         return energyHandler;
     }
 
     @Override
     public ContainerData getContainerData() {
         return containerData;
+    }
+
+    public void indexModifier(int index, ItemResource resource, int amount) {
+        itemHandler.set(index, resource, amount);
     }
 
 //#endregion
@@ -342,16 +364,21 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
         }
 
         @Override
-        public int fill(FluidStack resource, FluidAction action) {
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
             return 0;
         }
 
-        public int fillInternal(FluidStack resource, FluidAction action) {
-            return super.fill(resource, action);
+        @Override
+        public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+            return 0;
+        }
+
+        private int insertOverride(FluidResource resource, int amount, TransactionContext transactionContext) {
+            return super.insert(resource, amount, transactionContext);
         }
 
         public void overrideFluidStack(FluidStack stack) {
-            fluid = stack;
+            set(0, FluidResource.of(stack), stack.amount());
         }
     }
 }

@@ -20,10 +20,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class AutoHammerBlock extends Block implements EntityBlock {
     private static final VoxelShape EAST_WEST = VoxelShapeUtils.or(
@@ -81,16 +82,10 @@ public class AutoHammerBlock extends Block implements EntityBlock {
     }
 
     @Override
-    @Deprecated
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            if (world.getBlockEntity(pos) instanceof AutoHammerBlockEntity autoHammer) {
-                autoHammer.dropInventoryOnBreak(world);
-                world.updateNeighbourForOutputSignal(pos, this);
-            }
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
 
-            super.onRemove(state, world, pos, newState, isMoving);
-        }
+        level.updateNeighbourForOutputSignal(pos, this);
     }
 
     @Nullable
@@ -137,8 +132,8 @@ public class AutoHammerBlock extends Block implements EntityBlock {
     }
 
     @Override
-    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
-        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, @Nullable Orientation orientation, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
 
         checkPoweredState(level, pos, state);
     }

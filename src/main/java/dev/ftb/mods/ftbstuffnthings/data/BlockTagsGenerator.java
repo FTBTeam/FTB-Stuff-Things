@@ -12,8 +12,6 @@ import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
@@ -21,9 +19,10 @@ import java.util.regex.Pattern;
 public class BlockTagsGenerator extends BlockTagsProvider {
     private static final Pattern SHOVEL_BLOCKS = Pattern.compile("(clay|dirt|dust|gravel|sand|soil)");
 
-    public BlockTagsGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, FTBStuffNThings.MODID, existingFileHelper);
+    public BlockTagsGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider, FTBStuffNThings.MOD_ID);
     }
+
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         tag(FTBStuffTags.Blocks.MINEABLE_WITH_HAMMER).addTags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_SHOVEL);

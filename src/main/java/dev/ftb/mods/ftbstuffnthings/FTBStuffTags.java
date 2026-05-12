@@ -1,11 +1,11 @@
 package dev.ftb.mods.ftbstuffnthings;
 
 import dev.ftb.mods.ftbstuffnthings.items.MeshType;
-import net.minecraft.Util;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.decoration.PaintingVariant;
+import net.minecraft.util.Util;
+import net.minecraft.world.entity.decoration.painting.PaintingVariant;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
@@ -30,11 +30,11 @@ public class FTBStuffTags {
         }
 
         static TagKey<Block> tag(String modid, String name) {
-            return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(modid, name));
+            return TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(modid, name));
         }
 
         static TagKey<Block> modTag(String name) {
-            return tag(FTBStuffNThings.MODID, name);
+            return tag(FTBStuffNThings.MOD_ID, name);
         }
 
         static TagKey<Block> commonTag(String name) {
@@ -55,11 +55,11 @@ public class FTBStuffTags {
         public static final TagKey<Item> MESHES = modTag("meshes");
 
         static TagKey<Item> tag(String modid, String name) {
-            return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(modid, name));
+            return TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(modid, name));
         }
 
         static TagKey<Item> modTag(String name) {
-            return tag(FTBStuffNThings.MODID, name);
+            return tag(FTBStuffNThings.MOD_ID, name);
         }
 
         static TagKey<Item> commonTag(String name) {
@@ -73,11 +73,11 @@ public class FTBStuffTags {
         public static final TagKey<PaintingVariant> DROPS_WITH_VARIANT = modTag("drops_with_variant");
 
         static TagKey<PaintingVariant> tag(String modid, String name) {
-            return TagKey.create(Registries.PAINTING_VARIANT, ResourceLocation.fromNamespaceAndPath(modid, name));
+            return TagKey.create(Registries.PAINTING_VARIANT, Identifier.fromNamespaceAndPath(modid, name));
         }
 
         static TagKey<PaintingVariant> modTag(String name) {
-            return tag(FTBStuffNThings.MODID, name);
+            return tag(FTBStuffNThings.MOD_ID, name);
         }
     }
 }
