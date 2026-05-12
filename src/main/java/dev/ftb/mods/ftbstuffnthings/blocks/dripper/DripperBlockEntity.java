@@ -7,6 +7,7 @@ import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -20,9 +21,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.Nullable;
@@ -96,6 +99,10 @@ public class DripperBlockEntity extends BlockEntity {
 			FluidState state = serverLevel.getFluidState(getBlockPos().above());
 			if (state.is(Tags.Fluids.WATER) && state.isSource()) {
 				tank.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
+			}
+			IFluidHandler tankAbove = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, getBlockPos().above(), Direction.DOWN);
+	        if (tankAbove != null) {
+				FluidUtil.tryFluidTransfer(tank, tankAbove, FluidType.BUCKET_VOLUME, true);
 			}
 			boolean active = getBlockState().getValue(DripperBlock.ACTIVE);
 			boolean newActive = false;
