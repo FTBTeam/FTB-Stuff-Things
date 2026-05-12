@@ -37,7 +37,7 @@ public class DripperBlockEntity extends BlockEntity {
 	private final FluidTank tank;
 	private Fluid prevFluid = null;
 
-    public DripperBlockEntity(BlockPos pos, BlockState state) {
+	public DripperBlockEntity(BlockPos pos, BlockState state) {
 		super(BlockEntitiesRegistry.DRIPPER.get(), pos, state);
 
 		tank = new FluidTank(4000) {
@@ -95,23 +95,18 @@ public class DripperBlockEntity extends BlockEntity {
 	}
 
 	public void serverTick(ServerLevel serverLevel) {
-        if (serverLevel.getGameTime() % 20 == 0 && getBlockState().hasProperty(DripperBlock.ACTIVE)) {
-			FluidState state = serverLevel.getFluidState(getBlockPos().above());
-			if (state.is(Tags.Fluids.WATER) && state.isSource()) {
-				tank.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
-			}
-			IFluidHandler tankAbove = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, getBlockPos().above(), Direction.DOWN);
-	        if (tankAbove != null) {
-				FluidUtil.tryFluidTransfer(tank, tankAbove, FluidType.BUCKET_VOLUME, true);
-			}
+		if (serverLevel.getGameTime() % 20 == 0 && getBlockState().hasProperty(DripperBlock.ACTIVE)) {
+
+			tryFillDripper(serverLevel);
+
 			boolean active = getBlockState().getValue(DripperBlock.ACTIVE);
 			boolean newActive = false;
-            if (!tank.isEmpty()) {
-                var currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(this::searchForRecipe, this::genRecipeHash);
-                if (currentRecipe.isPresent()) {
-                    DripperRecipe recipe = currentRecipe.get().value();
-                    boolean success = false;
-                    if (tank.getFluidAmount() >= recipe.getFluid().getAmount()) {
+			if (!tank.isEmpty()) {
+				var currentRecipe = RecipeCaches.DRIPPER.getCachedRecipe(this::searchForRecipe, this::genRecipeHash);
+				if (currentRecipe.isPresent()) {
+					DripperRecipe recipe = currentRecipe.get().value();
+					boolean success = false;
+					if (tank.getFluidAmount() >= recipe.getFluid().getAmount()) {
 						newActive = true;
 						if (serverLevel.random.nextDouble() < recipe.getChance()) {
 							serverLevel.setBlock(getBlockPos().below(), recipe.getOutputState(), Block.UPDATE_ALL);
@@ -119,14 +114,34 @@ public class DripperBlockEntity extends BlockEntity {
 						}
 						if (success || recipe.consumeFluidOnFail()) {
 							tank.drain(recipe.getFluid().getAmount(), IFluidHandler.FluidAction.EXECUTE);
-                        }
-                    }
-                }
-            }
+						}
+					}
+				}
+			}
 			if (active != newActive) {
 				serverLevel.setBlock(worldPosition, getBlockState().setValue(DripperBlock.ACTIVE, newActive), Block.UPDATE_ALL);
 			}
-        }
+		}
+	}
+
+	private void tryFillDripper(ServerLevel serverLevel) {
+		FluidState state = serverLevel.getFluidState(getBlockPos().above());
+
+		if (state.is(Tags.Fluids.WATER) && state.isSource()) {
+			// special case: we get water for free, if there is a water source block above
+			tank.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
+		} else {
+			IFluidHandler handlerAbove = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, getBlockPos().above(), Direction.DOWN);
+			if (handlerAbove != null) {
+				if (handlerAbove.drain(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.SIMULATE).getAmount() == FluidType.BUCKET_VOLUME) {
+					// special case: we get water for free, iff there is at least a bucket available in the handler above
+					tank.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
+				} else {
+					// otherwise try to drain fluid from a tank above
+					FluidUtil.tryFluidTransfer(tank, handlerAbove, FluidType.BUCKET_VOLUME, true);
+				}
+			}
+		}
 	}
 
 	private int genRecipeHash() {
