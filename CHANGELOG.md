@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [21.1.18]
+* Wooden Bowls (vanilla) can now be filled from water-containing tanks, taking 250mB water
+* The Dripper can now pull fluid from a tank above itself
+
 ## [21.1.17]
 
 ### Changed
