@@ -5,7 +5,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
@@ -18,19 +17,13 @@ import java.util.concurrent.CompletableFuture;
 public class DataGenerators {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent.Client event) {
-        DataGenerator generator = event.getGenerator();
-        PackOutput packOutput = generator.getPackOutput();
-
         event.createProvider(ModelsGenerator::new);
         event.createProvider(I18nGenerator::new);
 
-        generator.addProvider(event.includeClient(), new BlockModelsGenerator(packOutput, existingFileHelper));
-        generator.addProvider(event.includeClient(), new BlockStatesGenerators(packOutput, existingFileHelper));
-        generator.addProvider(event.includeClient(), new ItemModelsGenerator(packOutput, existingFileHelper));
-    }
+//        generator.addProvider(new BlockModelsGenerator(packOutput));
+//        generator.addProvider(new BlockStatesGenerators(packOutput));
+        event.createProvider(ModelGenerator::new);
 
-    @SubscribeEvent
-    public static void gatherData(GatherDataEvent.Server event) {
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         event.createProvider(RecipesGenerator.Runner::new);
