@@ -3,8 +3,10 @@ package dev.ftb.mods.ftbstuffnthings.data.recipe;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.JarRecipe;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 import java.util.List;
@@ -44,6 +46,8 @@ public class TemperedJarRecipeBuilder extends BaseRecipeBuilder<JarRecipe> {
 
     @Override
     protected JarRecipe buildRecipe() {
-        return new JarRecipe(itemsIn, fluidsIn, itemsOut, fluidsOut, requiredTemp, time, canRepeat, stage);
+        List<ItemStackTemplate> outItems = itemsOut.stream().map(ItemStackTemplate::fromNonEmptyStack).toList();
+        List<FluidStackTemplate> outFluids = fluidsOut.stream().map(fs -> new FluidStackTemplate(fs.getFluid(), fs.getAmount())).toList();
+        return new JarRecipe(itemsIn, fluidsIn, outItems, outFluids, requiredTemp, time, canRepeat, stage);
     }
 }

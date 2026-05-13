@@ -1,9 +1,9 @@
 modLoader="javafml"
-loaderVersion="${loader_version_range}"
+loaderVersion="${neoforge_loader_version}"
 
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
 # Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
-license="${mod_license}"
+license="All Rights Reserved"
 
 # A URL to refer people to when problems occur with this mod
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional
@@ -15,7 +15,7 @@ license="${mod_license}"
 modId="${mod_id}"
 
 # The version number of the mod
-version="${mod_version}"
+version="${version}"
 
 # A display name for the mod
 displayName="${mod_name}"
@@ -33,10 +33,10 @@ displayName="${mod_name}"
 #credits="" #optional
 
 # A text field displayed in the mod UI
-authors="${mod_authors}" #optional
+authors="FTB Team" #optional
 
 # The description text for the mod (multi line!) (#mandatory)
-description='''${mod_description}'''
+description='''A collection of useful little machines and blocks'''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
 #[[mixins]]
@@ -50,7 +50,7 @@ description='''${mod_description}'''
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"
-    versionRange="${neo_version_range}"
+    versionRange="${neoforge_version_range}"
     ordering="NONE"
     side="BOTH"
 

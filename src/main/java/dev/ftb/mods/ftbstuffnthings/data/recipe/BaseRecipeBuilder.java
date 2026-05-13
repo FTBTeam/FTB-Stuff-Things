@@ -45,4 +45,9 @@ public abstract class BaseRecipeBuilder<T extends Recipe<?>> implements RecipeBu
         Identifier id1 = Identifier.fromNamespaceAndPath(id.identifier().getNamespace(), recipe.getType() + "/dev_test_" + id.identifier().getPath());
         recipeOutput.withConditions(DevEnvironmentCondition.INSTANCE).accept(ResourceKey.create(Registries.RECIPE, id1), recipe, null);
     }
+
+    @Override
+    public ResourceKey<Recipe<?>> defaultId() {
+        throw new UnsupportedOperationException("Default ID generation is not supported for custom recipe types");
+    }
 }
