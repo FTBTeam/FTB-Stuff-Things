@@ -34,7 +34,8 @@ public class WaterBowlItem extends Item {
 	public WaterBowlItem(Properties properties) {
 		super(properties
 				.stacksTo(1)
-				.component(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(new FluidStack(Fluids.WATER, BOWL_CAPACITY))));
+				.component(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY));
+//				.component(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(new FluidStack(Fluids.WATER, BOWL_CAPACITY))));
 	}
 
 	public static boolean fillBowl(Level level, Player player) {
