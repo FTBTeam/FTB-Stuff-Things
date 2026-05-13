@@ -34,6 +34,7 @@ public abstract class AbstractMachineMenu<T extends AbstractMachineBlockEntity> 
     @Nullable
     private final T blockEntity;
     private int playerSlotsStart;
+    @Nullable
     protected ContainerData containerData;
 
     public AbstractMachineMenu(MenuType type, int windowId, Inventory invPlayer, FriendlyByteBuf extraData) {
@@ -44,7 +45,7 @@ public abstract class AbstractMachineMenu<T extends AbstractMachineBlockEntity> 
         this(type, windowId, invPlayer, (BlockPos) null);
     }
 
-    public AbstractMachineMenu(MenuType type, int windowId, Inventory invPlayer, BlockPos blockPos) {
+    public AbstractMachineMenu(MenuType type, int windowId, Inventory invPlayer, @Nullable BlockPos blockPos) {
         super(type, windowId);
         if (blockPos != null) {
             BlockEntity te0 = invPlayer.player.level().getBlockEntity(blockPos);

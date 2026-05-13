@@ -1,6 +1,7 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.jar;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
+import dev.ftb.mods.ftbstuffnthings.client.FTBStuffNThingsClient;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.JarRecipe;
 import dev.ftb.mods.ftbstuffnthings.items.FluidCapsuleItem;
@@ -24,8 +25,6 @@ import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -42,9 +41,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -59,19 +60,18 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -137,7 +137,9 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         // server-side, chunk loading
-        return Util.make(new CompoundTag(), tag -> saveAdditional(TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries)));
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        saveAdditional(output);
+        return output.buildResult();
     }
 
     @Override
@@ -168,7 +170,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
 
         List<SimpleFluidContent> list = new ArrayList<>();
         for (int i = 0; i < fluidHandler.size(); i++) {
-            list.add(SimpleFluidContent.copyOf(fluidHandler.getResource(i).toStack(fluidHandler.getAmountAsInt(i))));
+            list.add(SimpleFluidContent.copyOf(net.neoforged.neoforge.transfer.fluid.FluidUtil.getStack(fluidHandler, i)));
         }
 
         if (!list.isEmpty()) {
@@ -199,16 +201,16 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
     public void serverTick(ServerLevel serverLevel) {
         if (syncNeeded && serverLevel.getGameTime() - lastItemFluidSync > 10L) {
             // don't sync items & fluids more than once every 10 ticks for performance reasons
-            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, new ChunkPos(getBlockPos()), SyncJarContentsPacket.wholeJar(this));
+            PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(getBlockPos()), SyncJarContentsPacket.wholeJar(this));
             syncNeeded = false;
             lastItemFluidSync = serverLevel.getGameTime();
         }
 
         if (needRecipeSearch) {
-            Identifier prevId = currentRecipe == null ? NO_RECIPE : currentRecipe.id();
-            currentRecipe = findSuitableRecipe();
+            Identifier prevId = currentRecipe == null ? NO_RECIPE : currentRecipe.id().identifier();
+            currentRecipe = findSuitableRecipe(serverLevel);
             setChanged();
-            Identifier newId = currentRecipe == null ? NO_RECIPE : currentRecipe.id();
+            Identifier newId = currentRecipe == null ? NO_RECIPE : currentRecipe.id().identifier();
 
             processingTime = currentRecipe == null ? 0 : getTemperature().getRecipeTime(currentRecipe.value());
 
@@ -276,7 +278,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
         return itemBacklog.isEmpty() && fluidBacklog.isEmpty();
     }
 
-    public void maybeClearBacklog(Direction dir) {
+    public void maybeClearBacklog(Level level, Direction dir) {
         boolean cleared = false;
         if (!itemBacklog.isEmpty()) {
             itemBacklog.forEach(stack -> Block.popResource(level, getBlockPos().relative(dir), stack));
@@ -294,8 +296,8 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     @Nullable
-    private RecipeHolder<JarRecipe> findSuitableRecipe() {
-        var recipes = RecipeCaches.TEMPERED_JAR.getCachedRecipes(this::searchForRecipe, this::genIngredientHash);
+    private RecipeHolder<JarRecipe> findSuitableRecipe(ServerLevel serverLevel) {
+        var recipes = RecipeCaches.TEMPERED_JAR.getCachedRecipes(serverLevel, this::searchForRecipe, this::genIngredientHash);
         if (recipes.isEmpty()) {
             return null;
         } else if (recipes.size() == 1) {
@@ -320,11 +322,14 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
             // important to copy these since inputResourceLocator will become null if items extracted
             int[] itemSlots = inputResourceLocator.get().itemSlots;
             int[] fluidSlots = inputResourceLocator.get().fluidSlots;
-            for (int i = 0; i < recipe.getInputItems().size(); i++) {
-                getInputItemHandler().extractItem(itemSlots[i], recipe.getInputItems().get(i).count(), false);
-            }
-            for (int i = 0; i < recipe.getInputFluids().size(); i++) {
-                fluidHandler.tanks.get(fluidSlots[i]).drain(recipe.getInputFluids().get(i).amount(), FluidAction.EXECUTE);
+            try (Transaction tx = Transaction.openRoot()) {
+                for (int i = 0; i < recipe.getInputItems().size(); i++) {
+                    MiscUtil.removeResourceFromSlot(getInputItemHandler(), itemSlots[i], recipe.getInputItems().get(i).count(), tx);
+                }
+                for (int i = 0; i < recipe.getInputFluids().size(); i++) {
+                    MiscUtil.removeResourceFromSlot(getFluidHandler(), fluidSlots[i], recipe.getInputFluids().get(i).amount(), tx);
+                }
+                tx.commit();
             }
             syncNeeded = true;
 
@@ -352,32 +357,36 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
             }
 
             if (!hasAutoProcessing()) {
-                level.playSound(null, getBlockPos(), SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1f, 1.2f + level.random.nextFloat() * 0.4f);
+                serverLevel.playSound(null, getBlockPos(), SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS,
+                        1f, 1.2f + serverLevel.getRandom().nextFloat() * 0.4f);
                 Vec3 vec = Vec3.atBottomCenterOf(getBlockPos().above());
-                ((ServerLevel) level).sendParticles(ParticleTypes.WHITE_SMOKE, vec.x, vec.y + 0.2, vec.z, 5, 0, 0, 0, 0.01);
+                serverLevel.sendParticles(ParticleTypes.WHITE_SMOKE, vec.x, vec.y + 0.2, vec.z, 5, 0, 0, 0, 0.01);
             }
             setRemainingTime(!outputsFull && hasAutoProcessing() && recipe.canRepeat() ? processingTime : STOPPED);
         }
     }
 
     private List<ItemStack> distributeOutputItems(JarRecipe recipe) {
-        return distributeOutputItems(recipe.getOutputItems().stream().map(ItemStack::copy).toList());
+        return distributeOutputItems(recipe.getOutputItems().stream().map(ItemStackTemplate::create).toList());
     }
 
     private List<ItemStack> distributeOutputItems(List<ItemStack> toDistribute) {
         List<ItemStack> excessList = new ArrayList<>();
         for (Direction dir : DirectionUtil.VALUES) {
             if (suitableOutputBlock(dir)) {
-                ResourceHandler<ItemResource> handler = itemOutputs.computeIfAbsent(dir, k ->
+                ResourceHandler<ItemResource> handler = itemOutputs.computeIfAbsent(dir, _ ->
                                 BlockCapabilityCache.create(Capabilities.Item.BLOCK, (ServerLevel) getLevel(),
                                         getBlockPos().relative(dir), dir.getOpposite()))
                         .getCapability();
                 if (handler != null) {
-                    for (ItemStack stack : toDistribute) {
-                        ItemStack excess = ItemHandlerHelper.insertItem(handler, stack, false);
-                        if (!excess.isEmpty()) {
-                            excessList.add(excess);
+                    try (Transaction tx = Transaction.openRoot()) {
+                        for (ItemStack stack : toDistribute) {
+                            int inserted = ResourceHandlerUtil.insertStacking(handler, ItemResource.of(stack), stack.count(), tx);
+                            if (inserted < stack.count()) {
+                                excessList.add(stack.copyWithCount(stack.count() - inserted));
+                            }
                         }
+                        tx.commit();
                     }
                     toDistribute = List.copyOf(excessList);
                     if (toDistribute.isEmpty()) {
@@ -391,27 +400,31 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     private boolean suitableOutputBlock(Direction dir) {
+        assert level != null;
         BlockState state = level.getBlockState(getBlockPos().relative(dir));
         // don't push output to a hopper which is facing us, it's obviously intended as an input hopper
         return state.getBlock() != Blocks.HOPPER || state.getValue(BlockStateProperties.FACING_HOPPER) != dir.getOpposite();
     }
 
     private List<FluidStack> distributeOutputFluids(JarRecipe recipe) {
-        return distributeOutputFluids(recipe.getOutputFluids().stream().map(FluidStack::copy).toList());
+        return distributeOutputFluids(recipe.getOutputFluids().stream().map(FluidStackTemplate::create).toList());
     }
 
     private List<FluidStack> distributeOutputFluids(List<FluidStack> toDistribute) {
         List<FluidStack> excessList = new ArrayList<>();
         for (Direction dir : DirectionUtil.VALUES) {
-            IFluidHandler dest = fluidOutputs.computeIfAbsent(dir, k ->
-                            BlockCapabilityCache.create(Capabilities.FluidHandler.BLOCK, (ServerLevel) getLevel(), getBlockPos().relative(dir), dir.getOpposite()))
+            var handler = fluidOutputs.computeIfAbsent(dir, k ->
+                            BlockCapabilityCache.create(Capabilities.Fluid.BLOCK, (ServerLevel) getLevel(), getBlockPos().relative(dir), dir.getOpposite()))
                     .getCapability();
-            if (dest != null) {
-                for (FluidStack stack : toDistribute) {
-                    int filled = dest.fill(stack, FluidAction.EXECUTE);
-                    if (filled < stack.getAmount()) {
-                        excessList.add(stack.copyWithAmount(stack.getAmount() - filled));
+            if (handler != null) {
+                try (Transaction tx = Transaction.openRoot()) {
+                    for (FluidStack stack : toDistribute) {
+                        int inserted = ResourceHandlerUtil.insertStacking(handler, FluidResource.of(stack), stack.amount(), tx);
+                        if (inserted < stack.amount()) {
+                            excessList.add(stack.copyWithAmount(stack.amount() - inserted));
+                        }
                     }
+                    tx.commit();
                 }
                 toDistribute = List.copyOf(excessList);
                 if (toDistribute.isEmpty()) {
@@ -423,11 +436,11 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
         return List.copyOf(toDistribute);
     }
 
-    private List<RecipeHolder<JarRecipe>> searchForRecipe() {
+    private List<RecipeHolder<JarRecipe>> searchForRecipe(ServerLevel serverLevel) {
         // Note: we sort recipes with most input ingredients first, because items in the jar which don't match a
         //   recipe don't necessarily make the recipe invalid. Thus, recipes with more ingredients should be checked
         //   first to resolve potential ambiguity.
-        return getLevel().getRecipeManager().getAllRecipesFor(RecipesRegistry.TEMPERED_JAR_TYPE.get()).stream()
+        return RecipesRegistry.TEMPERED_JAR_TYPE.get().streamRecipes(serverLevel)
                 .filter(r -> r.value().test(getTemperature().temperature(), itemHandler, fluidHandler, false))
                 .sorted(Comparator.comparing(RecipeHolder::value))
                 .toList();
@@ -436,11 +449,11 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
     private int genIngredientHash() {
         IntList itemIds = new IntArrayList();
         itemIds.add(getTemperature().temperature().ordinal());
-        for (int i = 0; i < getInputItemHandler().getSlots(); i++) {
-            itemIds.add(ItemStack.hashItemAndComponents(getInputItemHandler().getStackInSlot(i)));
+        for (int i = 0; i < getInputItemHandler().size(); i++) {
+            itemIds.add(getInputItemHandler().getResource(i).hashCode());
         }
-        for (int i = 0; i < getFluidHandler().getTanks(); i++) {
-            itemIds.add(FluidStack.hashFluidAndComponents(getFluidHandler().getFluidInTank(i)));
+        for (int i = 0; i < getFluidHandler().size(); i++) {
+            itemIds.add(getFluidHandler().getResource(i).hashCode());
         }
         return Objects.hash(itemIds.toArray());
     }
@@ -451,23 +464,23 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
 
     public boolean onRightClick(Player player, InteractionHand hand) {
         boolean res = false;
-        if (FluidUtil.interactWithFluidHandler(player, hand, fluidHandler)) {
+        if (FluidUtil.interactWithFluidHandler(player, hand, getBlockPos(), fluidHandler)) {
             syncNeeded = true;
             res = true;
         }
 
         if (!player.level().isClientSide()) {
             List<Component> msgs = new ArrayList<>();
-            for (int i = 0; i < fluidHandler.getTanks(); i++) {
-                FluidStack stack = fluidHandler.getFluidInTank(i);
-                if (!stack.isEmpty()) {
-                    msgs.add(Component.translatable("ftblibrary.mb", stack.getAmount(), stack.getHoverName()));
+            for (int i = 0; i < fluidHandler.size(); i++) {
+                FluidResource resource = fluidHandler.getResource(i);
+                if (!resource.isEmpty()) {
+                    msgs.add(Component.translatable("ftblibrary.mb", fluidHandler.getAmountAsInt(i), resource.getHoverName()));
                 }
             }
             if (msgs.isEmpty()) {
-                player.displayClientMessage(Component.translatable("ftblibrary.empty"), true);
+                player.sendOverlayMessage(Component.translatable("ftblibrary.empty"));
             } else {
-                player.displayClientMessage(msgs.stream().reduce((c1, c2) -> c1.copy().append(" / ").append(c2)).orElse(Component.empty()), true);
+                player.sendOverlayMessage(msgs.stream().reduce((c1, c2) -> c1.copy().append(" / ").append(c2)).orElse(Component.empty()));
             }
         }
 
@@ -485,11 +498,13 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     private boolean checkForAutoProcessor() {
+        assert level != null;
         return !level.isOutsideBuildHeight(worldPosition.above())
                 && level.getBlockState(worldPosition.above()).is(BlocksRegistry.JAR_AUTOMATER.get());
     }
 
     private TemperatureAndEfficiency checkForTemperature() {
+        assert getLevel() != null;
         return TemperatureAndEfficiency.fromLevel(getLevel(), getBlockPos().below());
     }
 
@@ -518,22 +533,26 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
         itemHandler.clear();
         fluidHandler.clear();
         resources.forEach(resource -> resource.resource()
-                .ifLeft(item -> itemHandler.setStackInSlot(resource.slot(), item))
-                .ifRight(fluid -> fluidHandler.tanks.get(resource.slot()).setFluid(fluid))
+                .ifLeft(item -> itemHandler.set(resource.slot(), item, resource.amount()))
+                .ifRight(fluid -> fluidHandler.set(resource.slot(), fluid, resource.amount()))
         );
     }
 
     public Optional<Identifier> getCurrentRecipeId() {
-        return currentRecipe == null ? Optional.empty() : Optional.of(currentRecipe.id());
+        return currentRecipe == null ? Optional.empty() : Optional.of(currentRecipe.id().identifier());
     }
 
     public void setCurrentRecipeId(@Nullable Identifier newRecipeId) {
         // only called clientside when a SyncJarRecipePacket is received
-        if (level.isClientSide) {
-            //noinspection unchecked
-            currentRecipe = newRecipeId == null ?
-                    null :
-                    (RecipeHolder<JarRecipe>) level.getRecipeManager().byKey(newRecipeId).filter(r -> r.value() instanceof JarRecipe).orElse(null);
+        assert level != null && level.isClientSide();
+        if (newRecipeId == null) {
+            currentRecipe = null;
+        } else {
+            ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, newRecipeId);
+            RecipeHolder<?> holder = FTBStuffNThingsClient.getInstance().getRecipeMap().byKey(key);
+            if (holder != null && holder.value() instanceof JarRecipe j) {
+                currentRecipe = new RecipeHolder<>(holder.id(), j);
+            }
         }
     }
 
@@ -578,7 +597,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
 
         @Override
         protected void onContentsChanged(int slot, ItemStack previousContents) {
-            if (!level.isClientSide()) {
+            if (level != null && !level.isClientSide()) {
                 setChanged();
                 syncNeeded = true;
                 if (!ItemStack.isSameItemSameComponents(stacks.get(slot), previousContents)) {
@@ -595,94 +614,10 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    private class JarFluidHandler extends FluidStacksResourceHandler {
+    private static class JarFluidHandler extends FluidStacksResourceHandler {
         private JarFluidHandler() {
             super(3, TANK_CAPACITY);
         }
-
-//        @Override
-//        public int getTanks() {
-//            return tanks.size();
-//        }
-//
-//        @Override
-//        public FluidStack getFluidInTank(int tank) {
-//            return tanks.get(tank).getFluid().copy();
-//        }
-//
-//        @Override
-//        public int getTankCapacity(int tank) {
-//            return tanks.get(tank).getCapacity();
-//        }
-//
-//        @Override
-//        public boolean isFluidValid(int tank, FluidStack stack) {
-//            return getFluidInTank(tank).isEmpty() || FluidStack.isSameFluidSameComponents(getFluidInTank(tank), stack);
-//        }
-//
-//        @Override
-//        public int fill(FluidStack resource, FluidAction action) {
-//            int firstEmpty = -1;
-//            int filled = 0;
-//            for (int i = 0; i < getTanks(); i++) {
-//                FluidStack current = getFluidInTank(i);
-//                if (FluidStack.isSameFluidSameComponents(current, resource)) {
-//                    filled = tanks.get(i).fill(resource, action);
-//                    break;
-//                } else if (firstEmpty < 0 && current.isEmpty()) {
-//                    firstEmpty = i;
-//                }
-//            }
-//            if (firstEmpty >= 0) {
-//                filled = tanks.get(firstEmpty).fill(resource, action);
-//            }
-//            if (filled > 0 && action.execute()) {
-//                setChanged();
-//                syncNeeded = true;
-//            }
-//            return filled;
-//        }
-//
-//        @Override
-//        public FluidStack drain(FluidStack resource, FluidAction action) {
-//            return doDrain(t -> FluidStack.isSameFluidSameComponents(t.getFluid(), resource), resource.getAmount(), action);
-//        }
-//
-//        @Override
-//        public FluidStack drain(int maxDrain, FluidAction action) {
-//            return doDrain(t -> !t.isEmpty(), maxDrain, action);
-//        }
-//
-//        private FluidStack doDrain(Predicate<FluidTank> tankPredicate, int amount, FluidAction action) {
-//            return tanks.stream()
-//                    .filter(tankPredicate)
-//                    .findFirst()
-//                    .map(tank -> tank.drain(amount, action))
-//                    .orElse(FluidStack.EMPTY);
-//        }
-//
-//        public Tag serializeNBT(HolderLookup.Provider provider) {
-//            RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
-//            return Util.make(new CompoundTag(), tag -> {
-//                for (int i = 0; i < getTanks(); i++) {
-//                    if (!getFluidInTank(i).isEmpty()) {
-//                        tag.put("Tank" + i, FluidStack.CODEC.encodeStart(ops, getFluidInTank(i)).result().orElseThrow());
-//                    }
-//                }
-//            });
-//        }
-//
-//        private void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
-//            RegistryOps<Tag> ops = provider.createSerializationContext(NbtOps.INSTANCE);
-//            for (int i = 0; i < tanks.size(); i++) {
-//                if (tag.contains("Tank" + i)) {
-//                    FluidStack stack = FluidStack.CODEC.parse(ops, tag.get("Tank" + i)).getOrThrow();
-//                    tanks.get(i).setFluid(stack);
-//                } else {
-//                    tanks.get(i).setFluid(FluidStack.EMPTY);
-//                }
-//            }
-//        }
 
         public void clear() {
             for (int i = 0; i < size(); i++) {
@@ -690,33 +625,6 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
             }
         }
     }
-
-//    private class JarTank extends FluidTank {
-//        FluidStack prevFluid = FluidStack.EMPTY;
-//
-//        public JarTank() {
-//            super(TANK_CAPACITY);
-//        }
-//
-//        @Override
-//        protected void onContentsChanged() {
-//            if (!level.isClientSide) {
-//                setChanged();
-//                syncNeeded = true;
-//                if (!FluidStack.isSameFluidSameComponents(prevFluid, getFluid())) {
-//                    needRecipeSearch = true;
-//                }
-//                inputResourceLocator.invalidate();
-//                prevFluid = getFluid().copy();
-//            }
-//        }
-//
-//        @Override
-//        public void setFluid(FluidStack stack) {
-//            prevFluid = getFluid().copy();
-//            super.setFluid(stack);
-//        }
-//    }
 
     public class JarContainerData implements ContainerData {
         @Override
@@ -752,7 +660,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
         private int[] itemSlots = new int[] { -1 };
         private int[] fluidSlots = new int[] { -1 };
 
-        public InputResourceLocator() {
+        InputResourceLocator() {
             locateInputResources();
         }
 

@@ -133,8 +133,8 @@ public class DripperBlockEntity extends BlockEntity {
 	}
 
 	private Optional<RecipeHolder<DripperRecipe>> searchForRecipe(ServerLevel serverLevel) {
-		return serverLevel.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.DRIP_TYPE.get(), NoInventory.INSTANCE, serverLevel)
-				.filter(r -> r.value().testInput(tank.getResource(0).toStack(tank.getAmountAsInt(0)), serverLevel, getBlockPos().below()))
+		return RecipesRegistry.DRIP_TYPE.get().streamRecipes(serverLevel)
+				.filter(r -> r.value().testInput(FluidUtil.getStack(tank, 0), serverLevel, getBlockPos().below()))
 				.findFirst();
 	}
 }

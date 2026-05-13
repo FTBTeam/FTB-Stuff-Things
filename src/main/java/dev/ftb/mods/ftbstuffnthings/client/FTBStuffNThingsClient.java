@@ -9,24 +9,20 @@ import dev.ftb.mods.ftbstuffnthings.client.screens.TemperedJarScreen;
 import dev.ftb.mods.ftbstuffnthings.client.screens.WaterStrainerScreen;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.NeoForge;
 
-import java.util.Collection;
-
 @Mod(value = FTBStuffNThings.MOD_ID, dist = Dist.CLIENT)
 public class FTBStuffNThingsClient {
-    private static FTBStuffNThingsClient INSTANCE;
+    private static FTBStuffNThingsClient instance;
     private RecipeMap recipeMap = RecipeMap.EMPTY;
 
     public FTBStuffNThingsClient(IEventBus modBus) {
-        INSTANCE = this;
+        instance = this;
 
         modBus.addListener(this::registerModelLoaders);
         modBus.addListener(this::registerRenderers);
@@ -39,7 +35,7 @@ public class FTBStuffNThingsClient {
     }
 
     public static FTBStuffNThingsClient getInstance() {
-        return INSTANCE;
+        return instance;
     }
 
     private void receiveRecipes(RecipesReceivedEvent event) {

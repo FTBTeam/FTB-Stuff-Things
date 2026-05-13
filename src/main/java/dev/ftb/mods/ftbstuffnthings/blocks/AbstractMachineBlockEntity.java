@@ -26,6 +26,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
@@ -114,7 +115,7 @@ public abstract class AbstractMachineBlockEntity extends BlockEntity implements 
         var handler = getItemHandler();
         if (handler != null) {
             for (int i = 0; i < handler.size(); i++) {
-                Block.popResource(level, getBlockPos(), handler.getResource(i).toStack(handler.getAmountAsInt(i)));
+                Block.popResource(level, getBlockPos(), ItemUtil.getStack(handler, i));
             }
         }
     }

@@ -9,23 +9,24 @@ import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingEnergy;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingFluidTank;
 import dev.ftb.mods.ftbstuffnthings.capabilities.IOStackHandler;
 import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
-import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.SuperCoolerRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ComponentsRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
-import net.minecraft.IdentifierException;
-import net.minecraft.Util;
+import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -33,32 +34,43 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
 public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implements MenuProvider, FluidEnergyProvider, ProgressProvider {
-    private final EmittingEnergy energyHandler = new EmittingEnergy(1_000_000, 10_000, 10_000, (energy) -> setChanged());
-    private final EmittingFluidTank fluidHandler = new EmittingFluidTank(10000, (tank) -> setChanged());
-    private final IOStackHandler itemHandler = new IOStackHandler(3, 1, (container, ioType) -> itemHandlerChanged(ioType));
+    private final EmittingEnergy energyHandler = new EmittingEnergy(1_000_000, 10_000, 10_000,
+            _ -> setChanged());
+    private final EmittingFluidTank fluidHandler = new EmittingFluidTank(10000,
+            _ -> setChanged());
+    private final IOStackHandler itemHandler = new IOStackHandler(3, 1,
+            (_, ioType) -> itemHandlerChanged(ioType));
 
     private final FluidEnergyProcessorContainerData containerData = new FluidEnergyProcessorContainerData(this, this);
 
     private int progress = 0;
     private int progressRequired = 0;
     private boolean recheckRecipe = false;
+    @Nullable
     private RecipeHolder<SuperCoolerRecipe> currentRecipe = null;
-    private Identifier pendingRecipeId = null;  // set when loading from NBT
+    @Nullable
+    private ResourceKey<Recipe<?>> pendingRecipeId = null;  // set when loading from NBT
     boolean tickLock = false;
 
     public SuperCoolerBlockEntity(BlockPos pos, BlockState state) {
@@ -85,7 +97,7 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
     }
 
     private void itemHandlerChanged(IOStackHandler.IO ioType) {
-        if (!level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             setChanged();
             if (ioType == IOStackHandler.IO.INPUT) {
                 recheckRecipe = true;
@@ -106,18 +118,17 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
         }
 
         if (pendingRecipeId != null) {
-            serverLevel.getRecipeManager().byKey(pendingRecipeId).ifPresent(r -> {
-                if (r.value() instanceof SuperCoolerRecipe s) {
-                    currentRecipe = new RecipeHolder<>(r.id(), s);
-                }
-            });
+            RecipeHolder<?> holder = serverLevel.getServer().getRecipeManager().recipeMap().byKey(pendingRecipeId);
+            if (holder != null && holder.value() instanceof SuperCoolerRecipe s) {
+                currentRecipe = new RecipeHolder<>(holder.id(), s);
+            }
             pendingRecipeId = null;
         }
 
         if (recheckRecipe || progress == 0) {
             recheckRecipe = false;
 
-            currentRecipe = RecipeCaches.SUPER_COOLER.getCachedRecipe(this::findValidRecipe, this::genIngredientHash)
+            currentRecipe = RecipeCaches.SUPER_COOLER.getCachedRecipe(serverLevel, this::findValidRecipe, this::genIngredientHash)
                     .orElse(null);
 
             if (currentRecipe == null) {
@@ -134,8 +145,7 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
             if (progress == progressRequired && canAcceptOutput(getCurrentRecipe())) {
                 executeRecipe();
             } else if (progress < progressRequired) {
-                if (getCurrentRecipe().getFluidInput().test(fluidHandler.getFluid())) {
-                    // Use energy
+                if (getCurrentRecipe().getFluidInput().test(FluidUtil.getStack(fluidHandler, 0))) {
                     setActive(true);
                     useEnergy();
                     progress++;
@@ -147,7 +157,7 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
     }
 
     private Optional<RecipeHolder<SuperCoolerRecipe>> findValidRecipe(ServerLevel level) {
-        return level.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.SUPER_COOLER_TYPE.get(), NoInventory.INSTANCE, level)
+        return RecipesRegistry.SUPER_COOLER_TYPE.get().streamRecipes(level)
                 .sorted((a, b) -> b.value().getInputs().size() - a.value().getInputs().size())  // prioritise recipes with more ingredients
                 .filter(r -> r.value().test(itemHandler, fluidHandler.copyStack()))
                 .findFirst();
@@ -156,11 +166,9 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
     private int genIngredientHash() {
         List<Integer> l = new ArrayList<>();
         for (int i = 0; i < itemHandler.size(); i++) {
-            if (!itemHandler.getStackInSlot(i).isEmpty()) {
-                l.add(ItemStack.hashItemAndComponents(itemHandler.getStackInSlot(i)));
-            }
+            l.add(itemHandler.getResource(i).hashCode());
         }
-        l.add(FluidStack.hashFluidAndComponents(fluidHandler.getFluid()));
+        l.add(fluidHandler.getResource(0).hashCode());
         return l.hashCode();
     }
 
@@ -171,7 +179,7 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
         }
 
         // Ensure enough fluid (SizedFluidIngredient test here)
-        if (!getCurrentRecipe().getFluidInput().test(fluidHandler.getFluid())) {
+        if (!getCurrentRecipe().getFluidInput().test(FluidUtil.getStack(fluidHandler, 0))) {
             resetProgress();
             return;
         }
@@ -181,13 +189,13 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
         Set<Ingredient> requiredItems = Sets.newIdentityHashSet();
         requiredItems.addAll(getCurrentRecipe().getInputs());
 
-        ItemStackHandler inputHandler = itemHandler.getInput();
-        BitSet extractingSlots = new BitSet(inputHandler.getSlots());  // track which slots we need to extract from
+        var inputHandler = itemHandler.getInput();
+        BitSet extractingSlots = new BitSet(inputHandler.size());  // track which slots we need to extract from
 
         for (var ingredient : requiredItems) {
-            for (int i = 0; i < inputHandler.getSlots(); i++) {
-                if (!extractingSlots.get(i) && ingredient.test(inputHandler.getStackInSlot(i))) {
-                    if (inputHandler.extractItem(i, 1, true).isEmpty()) {
+            for (int i = 0; i < inputHandler.size(); i++) {
+                if (!extractingSlots.get(i) && ingredient.test(ItemUtil.getStack(inputHandler, i))) {
+                    if (inputHandler.getAmountAsInt(i) < 1) {
                         // this shouldn't happen, but let's be defensive
                         resetProgress();
                         currentRecipe = null;
@@ -199,16 +207,21 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
         }
 
         // Consume inputs, produce output
-        if (extractingSlots.cardinality() == getCurrentRecipe().getInputs().size()) {
-            fluidHandler.drain(getCurrentRecipe().getFluidInput().amount(), IFluidHandler.FluidAction.EXECUTE);
-
-            for (int i = 0; i < inputHandler.getSlots(); i++) {
+        try (Transaction tx = Transaction.openRoot()) {
+            var drained = MiscUtil.removeResourceFromSlot(fluidHandler, 0, getCurrentRecipe().getFluidInput().amount(), tx);
+            int taken = 0;
+            for (int i = 0; i < inputHandler.size(); i++) {
                 if (extractingSlots.get(i)) {
-                    inputHandler.extractItem(i, 1, false);
+                    taken += MiscUtil.removeResourceFromSlot(inputHandler, i, 1, tx);
                 }
             }
+            int inserted = ResourceHandlerUtil.insertStacking(itemHandler.getOutput(), ItemResource.of(getCurrentRecipe().getResult()), getCurrentRecipe().getResult().count(), tx);
 
-            itemHandler.getOutput().insertItem(0, getCurrentRecipe().getResult().copy(), false);
+            if (drained == getCurrentRecipe().getFluidInput().amount()
+                    && taken == extractingSlots.cardinality()
+                    && inserted == getCurrentRecipe().getResult().count()) {
+                tx.commit();
+            }
             resetProgress();
         }
     }
@@ -216,11 +229,13 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
     private void useEnergy() {
         if (currentRecipe != null) {
             EnergyRequirement energy = getCurrentRecipe().getEnergyComponent();
-            var result = energyHandler.extractEnergy(energy.fePerTick(), true);
-            if (result >= energy.fePerTick()) {
-                energyHandler.extractEnergy(energy.fePerTick(), false);
-            } else {
-                resetProgress();
+            try (Transaction tx = Transaction.openRoot()) {
+                int taken = energyHandler.extract(energy.fePerTick(), tx);
+                if (taken == energy.fePerTick()) {
+                    tx.commit();
+                } else {
+                    resetProgress();
+                }
             }
         }
     }
@@ -236,35 +251,34 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
     }
 
     public boolean canAcceptOutput(SuperCoolerRecipe recipe) {
-        var outputSlot = itemHandler.getOutput().getStackInSlot(0);
-
-        if (outputSlot.isEmpty()) {
+        var outputStack = ItemUtil.getStack(itemHandler.getOutput(), 0);
+        if (outputStack.isEmpty()) {
             return true;
         }
 
-        int nItems = currentRecipe == null ? 0 : getCurrentRecipe().getResult().getCount();
+        int nItems = currentRecipe == null ? 0 : getCurrentRecipe().getResult().count();
 
         // Do we have room for the result?
-        if (outputSlot.getCount() >= outputSlot.getMaxStackSize() - nItems) {
+        if (outputStack.getCount() >= outputStack.getMaxStackSize() - nItems) {
             return false;
         }
 
         // Are the items the same?
-        return ItemStack.isSameItemSameComponents(outputSlot, recipe.getResult());
+        return ItemStack.isSameItemSameComponents(outputStack, recipe.getResult());
     }
 
     private boolean hasAnyFluid() {
-        return !fluidHandler.isEmpty();
+        return !fluidHandler.getResource(0).isEmpty();
     }
 
     private boolean hasEnoughEnergy() {
-        return energyHandler.getEnergyStored() > (currentRecipe == null ? 0 : getCurrentRecipe().getEnergyComponent().fePerTick());
+        return energyHandler.getAmountAsInt() >= (currentRecipe == null ? 0 : getCurrentRecipe().getEnergyComponent().fePerTick());
     }
 
     private boolean hasItemInAnySlot() {
         var input = itemHandler.getInput();
-        for (int i = 0; i < input.getSlots(); i++) {
-            if (!input.getStackInSlot(i).isEmpty()) {
+        for (int i = 0; i < input.size(); i++) {
+            if (!input.getResource(i).isEmpty()) {
                 return true;
             }
         }
@@ -287,93 +301,80 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
 
-        itemHandler.getInput().deserializeNBT(provider, tag.getCompound("input"));
-        itemHandler.getOutput().deserializeNBT(provider, tag.getCompound("output"));
-        if (tag.contains("energy")) {
-            energyHandler.deserializeNBT(provider, tag.get("energy"));
-        }
-        fluidHandler.readFromNBT(provider, tag.getCompound("fluid"));
+        itemHandler.getInput().deserialize(input.childOrEmpty("input"));
+        itemHandler.getOutput().deserialize(input.childOrEmpty("output"));
+        energyHandler.deserialize(input.childOrEmpty("energy"));
+        fluidHandler.deserialize(input.childOrEmpty("fluid"));
 
-        // Write the progress
-        progress = tag.getInt("progress");
-        progressRequired = tag.getInt("progressRequired");
+        progress = input.getIntOr("progress", 0);
+        progressRequired = input.getIntOr("progressRequired", 0);
 
-        // Write the recipe id
-        if (tag.contains("recipe")) {
-            try {
-                pendingRecipeId = Identifier.parse(tag.getString("recipe"));
-            } catch (IdentifierException e) {
-                pendingRecipeId = null;
-            }
-        }
+        pendingRecipeId = input.read("recipe", ResourceKey.codec(Registries.RECIPE)).orElse(null);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
 
-        tag.put("input", itemHandler.getInput().serializeNBT(provider));
-        tag.put("output", itemHandler.getOutput().serializeNBT(provider));
-        tag.put("energy", energyHandler.serializeNBT(provider));
-        tag.put("fluid", fluidHandler.writeToNBT(provider, new CompoundTag()));
+        output.putChild("input", itemHandler.getInput());
+        output.putChild("output", itemHandler.getOutput());
+        output.putChild("energy", energyHandler);
+        output.putChild("fluid", fluidHandler);
 
         // Write the progress
-        tag.putInt("progress", progress);
-        tag.putInt("progressRequired", progressRequired);
+        output.putInt("progress", progress);
+        output.putInt("progressRequired", progressRequired);
 
         // Write the recipe id
         if (currentRecipe != null) {
-            tag.putString("recipe", currentRecipe.id().toString());
+            output.store("recipe", ResourceKey.codec(Registries.RECIPE), currentRecipe.id());
         }
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        return Util.make(new CompoundTag(), t -> saveAdditional(t, provider));
+        var output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+        saveAdditional(output);
+        return output.buildResult();
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        loadAdditional(tag, provider);
-    }
+    protected void applyImplicitComponents(DataComponentGetter components) {
+        super.applyImplicitComponents(components);
 
-    @Override
-    protected void applyImplicitComponents(DataComponentInput componentInput) {
-        super.applyImplicitComponents(componentInput);
-
-        fluidHandler.setFluid(componentInput.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy());
-        energyHandler.overrideEnergy(componentInput.getOrDefault(ComponentsRegistry.STORED_ENERGY, 0));
+        setFluid(components.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy());
+        setEnergy(components.getOrDefault(ComponentsRegistry.STORED_ENERGY, 0));
     }
 
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
 
-        components.set(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(fluidHandler.getFluid()));
-        components.set(ComponentsRegistry.STORED_ENERGY, energyHandler.getEnergyStored());
+        components.set(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(FluidUtil.getStack(fluidHandler, 0)));
+        components.set(ComponentsRegistry.STORED_ENERGY, getEnergy());
     }
 
     @Override
     public int getEnergy() {
-        return energyHandler.getEnergyStored();
+        return energyHandler.getAmountAsInt();
     }
 
     @Override
     public int getMaxEnergy() {
-        return energyHandler.getMaxEnergyStored();
+        return energyHandler.getCapacityAsInt();
     }
 
     @Override
     public FluidStack getFluid() {
-        return fluidHandler.getFluid();
+        return FluidUtil.getStack(fluidHandler, 0);
     }
 
     @Override
     public int getMaxFluid() {
-        return fluidHandler.getCapacity();
+        return fluidHandler.getCapacityAsInt(0, FluidResource.EMPTY);
     }
 
     @Override
@@ -383,7 +384,7 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
 
     @Override
     public void setFluid(FluidStack fluid) {
-        fluidHandler.setFluid(fluid);
+        fluidHandler.set(0, FluidResource.of(fluid), fluid.amount());
     }
 
     @Override
@@ -413,6 +414,6 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
 
     @Override
     public void syncFluidFromServer(FluidStack fluidStack) {
-        fluidHandler.setFluid(fluidStack);
+        setFluid(fluidStack);
     }
 }

@@ -12,7 +12,7 @@ public enum DevEnvironmentCondition implements ICondition {
 
     @Override
     public boolean test(IContext context) {
-        return ModConfig.INCLUDE_DEV_RECIPES.get() || !FMLLoader.isProduction();
+        return ModConfig.INCLUDE_DEV_RECIPES.get() || !FMLLoader.getCurrent().isProduction();
     }
 
     @Override

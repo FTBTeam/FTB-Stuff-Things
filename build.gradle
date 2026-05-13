@@ -124,11 +124,11 @@ tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
             version: version,
             mod_id: mod_id,
-            mod_name: mod_name,
-            neoforge_version_range: neoforge_version_range,
-            neoforge_loader_version: neoforge_loader_version,
+            mod_name: readable_name,
+            neoforge_version_range: neo_version_range,
+            neoforge_loader_version: neo_loader_version_range,
             minecraft_version_range: minecraft_version_range,
-            ftb_library_version_range: ftb_library_version_range,
+            ftb_library_version: ftb_library_version,
             jei_version: jei_version,
             kubejs_version: kubejs_version
     ]

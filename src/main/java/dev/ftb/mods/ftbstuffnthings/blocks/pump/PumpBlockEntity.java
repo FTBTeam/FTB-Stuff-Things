@@ -13,18 +13,19 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
@@ -53,6 +54,7 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
 
     public boolean creative = false;
     public Fluid creativeFluid = Fluids.WATER;
+    @Nullable
     public Item creativeItem = null;
 
     private final Map<Direction, BlockCapabilityCache<ResourceHandler<FluidResource>, Direction>> capabilityCacheMap = new EnumMap<>(Direction.class);
@@ -155,26 +157,15 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-//        var data = new CompoundTag();
-//        this.saveAdditional(data, registries);
-//        return data;
-        return new CompoundTag();
-    }
-
-    @Override
-    public void handleUpdateTag(ValueInput input) {
-//        super.handleUpdateTag(input);
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        saveAdditional(output);
+        return output.buildResult();
     }
 
     @Nullable
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public void onDataPacket(Connection net, ValueInput valueInput) {
-//        loadAdditional(valueInput);
     }
 
     @Override

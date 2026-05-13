@@ -27,6 +27,7 @@ public abstract class BaseResourceGenBlockEntity extends BlockEntity {
             setChanged();
         }
     };
+    @Nullable
     private BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> outputCache;
     private int ticks;
     private final IResourceGenProps props;

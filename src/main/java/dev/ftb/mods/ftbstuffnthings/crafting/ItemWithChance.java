@@ -9,7 +9,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
 
 public record ItemWithChance(ItemStackTemplate item, double chance) {
 	public static final Codec<ItemWithChance> CODEC = RecordCodecBuilder.create(builder -> builder.group(
@@ -34,8 +33,4 @@ public record ItemWithChance(ItemStackTemplate item, double chance) {
 			.add("chance", chance)
 			.toString();
 	}
-
-//	public ItemWithChance copy(){
-//		return new ItemWithChance(item, chance);
-//	}
 }

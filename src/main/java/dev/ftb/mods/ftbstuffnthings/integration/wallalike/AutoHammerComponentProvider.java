@@ -5,9 +5,9 @@ import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -15,8 +15,6 @@ import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.BoxStyle;
-import snownee.jade.api.ui.IElement;
-import snownee.jade.api.ui.IElementHelper;
 import snownee.jade.api.ui.JadeUI;
 
 import java.util.ArrayList;
@@ -40,31 +38,36 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerData
             return;
         }
 
-//        var helper = IElementHelper.get();
-        int timeout = serverData.getIntOr("timeout", 0);
-        int maxTimeout = serverData.getIntOr("maxTimeout", 0);
+        // FIXME how do progress bars work now??
+//        int timeout = serverData.getIntOr("timeout", 0);
+//        int maxTimeout = serverData.getIntOr("maxTimeout", 0);
 
-        if (maxTimeout == 0) {
-            float progress = (float) serverData.getIntOr("progress", 0) / (float) serverData.getIntOr("maxProgress", 1);
-            iTooltip.add(JadeUI.progress(progress, RUNNING, JadeUI.progressStyle().color(0xAD00FF00), BoxStyle.nestedBox(), false));
-        } else {
-            float progress = (float) timeout / (float) maxTimeout;
-            iTooltip.add(JadeUI.progress(progress, WAITING, JadeUI.progressStyle().color(0xADFF0000), BoxStyle.nestedBox(), true));
-        }
+//        if (maxTimeout == 0) {
+//            float progress = (float) serverData.getIntOr("progress", 0) / (float) serverData.getIntOr("maxProgress", 1);
+//            iTooltip.add(JadeUI.progress(progress, RUNNING, JadeUI.progressStyle().color(0xAD00FF00), BoxStyle.nestedBox(), false));
+//        } else {
+//            float progress = (float) timeout / (float) maxTimeout;
+//            iTooltip.add(JadeUI.progress(progress, WAITING, JadeUI.progressStyle().color(0xADFF0000), BoxStyle.nestedBox(), true));
+//        }
 
-        ItemStack processingStack = ItemStack.OPTIONAL_CODEC.parse(blockAccessor.nbtOps(), serverData.getCompound("processing")).result()
+        ItemStack processingStack = serverData.getCompound("processing")
+                .map(tag -> blockAccessor.decodeFromNbt(ItemStack.OPTIONAL_STREAM_CODEC, tag).orElse(ItemStack.EMPTY))
                 .orElse(ItemStack.EMPTY);
+
         List<ItemStack> outputItems = new ArrayList<>();
         if (serverData.contains("output")) {
-            var items = serverData.getList("output", Tag.TAG_COMPOUND);
-            items.forEach(tag -> ItemStack.OPTIONAL_CODEC.parse(blockAccessor.nbtOps(), tag).result().ifPresent(outputItems::add));
+            serverData.getList("output").ifPresent(listTag -> {
+                listTag.forEach(tag -> blockAccessor.decodeFromNbt(ItemStack.OPTIONAL_STREAM_CODEC, tag)
+                        .ifPresent(outputItems::add)
+                );
+            });
         }
 
         if (!processingStack.isEmpty()) {
             iTooltip.add(JadeUI.item(processingStack));
             ITooltip tooltip = JadeUI.tooltip();
             tooltip.append(JadeUI.text(Component.translatable("ftbstuff.jade.processing")));
-            iTooltip.append(JadeUI.box(tooltip, BoxStyle.transparent()).alignSelfEnd();
+            iTooltip.append(JadeUI.box(tooltip, BoxStyle.transparent()).alignSelfEnd());
         }
 
         if (!outputItems.isEmpty()) {
@@ -89,7 +92,7 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerData
             // Hacks to make the boxes not look stupid
             ITooltip text = JadeUI.tooltip();
             text.append(JadeUI.text(Component.translatable("ftbstuff.jade.buffer")));
-            iTooltip.append(JadeUI.box(text, BoxStyle.transparent()).alignSelfEnd();
+            iTooltip.append(JadeUI.box(text, BoxStyle.transparent()).alignSelfEnd());
         }
     }
 
@@ -104,15 +107,11 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerData
         compoundTag.putInt("maxProgress", autoHammerEntity.getMaxProgress());
         compoundTag.putInt("timeout", autoHammerEntity.getTimeout());
         compoundTag.putInt("maxTimeout", autoHammerEntity.getMaxTimeout());
-
-        ItemStack.OPTIONAL_CODEC.encodeStart(blockAccessor.nbtOps(), autoHammerEntity.getProcessingStack()).result()
-                .ifPresent(tag -> compoundTag.put("processing", tag));
-
-        ListTag tagItems = new ListTag();
-        autoHammerEntity.getOverflow().forEach(stack -> ItemStack.OPTIONAL_CODEC.encodeStart(blockAccessor.nbtOps(), stack).result()
-                .ifPresent(tagItems::add));
-
-        compoundTag.put("output", tagItems);
+        compoundTag.put("processing", blockAccessor.encodeAsNbt(ItemStack.OPTIONAL_STREAM_CODEC, autoHammerEntity.getProcessingStack()));
+        compoundTag.put("output", Util.make(new ListTag(), l ->
+                autoHammerEntity.getOverflow().forEach(stack ->
+                        l.add(blockAccessor.encodeAsNbt(ItemStack.OPTIONAL_STREAM_CODEC, stack))))
+        );
     }
 
     @Override

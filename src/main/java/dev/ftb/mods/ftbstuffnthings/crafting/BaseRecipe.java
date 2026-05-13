@@ -12,9 +12,9 @@ import java.util.function.Supplier;
  */
 public abstract class BaseRecipe<T extends Recipe<NoInventory>> implements Recipe<NoInventory> {
     private final Supplier<RecipeSerializer<T>> serializer;
-    private final Supplier<RecipeType<T>> recipeType;
+    private final Supplier<FTBStuffRecipeType<T>> recipeType;
 
-    protected BaseRecipe(Supplier<RecipeSerializer<T>> serializer, Supplier<RecipeType<T>> recipeType) {
+    protected BaseRecipe(Supplier<RecipeSerializer<T>> serializer, Supplier<FTBStuffRecipeType<T>> recipeType) {
         this.serializer = serializer;
         this.recipeType = recipeType;
     }

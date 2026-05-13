@@ -9,8 +9,11 @@ import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.resource.Resource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,5 +46,10 @@ public class MiscUtil {
     public static List<FluidStack> getFluidsForSizedIngredient(SizedFluidIngredient ingredient) {
         return ingredient.ingredient().fluids().stream()
                 .map(holder -> new FluidStack(holder.value(), ingredient.amount())).toList();
+    }
+
+    public static <T extends Resource> int removeResourceFromSlot(ResourceHandler<T> handler, int slot, int count, Transaction tx) {
+        if (handler.getResource(slot).isEmpty()) return 0;
+        return handler.extract(slot, handler.getResource(slot), count, tx);
     }
 }

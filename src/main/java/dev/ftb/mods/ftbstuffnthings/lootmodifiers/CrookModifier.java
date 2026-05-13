@@ -4,7 +4,6 @@ import com.google.common.base.Suppliers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
-import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.CrookRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
@@ -21,7 +20,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +35,6 @@ public class CrookModifier extends LootModifier {
         super(conditionsIn, priority);
     }
 
-    @NotNull
     @Override
     protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> list, LootContext context) {
         ItemInstance crook = context.getOptionalParameter(LootContextParams.TOOL);
@@ -51,7 +48,7 @@ public class CrookModifier extends LootModifier {
         List<ItemStack> crookDrops = new ArrayList<>();
         int maxDrops = -1;
         boolean replaceDrops = false;
-        for (RecipeHolder<CrookRecipe> holder : RecipeCaches.CROOK.getCachedRecipes(() -> findRecipes(context.getLevel(), blockState), blockState::hashCode)) {
+        for (RecipeHolder<CrookRecipe> holder : RecipeCaches.CROOK.getCachedRecipes(context.getLevel(), l -> findRecipes(l, blockState), blockState::hashCode)) {
             CrookRecipe recipe = holder.value();
             if (recipe.replaceDrops()) {
                 replaceDrops = true;
@@ -79,7 +76,7 @@ public class CrookModifier extends LootModifier {
     private List<RecipeHolder<CrookRecipe>> findRecipes(ServerLevel level, BlockState blockState) {
         ItemStack input = new ItemStack(blockState.getBlock());
 
-        return level.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.CROOK_TYPE.get(), NoInventory.INSTANCE, level)
+        return RecipesRegistry.CROOK_TYPE.get().streamRecipes(level)
                 .filter(holder -> holder.value().getIngredient().test(input))
                 .toList();
     }

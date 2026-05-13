@@ -1,12 +1,18 @@
 package dev.ftb.mods.ftbstuffnthings.crafting;
 
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeInput;
 
-public class NoInventory extends RecipeWrapper {
-	public static final NoInventory INSTANCE = new NoInventory();
+public enum NoInventory implements RecipeInput {
+	INSTANCE;
 
-	private NoInventory() {
-		super(new ItemStackHandler(0));
+	@Override
+	public ItemStack getItem(int index) {
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public int size() {
+		return 0;
 	}
 }

@@ -74,7 +74,7 @@ public class TemperedJarBlock extends JarBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return (level1, blockPos, blockState, be) -> {
+        return (level1, _, _, be) -> {
             if (be instanceof TemperedJarBlockEntity jar && level1 instanceof ServerLevel serverLevel) {
                 jar.serverTick(serverLevel);
             }
@@ -112,7 +112,7 @@ public class TemperedJarBlock extends JarBlock {
                     });
                 }
             } else {
-                jar.maybeClearBacklog(hitResult.getDirection());
+                jar.maybeClearBacklog(level, hitResult.getDirection());
             }
         }
 

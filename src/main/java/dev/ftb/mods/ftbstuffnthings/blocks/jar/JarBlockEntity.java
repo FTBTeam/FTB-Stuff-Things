@@ -56,9 +56,9 @@ public class JarBlockEntity extends BlockEntity implements ITubeConnectable {
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        saveAdditional(TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries));
-        return tag;
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        saveAdditional(output);
+        return output.buildResult();
     }
 
     @Override
@@ -102,7 +102,7 @@ public class JarBlockEntity extends BlockEntity implements ITubeConnectable {
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
 
-        components.set(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(tank.getResource(0).toStack(tank.getAmountAsInt(0))));
+        components.set(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(FluidUtil.getStack(tank, 0)));
     }
 
     private class JarFluidTank extends FluidStacksResourceHandler {

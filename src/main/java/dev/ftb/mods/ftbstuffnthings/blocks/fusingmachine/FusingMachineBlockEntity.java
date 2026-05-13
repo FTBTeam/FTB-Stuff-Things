@@ -53,7 +53,8 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class FusingMachineBlockEntity extends AbstractMachineBlockEntity implements MenuProvider, FluidEnergyProvider, ProgressProvider {
-    private final EmittingEnergy energyHandler = new EmittingEnergy(1_000_000, 10_000, 10_000, (energy) -> setChanged());
+    private final EmittingEnergy energyHandler = new EmittingEnergy(1_000_000, 10_000, 10_000,
+            _ -> setChanged());
     private final ExtractOnlyFluidTank fluidHandler = new ExtractOnlyFluidTank(10000, _ -> setChanged());
     private final EmittingStackHandler itemHandler = new EmittingStackHandler(2, _ -> onItemHandlerChange());
 
@@ -111,7 +112,7 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
     }
 
     private Optional<RecipeHolder<FusingMachineRecipe>> searchForRecipe(ServerLevel serverLevel) {
-        return serverLevel.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.FUSING_MACHINE_TYPE.get(), NoInventory.INSTANCE, serverLevel)
+        return RecipesRegistry.FUSING_MACHINE_TYPE.get().streamRecipes(serverLevel)
                 .sorted((h1, h2) -> h2.value().getInputs().size() - h1.value().getInputs().size()) // prioritise recipes with more ingredients
                 .filter(holder -> holder.value().test(itemHandler))
                 .findFirst();

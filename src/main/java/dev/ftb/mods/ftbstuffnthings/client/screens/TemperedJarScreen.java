@@ -8,16 +8,17 @@ import dev.ftb.mods.ftbstuffnthings.network.ToggleJarCraftingPacket;
 import dev.ftb.mods.ftbstuffnthings.temperature.TemperatureAndEfficiency;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +35,8 @@ public class TemperedJarScreen extends AbstractContainerScreen<TemperedJarMenu> 
     private Button startButton;
 
     public TemperedJarScreen(TemperedJarMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
+        super(menu, playerInventory, title, 176, 214);
 
-        imageHeight = 214;
         inventoryLabelY = 125;
     }
 
@@ -61,8 +61,8 @@ public class TemperedJarScreen extends AbstractContainerScreen<TemperedJarMenu> 
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.extractContents(guiGraphics, mouseX, mouseY, partialTick);
 
         int minX = leftPos + FLUID_AREA.getX();
         int maxX = leftPos + FLUID_AREA.getX() + FLUID_AREA.getWidth();
@@ -70,56 +70,69 @@ public class TemperedJarScreen extends AbstractContainerScreen<TemperedJarMenu> 
         int maxY = topPos + FLUID_AREA.getY() + FLUID_AREA.getHeight();
 
         guiGraphics.fill(minX, minY, maxX, maxY, 0xFF8B8B8B);
-        guiGraphics.blit(TEXTURE, minX - 4, minY - 13, 176, 0, 56, 94);
-        guiGraphics.blit(CRAFTING_ICON, leftPos + JEI_AREA.getX(), topPos + JEI_AREA.getY(), 0, 0, 16, 16, 16, 16);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, minX - 4, minY - 13,
+                176, 0, 56, 94, 256, 256);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, CRAFTING_ICON, leftPos + JEI_AREA.getX(), topPos + JEI_AREA.getY(),
+                0, 0, 16, 16, 16, 16);
 
         renderTemperatureIndicator(guiGraphics, mouseX, mouseY, minX, maxY);
         renderFluids(guiGraphics, mouseX, mouseY);
         renderProgressBar(guiGraphics);
-        renderStatusInfo(guiGraphics, mouseX, mouseY);
-
-        renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
-    private void renderTemperatureIndicator(GuiGraphics guiGraphics, int mouseX, int mouseY, int xPos, int yPos) {
-        TemperatureAndEfficiency temp = menu.getJar().getTemperature();
-        guiGraphics.blit(temp.temperature().getTexture(),
-                leftPos + TEMPERATURE_AREA.getX(), topPos + TEMPERATURE_AREA.getY(),
-                0, 0, 16, 16, 16, 16);
+    @Override
+    protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        super.extractTooltip(graphics, mouseX, mouseY);
 
         if (!ModList.get().isLoaded("jei")) {
             // when JEI is loaded, it handles the tooltip here, since it's also used for the "Show Recipes" action
+            TemperatureAndEfficiency temp = menu.getJar().getTemperature();
             if (TEMPERATURE_AREA.contains(mouseX - leftPos, mouseY - topPos)) {
                 List<Component> list = List.of(
                         Component.translatable("ftbstuff.temperature", temp.temperature().getName()),
                         Component.translatable("ftbstuff.efficiency", temp.formatEfficiency())
                 );
-                guiGraphics.renderTooltip(font, list, Optional.empty(), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(font, list, Optional.empty(), mouseX, mouseY);
             }
         }
-    }
-
-    private void renderStatusInfo(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if (startButton.isHovered()) {
             List<Component> outputs = new ArrayList<>();
             outputs.add(getMenu().getJar().getStatus().displayString());
             getMenu().getJar().getCurrentRecipe().ifPresent(holder -> {
                 outputs.add(Component.translatable("ftbstuff.making"));
                 holder.value().getOutputItems().forEach(stack -> outputs.add(
-                        Component.literal("• ").append(stack.getCount() + " x ").append(stack.getHoverName()))
+                        Component.literal("• ").append(stack.count() + " x ").append(stack.create().getHoverName()))
                 );
                 holder.value().getOutputFluids().forEach(stack -> outputs.add(
-                        Component.literal("• ").append(stack.getAmount() + "mB ").append(stack.getHoverName()))
+                        Component.literal("• ").append(stack.amount() + "mB ").append(stack.create().getHoverName()))
                 );
                 if (Minecraft.getInstance().options.advancedItemTooltips) {
                     outputs.add(Component.literal("Recipe: " + holder.id()).withStyle(ChatFormatting.DARK_GRAY));
                 }
             });
-            guiGraphics.renderTooltip(font, outputs, Optional.empty(), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(font, outputs, Optional.empty(), mouseX, mouseY);
+        }
+        if (FLUID_AREA.contains(mouseX - leftPos, mouseY - topPos)) {
+            var fluidHandler = menu.getJar().getFluidHandler();
+            List<Component> lines = new ArrayList<>();
+            for (int i = fluidHandler.size() - 1; i >= 0; i--) {
+                FluidStack fs = FluidUtil.getStack(fluidHandler, i);
+                if (!fs.isEmpty()) {
+                    lines.add(Component.translatable("ftblibrary.mb", fs.getAmount(), fs.getHoverName()));
+                }
+            }
+            graphics.setTooltipForNextFrame(font, lines, Optional.empty(), mouseX, mouseY);
         }
     }
 
-    private void renderProgressBar(GuiGraphics guiGraphics) {
+    private void renderTemperatureIndicator(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, int xPos, int yPos) {
+        TemperatureAndEfficiency temp = menu.getJar().getTemperature();
+        guiGraphics.blit(temp.temperature().getTexture(),
+                leftPos + TEMPERATURE_AREA.getX(), topPos + TEMPERATURE_AREA.getY(),
+                0, 0, 16, 16, 16, 16);
+    }
+
+    private void renderProgressBar(GuiGraphicsExtractor guiGraphics) {
         int remaining = menu.getJar().getRemainingTime();
         int total = menu.getJar().getProcessingTime();
 
@@ -130,48 +143,40 @@ public class TemperedJarScreen extends AbstractContainerScreen<TemperedJarMenu> 
             int y2 = y1 + 8;
             guiGraphics.fill(x1 - 1, y1 - 1, x2 + 1, y2 + 1, 0xFF606060);
             guiGraphics.fill(x1 , y1, x2, y2, 0xFFA0A0A0);
-            guiGraphics.blit(TEXTURE, x1, y1, 0, 240, (x2 - x1) * (total - remaining) / total, 8);
+            guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, x1, y1,
+                    0, 240, (x2 - x1) * (total - remaining) / total, 8, 256, 256);
         }
     }
 
-    private void renderFluids(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        IFluidHandler fluidHandler = menu.getJar().getFluidHandler();
+    private void renderFluids(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+        var fluidHandler = menu.getJar().getFluidHandler();
 
         int yPos = FLUID_AREA.getY() + FLUID_AREA.getHeight();
-        int total = fluidHandler.getTanks() * TemperedJarBlockEntity.TANK_CAPACITY;
+        int total = fluidHandler.size() * TemperedJarBlockEntity.TANK_CAPACITY;
 
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(leftPos, topPos, 0);
-        for (int i = 0; i < fluidHandler.getTanks(); i++) {
-            FluidStack fs = fluidHandler.getFluidInTank(i);
+        guiGraphics.pose().pushMatrix();
+        guiGraphics.pose().translate(leftPos, topPos);
+        for (int i = 0; i < fluidHandler.size(); i++) {
+            FluidStack fs = FluidUtil.getStack(fluidHandler, i);
             if (!fs.isEmpty()) {
                 int ySize = FLUID_AREA.getHeight() * fs.getAmount() / total;
                 yPos -= ySize;
-                GuiUtil.drawFluid(guiGraphics, new Rect2i(FLUID_AREA.getX(), yPos, FLUID_AREA.getWidth(), ySize), fs, null);
+                GuiUtil.drawFluid(guiGraphics, new Rect2i(FLUID_AREA.getX(), yPos, FLUID_AREA.getWidth(), ySize), fs, 0);
             }
         }
-        guiGraphics.pose().popPose();
-
-        if (FLUID_AREA.contains(mouseX - leftPos, mouseY - topPos)) {
-            List<Component> lines = new ArrayList<>();
-            for (int i = fluidHandler.getTanks() - 1; i >= 0; i--) {
-                FluidStack fs = fluidHandler.getFluidInTank(i);
-                if (!fs.isEmpty()) {
-                    lines.add(Component.translatable("ftblibrary.mb", fs.getAmount(), fs.getHoverName()));
-                }
-            }
-            guiGraphics.renderTooltip(font, lines, Optional.empty(), mouseX, mouseY);
-        }
+        guiGraphics.pose().popMatrix();
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTick);
+
+        graphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    protected void extractLabels(GuiGraphicsExtractor graphics, int xm, int ym) {
         int x = (imageWidth - font.width(title)) / 2;
-        guiGraphics.drawString(font, title, x, titleLabelY, 0xFF404040, false);
+        graphics.text(font, title, x, titleLabelY, 0xFF404040, false);
     }
 }

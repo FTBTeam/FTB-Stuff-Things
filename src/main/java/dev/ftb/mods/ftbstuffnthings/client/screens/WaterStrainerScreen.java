@@ -1,8 +1,9 @@
 package dev.ftb.mods.ftbstuffnthings.client.screens;
 
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,17 +19,12 @@ public class WaterStrainerScreen extends AbstractContainerScreen<WaterStrainerMe
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
 
-        renderTooltip(guiGraphics, mouseX, mouseY);
-    }
-
-    @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         int w2 = (width - imageWidth) / 2;
         int h2 = (height - imageHeight) / 2;
-        guiGraphics.blit(TEXTURE, w2, h2, 0, 0, imageWidth, ROWS * 18 + 17);
-        guiGraphics.blit(TEXTURE, w2, h2 + ROWS * 18 + 17, 0, 126, imageWidth, 96);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, w2, h2, 0, 0, imageWidth, ROWS * 18 + 17, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, w2, h2 + ROWS * 18 + 17, 0, 126, imageWidth, 96, 256, 256);
     }
 }

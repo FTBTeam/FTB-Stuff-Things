@@ -3,17 +3,13 @@ package dev.ftb.mods.ftbstuffnthings.client;
 import dev.ftb.mods.ftblibrary.util.neoforge.FluidKey;
 import dev.ftb.mods.ftbstuffnthings.items.FluidCapsuleItem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class FluidCapsuleColorHandler {
     private static final Map<FluidKey, Integer> COLOR_MAP = new HashMap<>();
@@ -28,11 +24,12 @@ public class FluidCapsuleColorHandler {
             return 0xFF000000;
         }
 
-        IClientFluidTypeExtensions renderProps = IClientFluidTypeExtensions.of(fluidStack.getFluid());
-        Identifier fluidStill = Objects.requireNonNullElse(renderProps.getStillTexture(fluidStack), MissingTextureAtlasSprite.getLocation());
-        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluidStill);
+        Fluid fluid = fluidStack.getFluid();
+        var model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid.defaultFluidState());
+        TextureAtlasSprite sprite = model.stillMaterial().sprite();
+        int tintColor = 0xFF000000 | (model.fluidTintSource() == null ? 0xFFFFF : model.fluidTintSource().color(fluid.defaultFluidState().createLegacyBlock()));
 
-        float[] tint = GuiUtil.decomposeColorF(renderProps.getTintColor(fluidStack));  // ARGB
+        float[] tint = GuiUtil.decomposeColorF(tintColor);  // ARGB
         float[] rgba = {0F, 0F, 0F, 0F};
 
         for (int y = 0; y < sprite.contents().height(); y++) {

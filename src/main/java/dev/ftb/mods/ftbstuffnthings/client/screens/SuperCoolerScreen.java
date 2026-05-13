@@ -2,7 +2,7 @@ package dev.ftb.mods.ftbstuffnthings.client.screens;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.supercooler.SuperCoolerMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,37 +22,37 @@ public class SuperCoolerScreen extends BaseFluidAndEnergyScreen<SuperCoolerMenu>
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int i, int j) {
-        graphics.drawString(font, title, titleLabelX, titleLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int i, int j) {
+        graphics.text(font, title, titleLabelX, titleLabelY, 0x404040, false);
     }
 
     @Override
     public int getEnergyAmount() {
-        return menu.blockEntity.getEnergy();
+        return menu.getBlockEntity().getEnergy();
     }
 
     @Override
     public int getEnergyCapacity() {
-        return this.menu.blockEntity.getMaxEnergy();
+        return this.menu.getBlockEntity().getMaxEnergy();
     }
 
     @Override
     public int getFluidCapacity() {
-        return this.menu.blockEntity.getMaxFluid();
+        return this.menu.getBlockEntity().getMaxFluid();
     }
 
     @Override
     public FluidStack getFluidStack() {
-        return this.menu.blockEntity.getFluid();
+        return this.menu.getBlockEntity().getFluid();
     }
 
     @Override
     public int getProgress() {
-        return menu.blockEntity.getProgress();
+        return menu.getBlockEntity().getProgress();
     }
 
     @Override
     public int getProgressRequired() {
-        return menu.blockEntity.getMaxProgress();
+        return menu.getBlockEntity().getMaxProgress();
     }
 }

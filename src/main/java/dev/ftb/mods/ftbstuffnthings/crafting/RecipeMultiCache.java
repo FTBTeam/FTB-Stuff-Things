@@ -1,10 +1,12 @@
 package dev.ftb.mods.ftbstuffnthings.crafting;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
@@ -22,13 +24,13 @@ public class RecipeMultiCache<R extends Recipe<?>> {
      * @param hashCodeGenerator method to generate a unique hash code from the input state
      * @return a list of zero or more recipes which match the input state
      */
-    public List<RecipeHolder<R>> getCachedRecipes(Supplier<List<RecipeHolder<R>>> recipeFinder, IntSupplier hashCodeGenerator) {
+    public List<RecipeHolder<R>> getCachedRecipes(ServerLevel level, Function<ServerLevel, List<RecipeHolder<R>>> recipeFinder, IntSupplier hashCodeGenerator) {
         int key = hashCodeGenerator.getAsInt();
 
         if (recipeCache.containsKey(key)) {
             return recipeCache.getAndMoveToFirst(key);
         } else {
-            List<RecipeHolder<R>> newRecipes = recipeFinder.get();
+            List<RecipeHolder<R>> newRecipes = recipeFinder.apply(level);
             while (recipeCache.size() >= MAX_CACHE_SIZE) {
                 recipeCache.removeLast();
             }
