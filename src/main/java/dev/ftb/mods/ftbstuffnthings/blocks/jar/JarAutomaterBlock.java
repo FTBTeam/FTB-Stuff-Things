@@ -29,8 +29,8 @@ import org.jspecify.annotations.Nullable;
 public class JarAutomaterBlock extends Block implements ITubeConnectable {
     public static final VoxelShape SHAPE = box(3, 0, 3, 13, 13, 13);
 
-    public JarAutomaterBlock() {
-        super(Properties.of().mapColor(MapColor.METAL).strength(5F, 6F).sound(SoundType.METAL));
+    public JarAutomaterBlock(Properties properties) {
+        super(properties.mapColor(MapColor.METAL).strength(5F, 6F).sound(SoundType.METAL));
 
         BlockState state = stateDefinition.any().setValue(BlockStateProperties.WATERLOGGED, false);
         registerDefaultState(state);

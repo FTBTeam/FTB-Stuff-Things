@@ -12,8 +12,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class FusingMachineBlock extends AbstractMachineBlock implements SerializableComponentsProvider {
-    public FusingMachineBlock() {
-        super(defaultMachineProps());
+    public FusingMachineBlock(Properties properties) {
+        super(applyDefaultMachineProps(properties));
     }
 
     @Nullable

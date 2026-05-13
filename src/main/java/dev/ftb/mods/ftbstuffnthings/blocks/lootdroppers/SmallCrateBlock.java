@@ -32,8 +32,8 @@ public class SmallCrateBlock extends Block {
 
     public static final VoxelShape SHAPE_EAST_WEST = VoxelShapeUtils.rotateY(SHAPE_NORTH_SOUTH, 90);
 
-    public SmallCrateBlock() {
-        super(Properties.of().sound(SoundType.WOOD).noOcclusion().strength(5f, 6f));
+    public SmallCrateBlock(Properties properties) {
+        super(properties.sound(SoundType.WOOD).noOcclusion().strength(5f, 6f));
 
         registerDefaultState(defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH).setValue(BlockStateProperties.WATERLOGGED, false));
     }

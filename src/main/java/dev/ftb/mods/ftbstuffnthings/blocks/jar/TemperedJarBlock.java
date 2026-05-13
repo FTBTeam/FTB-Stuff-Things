@@ -43,8 +43,8 @@ public class TemperedJarBlock extends JarBlock {
     public static final EnumProperty<Temperature> TEMPERATURE = EnumProperty.create("temperature", Temperature.class);
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
-    public TemperedJarBlock() {
-        super();
+    public TemperedJarBlock(Properties properties) {
+        super(properties);
 
         registerDefaultState(getStateDefinition().any().setValue(TEMPERATURE, Temperature.NORMAL).setValue(ACTIVE, false));
     }

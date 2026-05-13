@@ -20,8 +20,8 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import java.util.function.Consumer;
 
 public class FluidCapsuleItem extends Item {
-    public FluidCapsuleItem() {
-        super(new Item.Properties().component(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).stacksTo(1));
+    public FluidCapsuleItem(Properties properties) {
+        super(properties.component(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).stacksTo(1));
     }
 
     public static ItemStack of(FluidStack fluidStack) {

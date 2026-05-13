@@ -53,8 +53,8 @@ public class DripperBlock extends Block implements EntityBlock {
 	public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 	public static final int WATER_BOTTLE_AMOUNT = 250;
 
-	public DripperBlock() {
-		super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(2F).randomTicks());
+	public DripperBlock(Properties properties) {
+		super(properties.mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(2F).randomTicks());
 		registerDefaultState(getStateDefinition().any().setValue(ACTIVE, false));
 	}
 

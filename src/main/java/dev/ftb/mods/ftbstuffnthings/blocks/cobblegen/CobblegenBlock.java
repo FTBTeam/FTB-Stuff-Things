@@ -32,8 +32,8 @@ import org.jspecify.annotations.Nullable;
 public class CobblegenBlock extends Block implements EntityBlock {
     private final IResourceGenProps props;
 
-    public CobblegenBlock(IResourceGenProps props) {
-        super(Properties.of().mapColor(MapColor.STONE).strength(1F, 1F).noOcclusion());
+    public CobblegenBlock(Properties properties, IResourceGenProps props) {
+        super(properties.mapColor(MapColor.STONE).strength(1F, 1F).noOcclusion());
 
         this.props = props;
 

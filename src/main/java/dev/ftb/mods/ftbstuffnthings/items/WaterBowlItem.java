@@ -31,8 +31,8 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 public class WaterBowlItem extends Item {
 	protected static final int BOWL_CAPACITY = FluidType.BUCKET_VOLUME / 4;
 
-	public WaterBowlItem() {
-		super(new Properties()
+	public WaterBowlItem(Properties properties) {
+		super(properties
 				.stacksTo(1)
 				.component(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(new FluidStack(Fluids.WATER, BOWL_CAPACITY))));
 	}

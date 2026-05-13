@@ -42,8 +42,8 @@ public class JarBlock extends Block implements EntityBlock, SerializableComponen
             box(5, 14, 5, 11, 16, 11)
     );
 
-    public JarBlock() {
-        super(Properties.of().sound(SoundType.BONE_BLOCK).strength(0.6F).noOcclusion());
+    public JarBlock(Properties properties) {
+        super(properties.sound(SoundType.BONE_BLOCK).strength(0.6F).noOcclusion());
     }
 
     @Nullable

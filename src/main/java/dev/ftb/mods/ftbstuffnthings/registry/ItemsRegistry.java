@@ -21,15 +21,15 @@ import java.util.function.Supplier;
 public class ItemsRegistry {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(FTBStuffNThings.MOD_ID);
 
-    public static final DeferredItem<MeshItem> CLOTH_MESH = ITEMS.register("cloth_mesh", () -> new MeshItem(MeshType.CLOTH));
-    public static final DeferredItem<MeshItem> IRON_MESH = ITEMS.register("iron_mesh", () -> new MeshItem(MeshType.IRON));
-    public static final DeferredItem<MeshItem> GOLD_MESH = ITEMS.register("gold_mesh", () -> new MeshItem(MeshType.GOLD));
-    public static final DeferredItem<MeshItem> DIAMOND_MESH = ITEMS.register("diamond_mesh", () -> new MeshItem(MeshType.DIAMOND));
-    public static final DeferredItem<MeshItem> BLAZING_MESH = ITEMS.register("blazing_mesh", () -> new MeshItem(MeshType.BLAZING));
+    public static final DeferredItem<MeshItem> CLOTH_MESH = ITEMS.registerItem("cloth_mesh", (p) -> new MeshItem(p, MeshType.CLOTH));
+    public static final DeferredItem<MeshItem> IRON_MESH = ITEMS.registerItem("iron_mesh", (p) -> new MeshItem(p, MeshType.IRON));
+    public static final DeferredItem<MeshItem> GOLD_MESH = ITEMS.registerItem("gold_mesh", (p) -> new MeshItem(p, MeshType.GOLD));
+    public static final DeferredItem<MeshItem> DIAMOND_MESH = ITEMS.registerItem("diamond_mesh", (p) -> new MeshItem(p, MeshType.DIAMOND));
+    public static final DeferredItem<MeshItem> BLAZING_MESH = ITEMS.registerItem("blazing_mesh", (p) -> new MeshItem(p, MeshType.BLAZING));
     public static final List<DeferredItem<MeshItem>> ALL_MESHES = List.of(CLOTH_MESH, IRON_MESH, GOLD_MESH, DIAMOND_MESH, BLAZING_MESH);
 
-    public static final DeferredItem<FluidCapsuleItem> FLUID_CAPSULE = ITEMS.register("fluid_capsule", FluidCapsuleItem::new);
-    public static final DeferredItem<WaterBowlItem> WATER_BOWL = ITEMS.register("water_bowl", WaterBowlItem::new);
+    public static final DeferredItem<FluidCapsuleItem> FLUID_CAPSULE = ITEMS.registerItem("fluid_capsule", FluidCapsuleItem::new);
+    public static final DeferredItem<WaterBowlItem> WATER_BOWL = ITEMS.registerItem("water_bowl", WaterBowlItem::new);
 
     public static final DeferredItem<Item> CAST_IRON_INGOT = simpleItem("cast_iron_ingot");
     public static final DeferredItem<Item> CAST_IRON_NUGGET = simpleItem("cast_iron_nugget");
@@ -43,7 +43,7 @@ public class ItemsRegistry {
     public static final DeferredItem<HammerItem> NETHERITE_HAMMER = registerHammer("netherite_hammer", ToolMaterial.NETHERITE);
     public static final List<DeferredItem<HammerItem>> ALL_HAMMERS = List.of(STONE_HAMMER, IRON_HAMMER, GOLD_HAMMER, DIAMOND_HAMMER, NETHERITE_HAMMER);
 
-    public static final DeferredItem<CrookItem> CROOK = ITEMS.register("stone_crook", CrookItem::new);
+    public static final DeferredItem<CrookItem> CROOK = ITEMS.registerItem("stone_crook", CrookItem::new);
     public static final DeferredItem<Item> STONE_ROD = simpleItem("stone_rod");
 
     //#region Block Items
@@ -179,6 +179,6 @@ public class ItemsRegistry {
     }
 
     private static DeferredItem<HammerItem> registerHammer(String name, ToolMaterial material) {
-        return ITEMS.registerItem(name, props -> new HammerItem(material));
+        return ITEMS.registerItem(name, props -> new HammerItem(props, material));
     }
 }

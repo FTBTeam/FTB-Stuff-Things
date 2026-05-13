@@ -47,8 +47,8 @@ public class TubeBlock extends Block implements EntityBlock {
 
     private static final Map<Integer,VoxelShape> SHAPE_CACHE = new ConcurrentHashMap<>();
 
-    public TubeBlock() {
-        super(Properties.of().mapColor(MapColor.METAL).strength(0.7F).sound(SoundType.NETHERITE_BLOCK));
+    public TubeBlock(Properties properties) {
+        super(properties.mapColor(MapColor.METAL).strength(0.7F).sound(SoundType.NETHERITE_BLOCK));
 
         registerDefaultState(getStateDefinition().any().setValue(BlockStateProperties.WATERLOGGED, false));
     }

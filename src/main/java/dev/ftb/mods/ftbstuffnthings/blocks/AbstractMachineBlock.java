@@ -33,8 +33,8 @@ import static net.minecraft.world.level.block.state.properties.BlockStatePropert
 public abstract class AbstractMachineBlock extends Block implements EntityBlock {
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
 
-    protected static Properties defaultMachineProps() {
-        return Properties.of().mapColor(MapColor.STONE).strength(1F, 1F);
+    protected static Properties applyDefaultMachineProps(Properties properties) {
+        return properties.mapColor(MapColor.STONE).strength(1F, 1F);
     }
 
     public AbstractMachineBlock(Properties props) {

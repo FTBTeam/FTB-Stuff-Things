@@ -107,8 +107,8 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
     private final SluiceType sluiceType;
     private final Lazy<SluiceProperties> props;
 
-    public SluiceBlock(SluiceType sluiceType, SoundType soundType) {
-        super(Properties.of().sound(soundType).strength(0.9F).forceSolidOn());
+    public SluiceBlock(Properties properties, SluiceType sluiceType, SoundType soundType) {
+        super(properties.sound(soundType).strength(0.9F).forceSolidOn());
         this.sluiceType = sluiceType;
 
         this.registerDefaultState(this.getStateDefinition().any()

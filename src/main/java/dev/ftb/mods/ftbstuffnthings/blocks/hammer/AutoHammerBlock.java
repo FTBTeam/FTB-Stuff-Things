@@ -42,8 +42,8 @@ public class AutoHammerBlock extends Block implements EntityBlock {
 
     private final AutoHammerProperties props;
 
-    public AutoHammerBlock(AutoHammerProperties props) {
-        super(Properties.of().mapColor(MapColor.STONE).strength(1F, 1F));
+    public AutoHammerBlock(Properties properties, AutoHammerProperties props) {
+        super(properties.mapColor(MapColor.STONE).strength(1F, 1F));
 
         this.props = props;
 

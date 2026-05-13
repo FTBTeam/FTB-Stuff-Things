@@ -6,8 +6,8 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 
 public class CrookItem extends Item {
-    public CrookItem() {
-        super(new Properties().stacksTo(1).tool(
+    public CrookItem(Properties properties) {
+        super(properties.stacksTo(1).tool(
                 ToolMaterial.STONE, BlockTags.MINEABLE_WITH_SHOVEL,
                 2, -2.8F, 0F)
         );

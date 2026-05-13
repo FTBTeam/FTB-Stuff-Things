@@ -40,8 +40,8 @@ public class WoodenBasinBlock extends Block implements EntityBlock {
                     INSIDE
             ), BooleanOp.ONLY_FIRST);
 
-    public WoodenBasinBlock() {
-        super(Properties.of().mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(2F));
+    public WoodenBasinBlock(Properties properties) {
+        super(properties.mapColor(MapColor.WOOD).sound(SoundType.WOOD).strength(2F));
     }
 
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {

@@ -82,8 +82,8 @@ public class PumpBlock extends AbstractMachineBlock implements EntityBlock {
 
     public static final EnumProperty<Progress> PROGRESS = EnumProperty.create("progress", Progress.class);
 
-    public PumpBlock() {
-        super(Properties.of().sound(SoundType.STONE).strength(1f, 1f));
+    public PumpBlock(Properties properties) {
+        super(properties.sound(SoundType.STONE).strength(1f, 1f));
 
         this.registerDefaultState(this.getStateDefinition().any()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH)

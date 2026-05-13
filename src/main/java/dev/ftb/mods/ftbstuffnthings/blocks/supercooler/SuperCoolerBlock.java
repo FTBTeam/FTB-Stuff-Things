@@ -12,8 +12,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class SuperCoolerBlock extends AbstractMachineBlock implements SerializableComponentsProvider {
-    public SuperCoolerBlock() {
-        super(defaultMachineProps());
+    public SuperCoolerBlock(Properties properties) {
+        super(applyDefaultMachineProps(properties));
     }
 
     @Nullable

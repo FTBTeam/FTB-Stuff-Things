@@ -36,8 +36,8 @@ public class CrateBlock extends Block {
             box(11, 0, 0, 16, 16, 5)
     );
 
-    public CrateBlock() {
-        super(Properties.of().sound(SoundType.WOOD).noOcclusion().strength(5f, 6f));
+    public CrateBlock(Properties properties) {
+        super(properties.sound(SoundType.WOOD).noOcclusion().strength(5f, 6f));
 
         registerDefaultState(defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, false));
     }

@@ -39,8 +39,8 @@ public class BarrelBlock extends Block {
             box(1, 5, 14.5, 15, 6, 15.5)
     );
 
-    public BarrelBlock() {
-        super(Properties.of().strength(5f, 6f).sound(SoundType.NETHERITE_BLOCK).noOcclusion());
+    public BarrelBlock(Properties properties) {
+        super(properties.strength(5f, 6f).sound(SoundType.NETHERITE_BLOCK).noOcclusion());
         registerDefaultState(defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, false));
     }
 

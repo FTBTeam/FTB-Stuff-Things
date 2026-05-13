@@ -13,8 +13,8 @@ import net.neoforged.neoforge.common.ItemAbility;
 import java.util.function.Consumer;
 
 public class HammerItem extends Item {
-    public HammerItem(ToolMaterial material) {
-        super(new Properties().stacksTo(1).tool(
+    public HammerItem(Properties properties, ToolMaterial material) {
+        super(properties.stacksTo(1).tool(
                 material, FTBStuffTags.Blocks.MINEABLE_WITH_HAMMER,
                 1F, -2.8F, 0F)
         );
