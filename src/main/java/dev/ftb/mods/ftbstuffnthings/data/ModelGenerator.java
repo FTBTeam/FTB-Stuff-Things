@@ -67,16 +67,21 @@ public class ModelGenerator extends ModelProvider {
         return Stream.empty();
     }
 
+    // Template slots
     private static final TextureSlot SLOT_0 = TextureSlot.create("0");
 
+    // Model templates
     private static final ModelTemplate SLUICE_BODY_TEMPLATE = simpleBlockTemplate("sluice_body", SLOT_0);
     private static final ModelTemplate SLUICE_FRONT_TEMPLATE = simpleBlockTemplate("sluice_front", SLOT_0);
+
+    private static final ModelTemplate MESH_TEMPLATE = simpleBlockTemplate("mesh", SLOT_0);
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         BlocksRegistry.ALL_SLUICES.forEach(e -> this.registerSluice(blockModels, e));
-
+        registerMeshes(blockModels);
         registerPump(blockModels);
+        registerGenerators(blockModels);
 
         if (true) {
             return;
@@ -211,6 +216,12 @@ public class ModelGenerator extends ModelProvider {
 //        BlocksRegistry.allCompressedBlocks().forEach(db -> simpleBlockItem(db.get()));
     }
 
+    private void registerGenerators(BlockModelGenerators blockModels) {
+        Stream.of("cobblestone", "basalt").forEach(type -> {
+
+        });
+    }
+
     void registerSluice(BlockModelGenerators generators, DeferredBlock<SluiceBlock> block) {
         String type = block.get().getSluiceType().getSerializedName();
         Material texture = blockMaterial("/sluice/" + type + "_sluice");
@@ -246,7 +257,18 @@ public class ModelGenerator extends ModelProvider {
         generators.blockStateOutput.accept(generator);
     }
 
+    private void registerMeshes(BlockModelGenerators generators) {
+        for (MeshType meshType : MeshType.values()) {
+            var typeName = meshType.getSerializedName();
+
+            generators.itemModelOutput.accept(meshType.asItem(), ItemModelUtils.plainModel(modId.item(typeName + "_mesh")));
+            applyTemplate(MESH_TEMPLATE, typeName + "_mesh", SLOT_0, blockMaterial("mesh/" + typeName), generators);
+        }
+    }
+
     private void registerPump(BlockModelGenerators generators) {
+        fromBlock(generators, ItemsRegistry.PUMP, "block/pump_off");
+
         MultiPartGenerator generator = MultiPartGenerator.multiPart(BlocksRegistry.PUMP.get());
 
         for (DirRotation horizontal : HORIZONTALS) {
