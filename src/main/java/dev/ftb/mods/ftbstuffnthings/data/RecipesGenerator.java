@@ -154,14 +154,15 @@ public class RecipesGenerator extends RecipeProvider {
         waterStrainer(BlocksRegistry.SPRUCE_STRAINER, Blocks.SPRUCE_PLANKS, output);
         waterStrainer(BlocksRegistry.WARPED_STRAINER, Blocks.WARPED_PLANKS, output);
 
-//        for (MeshType type : MeshType.NON_EMPTY_VALUES) {
-//            shaped(type.createItemStack().getItem(), Items.STRING,
-//                    "SIS/ICI/SIS",
-//                    'S', Tags.Items.RODS_WOODEN,
-//                    'I', type.getIngredientTag(),
-//                    'C', Tags.Items.STRINGS
-//            ).save(output);
-//        }
+        for (MeshType type : MeshType.NON_EMPTY_VALUES) {
+            shaped(type.asItem(), Items.STRING,
+                    "SIS/ICI/SIS",
+                    'S', Tags.Items.RODS_WOODEN,
+                    'I', type.getIngredientTag(),
+                    'C', Tags.Items.STRINGS
+            ).save(output);
+        }
+
         woodSluice(BlocksRegistry.OAK_SLUICE, Blocks.OAK_LOG, output);
         woodSluice(BlocksRegistry.SPRUCE_SLUICE, Blocks.SPRUCE_LOG, output);
         woodSluice(BlocksRegistry.BIRCH_SLUICE, Blocks.BIRCH_LOG, output);

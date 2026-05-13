@@ -10,6 +10,7 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredItem;
 import org.jspecify.annotations.Nullable;
@@ -50,6 +51,10 @@ public enum MeshType implements StringRepresentable {
 
     public ItemStack createItemStack() {
         return meshItem == null ? ItemStack.EMPTY : meshItem.toStack();
+    }
+
+    public Item asItem() {
+        return meshItem == null ? Items.AIR : meshItem.get();
     }
 
     public @Nullable TagKey<Item> getIngredientTag() {
