@@ -8,6 +8,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredItem;

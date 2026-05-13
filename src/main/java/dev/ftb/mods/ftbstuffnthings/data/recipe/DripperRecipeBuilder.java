@@ -10,16 +10,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import org.apache.commons.lang3.Validate;
 
 public class DripperRecipeBuilder extends BaseRecipeBuilder<DripperRecipe> {
     private final String inputStateStr;
     private final String outputStateStr;
-    private final FluidStack fluid;
+    private final FluidStackTemplate fluid;
     private double chance = 1.0;
     private boolean consumeFluidOnFail = false;
 
-    public DripperRecipeBuilder(String inputStateStr, String outputStateStr, FluidStack fluid) {
+    public DripperRecipeBuilder(String inputStateStr, String outputStateStr, FluidStackTemplate fluid) {
         this.inputStateStr = inputStateStr;
         this.outputStateStr = outputStateStr;
         this.fluid = fluid;

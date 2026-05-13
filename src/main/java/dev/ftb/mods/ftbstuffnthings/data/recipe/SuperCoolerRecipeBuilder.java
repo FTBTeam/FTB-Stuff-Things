@@ -17,9 +17,9 @@ public class SuperCoolerRecipeBuilder extends BaseRecipeBuilder<SuperCoolerRecip
     private final SizedFluidIngredient fluidInput;
     private final int fePerTick;
     private final int ticks;
-    private final ItemStack result;
+    private final ItemStackTemplate result;
 
-    public SuperCoolerRecipeBuilder(List<Ingredient> itemInputs, SizedFluidIngredient fluidInput, int fePerTick, int ticks, ItemStack result) {
+    public SuperCoolerRecipeBuilder(List<Ingredient> itemInputs, SizedFluidIngredient fluidInput, int fePerTick, int ticks, ItemStackTemplate result) {
         this.itemInputs = itemInputs;
         this.fluidInput = fluidInput;
         this.fePerTick = fePerTick;
@@ -29,7 +29,7 @@ public class SuperCoolerRecipeBuilder extends BaseRecipeBuilder<SuperCoolerRecip
 
     @Override
     protected SuperCoolerRecipe buildRecipe() {
-        return new SuperCoolerRecipe(itemInputs, fluidInput, new EnergyRequirement(fePerTick, ticks), ItemStackTemplate.fromNonEmptyStack(result));
+        return new SuperCoolerRecipe(itemInputs, fluidInput, new EnergyRequirement(fePerTick, ticks), result);
     }
 
     @Override

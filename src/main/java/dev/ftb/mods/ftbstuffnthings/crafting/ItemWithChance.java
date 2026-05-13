@@ -26,6 +26,10 @@ public record ItemWithChance(ItemStackTemplate item, double chance) {
 		return new ItemWithChance(ItemStackTemplate.fromNonEmptyStack(stack), chance);
 	}
 
+	public static ItemWithChance create(ItemStackTemplate stack, double chance) {
+		return new ItemWithChance(stack, chance);
+	}
+
 	@Override
 	public String toString() {
 		return MoreObjects.toStringHelper(this)

@@ -104,7 +104,7 @@ public class DripperBlockEntity extends BlockEntity {
                 if (currentRecipe.isPresent()) {
                     DripperRecipe recipe = currentRecipe.get().value();
                     boolean success = false;
-                    if (tank.getAmountAsInt(0) >= recipe.getFluid().getAmount()) {
+                    if (tank.getAmountAsInt(0) >= recipe.getFluid().create().getAmount()) {
 						newActive = true;
 						if (serverLevel.getRandom().nextDouble() < recipe.getChance()) {
 							serverLevel.setBlock(getBlockPos().below(), recipe.getOutputState(), Block.UPDATE_ALL);

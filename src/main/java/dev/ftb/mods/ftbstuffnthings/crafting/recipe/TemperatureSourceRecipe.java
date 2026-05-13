@@ -17,6 +17,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -25,10 +27,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe> implements IHideableRecipe {
     public static final MapCodec<TemperatureSourceRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
@@ -38,7 +37,7 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
                     .forGetter(TemperatureSourceRecipe::getTemperature),
             Codec.DOUBLE.optionalFieldOf("efficiency", 1.0)
                     .forGetter(TemperatureSourceRecipe::getEfficiency),
-            ItemStack.OPTIONAL_CODEC.optionalFieldOf("display_item", ItemStack.EMPTY)
+            ItemStackTemplate.CODEC.optionalFieldOf("display_item")
                     .forGetter(TemperatureSourceRecipe::getDisplayStack),
             Codec.BOOL.optionalFieldOf("hide_from_jei", false)
                     .forGetter(TemperatureSourceRecipe::hideFromJEI)
@@ -48,7 +47,7 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
             ByteBufCodecs.STRING_UTF8, TemperatureSourceRecipe::getBlockStateStr,
             NeoForgeStreamCodecs.enumCodec(Temperature.class), TemperatureSourceRecipe::getTemperature,
             ByteBufCodecs.DOUBLE, TemperatureSourceRecipe::getEfficiency,
-            ItemStack.OPTIONAL_STREAM_CODEC, TemperatureSourceRecipe::getDisplayStack,
+            ByteBufCodecs.optional(ItemStackTemplate.STREAM_CODEC), TemperatureSourceRecipe::getDisplayStack,
             ByteBufCodecs.BOOL, TemperatureSourceRecipe::hideFromJEI,
             TemperatureSourceRecipe::new
     );
@@ -58,11 +57,11 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
     private final String blockStateStr;
     private final BlockState blockState;
     private final TemperatureAndEfficiency temperatureAndEfficiency;
-    private final ItemStack stack;
+    private final Optional<ItemStackTemplate> stack;
     private final boolean hideFromJEI;
     private final Map<String,String> predicates;
 
-    public TemperatureSourceRecipe(String blockStateStr, Temperature temperature, double efficiency, ItemStack stack, boolean hideFromJEI) {
+    public TemperatureSourceRecipe(String blockStateStr, Temperature temperature, double efficiency, Optional<ItemStackTemplate> stack, boolean hideFromJEI) {
         super(RecipesRegistry.TEMPERATURE_SOURCE_SERIALIZER, RecipesRegistry.TEMPERATURE_SOURCE_TYPE);
 
         this.temperatureAndEfficiency = new TemperatureAndEfficiency(temperature, efficiency);
@@ -93,7 +92,7 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
     public static @NotNull List<TemperatureSourceRecipe> sortRecipes(List<TemperatureSourceRecipe> l) {
         return l.stream().sorted(Comparator.comparing(TemperatureSourceRecipe::getTemperature)
                 .thenComparing(TemperatureSourceRecipe::getEfficiency)
-                .thenComparing(r -> r.getDisplayStack().getHoverName().getString())
+                .thenComparing(r -> r.getDisplayStack().map(ItemStackTemplate::create).orElse(ItemStack.EMPTY).getHoverName().getString())
         ).toList();
     }
 
@@ -114,8 +113,8 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
         return temperatureAndEfficiency.efficiency();
     }
 
-    public ItemStack getDisplayStack() {
-        return stack.isEmpty() ? new ItemStack(blockState.getBlock()) : stack;
+    public Optional<ItemStackTemplate> getDisplayStack() {
+        return stack;
     }
 
     public boolean hideFromJEI() {

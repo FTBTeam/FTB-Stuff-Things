@@ -6,8 +6,8 @@ import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
-import net.minecraft.client.data.models.model.ModelTemplates;
-import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.data.models.model.*;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
@@ -17,6 +17,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ModelGenerator extends ModelProvider {
     private static final Identifier GENERATED = Identifier.parse("item/generated");
@@ -149,22 +150,22 @@ public class ModelGenerator extends ModelProvider {
         simpleItem(itemModels, ItemsRegistry.CROOK, "item/stone_crook");
         simpleItem(itemModels, ItemsRegistry.STONE_ROD, "item/stone_rod");
 
-        itemModels.generateFlatItem(ItemsRegistry.OAK_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/oak_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/oak_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.SPRUCE_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/spruce_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/spruce_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.BIRCH_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/birch_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/birch_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.JUNGLE_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/jungle_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/jungle_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.ACACIA_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/acacia_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/acacia_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.DARK_OAK_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/dark_oak_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/dark_oak_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.MANGROVE_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/mangrove_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/mangrove_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.CHERRY_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/cherry_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/cherry_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.PALE_OAK_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/pale_oak_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/pale_oak_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.CRIMSON_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/crimson_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/crimson_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.WARPED_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/warped_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/warped_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.BAMBOO_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/bamboo_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/bamboo_sluice"));
-
-        itemModels.generateFlatItem(ItemsRegistry.IRON_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/iron_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/iron_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.DIAMOND_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/diamond_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/diamond_sluice"));
-        itemModels.generateFlatItem(ItemsRegistry.NETHERITE_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/netherite_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/netherite_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.OAK_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/oak_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/oak_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.SPRUCE_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/spruce_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/spruce_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.BIRCH_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/birch_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/birch_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.JUNGLE_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/jungle_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/jungle_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.ACACIA_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/acacia_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/acacia_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.DARK_OAK_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/dark_oak_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/dark_oak_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.MANGROVE_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/mangrove_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/mangrove_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.CHERRY_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/cherry_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/cherry_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.PALE_OAK_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/pale_oak_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/pale_oak_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.CRIMSON_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/crimson_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/crimson_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.WARPED_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/warped_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/warped_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.BAMBOO_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/bamboo_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/bamboo_sluice"));
+//
+//        itemModels.generateFlatItem(ItemsRegistry.IRON_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/iron_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/iron_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.DIAMOND_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/diamond_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/diamond_sluice"));
+//        itemModels.generateFlatItem(ItemsRegistry.NETHERITE_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/netherite_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/netherite_sluice"));
 
 //        BlocksRegistry.allCompressedBlocks().forEach(db -> simpleBlockItem(db.get()));
     }
@@ -178,12 +179,19 @@ public class ModelGenerator extends ModelProvider {
     }
 
     private void simpleItem(ItemModelGenerators itemModels, Item item, String... textures) {
-        List<TextureSlot> slots = new ArrayList<>();
+        Identifier modelId = ModelLocationUtils.getModelLocation(item);
+
+        TextureMapping mapping = new TextureMapping();
+        TextureSlot[] layers = new TextureSlot[textures.length];
         for (int i = 0; i < textures.length; i++) {
-            slots.add(TextureSlot.create("layer" + i));
+            layers[i] = TextureSlot.create("layer" + i);
+            mapping.put(layers[i], new Material(FTBStuffNThings.id(textures[i])));
         }
 
-        itemModels.generateFlatItem(item, ModelTemplates.create(slots.toArray(new TextureSlot[0])));
+        new ModelTemplate(Optional.of(Identifier.parse("item/generated")), Optional.empty(), layers)
+                .create(modelId, mapping, itemModels.modelOutput);
+
+        itemModels.itemModelOutput.accept(item, ItemModelUtils.plainModel(modelId));
     }
 
 //    private void makeSluice(String type) {

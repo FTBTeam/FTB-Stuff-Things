@@ -7,6 +7,8 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 
 public class TemperatureSourceCategory extends BaseStuffCategory<TemperatureSourceRecipe> {
     protected TemperatureSourceCategory() {
@@ -25,9 +27,13 @@ public class TemperatureSourceCategory extends BaseStuffCategory<TemperatureSour
                 .addRichTooltipCallback((recipeSlotView, tooltip) ->
                         tooltip.add(Component.translatable("ftbstuff.efficiency", recipe.getTemperatureAndEfficiency().formatEfficiency())));
 
-        if (!recipe.getDisplayStack().isEmpty()) {
+        ItemStack itemStack = recipe.getDisplayStack()
+                .map(ItemStackTemplate::create)
+                .orElse(ItemStack.EMPTY);
+
+        if (!itemStack.isEmpty()) {
             builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 3, 7)
-                    .add(VanillaTypes.ITEM_STACK, recipe.getDisplayStack());
+                    .add(VanillaTypes.ITEM_STACK, itemStack);
         }
     }
 }

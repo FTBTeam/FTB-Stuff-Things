@@ -13,6 +13,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class DripperCategory extends BaseStuffCategory<DripperRecipe> {
 	public DripperCategory() {
@@ -37,9 +38,10 @@ public class DripperCategory extends BaseStuffCategory<DripperRecipe> {
 						.ifRight(fluid -> inputBuilder.add(fluid, 1000L))
 		);
 
+		FluidStack fluid = recipe.getFluid().create();
 		builder.addSlot(RecipeIngredientRole.INPUT, 3, 7)
-				.add(NeoForgeTypes.FLUID_STACK, recipe.getFluid())
-				.setOverlay(new FluidAmountDrawable(recipe.getFluid().getAmount()), 0, 0)
+				.add(NeoForgeTypes.FLUID_STACK, fluid)
+				.setOverlay(new FluidAmountDrawable(fluid.getAmount()), 0, 0)
 				.addRichTooltipCallback((recipeSlotView, tooltipBuilder) -> addTooltipInfo(recipe, tooltipBuilder));
 	}
 

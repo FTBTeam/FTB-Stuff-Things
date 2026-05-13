@@ -8,6 +8,7 @@ import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
@@ -40,8 +41,8 @@ public class SluiceRecipeBuilder extends BaseRecipeBuilder<SluiceRecipe> {
         return this;
     }
 
-    public SluiceRecipeBuilder fluid(FluidStack fluid) {
-        this.fluid = SizedFluidIngredient.of(fluid.getFluid(), fluid.amount());
+    public SluiceRecipeBuilder fluid(Fluid fluid, int amount) {
+        this.fluid = SizedFluidIngredient.of(fluid, amount);
         return this;
     }
 

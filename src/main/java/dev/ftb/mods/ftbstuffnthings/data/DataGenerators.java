@@ -17,12 +17,12 @@ import java.util.concurrent.CompletableFuture;
 public class DataGenerators {
     @SubscribeEvent
     public static void gatherData(GatherDataEvent.Client event) {
-        event.createProvider(ModelsGenerator::new);
+//        event.createProvider(ModelsGenerator::new);
         event.createProvider(I18nGenerator::new);
 
 //        generator.addProvider(new BlockModelsGenerator(packOutput));
 //        generator.addProvider(new BlockStatesGenerators(packOutput));
-        event.createProvider(ModelGenerator::new);
+//        event.createProvider(ModelGenerator::new);
 
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 

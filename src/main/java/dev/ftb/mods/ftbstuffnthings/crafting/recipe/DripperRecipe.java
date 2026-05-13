@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class DripperRecipe extends BaseRecipe<DripperRecipe> {
 	public static final MapCodec<DripperRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
 			Codec.STRING.fieldOf("input").forGetter(DripperRecipe::getInputStateStr),
 			Codec.STRING.fieldOf("output").forGetter(DripperRecipe::getOutputStateStr),
-			FluidStack.CODEC.fieldOf("fluid").forGetter(DripperRecipe::getFluid),
+			FluidStackTemplate.CODEC.fieldOf("fluid").forGetter(DripperRecipe::getFluid),
 			Codec.DOUBLE.validate(MiscUtil::validateChanceRange).optionalFieldOf("chance", 1.0).forGetter(DripperRecipe::getChance),
 			Codec.BOOL.optionalFieldOf("consume_fluid_on_fail", false).forGetter(DripperRecipe::consumeFluidOnFail)
 	).apply(builder, DripperRecipe::new));
@@ -46,7 +47,7 @@ public class DripperRecipe extends BaseRecipe<DripperRecipe> {
 	private static final StreamCodec<RegistryFriendlyByteBuf, DripperRecipe> STREAM_CODEC = StreamCodec.composite(
 			ByteBufCodecs.STRING_UTF8, DripperRecipe::getInputStateStr,
 			ByteBufCodecs.STRING_UTF8, DripperRecipe::getOutputStateStr,
-			FluidStack.STREAM_CODEC, DripperRecipe::getFluid,
+			FluidStackTemplate.STREAM_CODEC, DripperRecipe::getFluid,
 			ByteBufCodecs.DOUBLE, DripperRecipe::getChance,
 			ByteBufCodecs.BOOL, DripperRecipe::consumeFluidOnFail,
 			DripperRecipe::new
@@ -58,11 +59,11 @@ public class DripperRecipe extends BaseRecipe<DripperRecipe> {
 	private final BlockPredicateArgument.Result inputPredicate;
 	private final String outputString;
 	private final BlockState outputState;
-	private final FluidStack fluid;
+	private final FluidStackTemplate fluid;
 	private final double chance;
 	private final boolean consumeFluidOnFail;
 
-	public DripperRecipe(String inputStateStr, String outputStateStr, FluidStack fluid, double chance, boolean consumeFluidOnFail) {
+	public DripperRecipe(String inputStateStr, String outputStateStr, FluidStackTemplate fluid, double chance, boolean consumeFluidOnFail) {
 		super(RecipesRegistry.DRIP_SERIALIZER, RecipesRegistry.DRIP_TYPE);
 
 		this.inputStateStr = inputStateStr;
@@ -139,7 +140,7 @@ public class DripperRecipe extends BaseRecipe<DripperRecipe> {
 		return consumeFluidOnFail;
 	}
 
-	public FluidStack getFluid() {
+	public FluidStackTemplate getFluid() {
 		return fluid;
 	}
 
