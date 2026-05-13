@@ -40,7 +40,7 @@ public class SluiceCategory extends BaseStuffCategory<SluiceRecipe> {
                 .add(recipe.getIngredient());
 
         builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 5, 24)
-                .addItemStacks(recipe.getMeshTypes().stream().map(MeshType::getItemStack).toList());
+                .addItemStacks(recipe.getMeshTypes().stream().map(MeshType::createItemStack).toList());
 
         List<FluidStack> fluidStacks = recipe.getFluid().map(MiscUtil::getFluidsForSizedIngredient).orElse(List.of());
         builder.addSlot(RecipeIngredientRole.INPUT, 5, 42)

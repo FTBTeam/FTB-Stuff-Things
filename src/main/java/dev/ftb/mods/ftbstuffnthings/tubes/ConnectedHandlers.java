@@ -5,31 +5,33 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public record ConnectedHandlers(List<BlockCapabilityCache<IItemHandler, Direction>> itemHandlers,
-                                List<BlockCapabilityCache<IFluidHandler, Direction>> fluidHandlers) {
+public record ConnectedHandlers(List<BlockCapabilityCache<ResourceHandler<ItemResource>, Direction>> itemHandlers,
+                                List<BlockCapabilityCache<ResourceHandler<FluidResource>, Direction>> fluidHandlers) {
     public static ConnectedHandlers create() {
         return new ConnectedHandlers(new ArrayList<>(), new ArrayList<>());
     }
 
     public void checkAndAddHandlers(ServerLevel level, BlockPos pos, Direction dir) {
-        if (level.getCapability(Capabilities.ItemHandler.BLOCK, pos, dir) != null) {
-            itemHandlers.add(BlockCapabilityCache.create(Capabilities.ItemHandler.BLOCK, level, pos, dir));
+        if (level.getCapability(Capabilities.Item.BLOCK, pos, dir) != null) {
+            itemHandlers.add(BlockCapabilityCache.create(Capabilities.Item.BLOCK, level, pos, dir));
         }
-        if (level.getCapability(Capabilities.FluidHandler.BLOCK, pos, dir) != null) {
-            fluidHandlers.add(BlockCapabilityCache.create(Capabilities.FluidHandler.BLOCK, level, pos, dir));
+        if (level.getCapability(Capabilities.Fluid.BLOCK, pos, dir) != null) {
+            fluidHandlers.add(BlockCapabilityCache.create(Capabilities.Fluid.BLOCK, level, pos, dir));
         }
     }
 
@@ -50,68 +52,70 @@ public record ConnectedHandlers(List<BlockCapabilityCache<IItemHandler, Directio
     public boolean distributeOutputs(BlockEntity jar, JarRecipe recipe) {
         List<ItemStack> excessItems = new ArrayList<>();
 
-        for (ItemStack stack : recipe.getOutputItems()) {
-            int remaining = stack.getCount();
+        for (ItemStackTemplate template : recipe.getOutputItems()) {
+            int remaining = template.count();
             for (var handler : itemHandlers) {
                 if (handler.getCapability() != null) {
-                    ItemStack excess = ItemHandlerHelper.insertItem(handler.getCapability(), stack.copy(), false);
-                    remaining -= stack.getCount() - excess.getCount();
+                    ItemStack excess = ItemUtil.insertItemReturnRemaining(handler.getCapability(), template.create(), false, null);
+                    remaining -= template.count() - excess.getCount();
                     if (remaining <= 0) {
                         break;
                     }
                 }
             }
             if (remaining > 0) {
-                excessItems.add(stack.copy());
+                excessItems.add(template.create());
             }
         }
 
         return false;
     }
 
-    private void findFluid(SizedFluidIngredient ingredient, ExtractionContext context) {
-        int remaining = ingredient.amount();
+    // TODO needs to be redone if we ever add tube networks back...
 
-        for (var fluidCaches : fluidHandlers) {
-            IFluidHandler handler = fluidCaches.getCapability();
-            if (handler != null) {
-                FluidStack stack = handler.drain(remaining, IFluidHandler.FluidAction.SIMULATE);
-                if (ingredient.ingredient().test(stack)) {
-                    remaining -= stack.getAmount();
-                    context.addFluidSource(handler, stack);
-                    if (remaining <= 0) {
-                        break;
-                    }
-                }
-            }
-        }
-        if (remaining > 0) {
-            context.markInsufficient();
-        }
+    private void findFluid(SizedFluidIngredient ingredient, ExtractionContext context) {
+//        int remaining = ingredient.amount();
+//
+//        for (var fluidCaches : fluidHandlers) {
+//            var handler = fluidCaches.getCapability();
+//            if (handler != null) {
+//                FluidStack stack = handler.drain(remaining, IFluidHandler.FluidAction.SIMULATE);
+//                if (ingredient.ingredient().test(stack)) {
+//                    remaining -= stack.getAmount();
+//                    context.addFluidSource(handler, stack);
+//                    if (remaining <= 0) {
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        if (remaining > 0) {
+//            context.markInsufficient();
+//        }
     }
 
     private void findItem(SizedIngredient ingredient, ExtractionContext context) {
-        int remaining = ingredient.count();
-
-        for (var itemCaches : itemHandlers) {
-            IItemHandler handler = itemCaches.getCapability();
-            if (handler != null) {
-                for (int i = 0; i < handler.getSlots(); i++) {
-                    ItemStack stack = handler.extractItem(i, remaining, true);
-                    if (ingredient.ingredient().test(stack)) {
-                        remaining -= stack.getCount();
-                        context.addItemSource(handler, stack, i);
-                        if (remaining <= 0) {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (remaining > 0) {
-            context.markInsufficient();
-        }
+//        int remaining = ingredient.count();
+//
+//        for (var itemCaches : itemHandlers) {
+//            IItemHandler handler = itemCaches.getCapability();
+//            if (handler != null) {
+//                for (int i = 0; i < handler.getSlots(); i++) {
+//                    ItemStack stack = handler.extractItem(i, remaining, true);
+//                    if (ingredient.ingredient().test(stack)) {
+//                        remaining -= stack.getCount();
+//                        context.addItemSource(handler, stack, i);
+//                        if (remaining <= 0) {
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (remaining > 0) {
+//            context.markInsufficient();
+//        }
     }
 
     public static class ExtractionContext {
@@ -131,11 +135,11 @@ public record ConnectedHandlers(List<BlockCapabilityCache<IItemHandler, Directio
             insufficient = true;
         }
 
-        public void addFluidSource(IFluidHandler handler, FluidStack fluidStack) {
+        public void addFluidSource(ResourceHandler<FluidResource> handler, FluidStack fluidStack) {
             fluidSources.add(new FluidSource(handler, fluidStack));
         }
 
-        public void addItemSource(IItemHandler handler, ItemStack itemStack, int slot) {
+        public void addItemSource(ResourceHandler<ItemResource> handler, ItemStack itemStack, int slot) {
             itemSources.add(new ItemSource(handler, itemStack, slot));
         }
 
@@ -147,9 +151,9 @@ public record ConnectedHandlers(List<BlockCapabilityCache<IItemHandler, Directio
         }
     }
 
-    private record FluidSource(IFluidHandler handler, FluidStack fluidStack) {
+    private record FluidSource(ResourceHandler<FluidResource> handler, FluidStack fluidStack) {
     }
 
-    private record ItemSource(IItemHandler handler, ItemStack itemStack, int slot) {
+    private record ItemSource(ResourceHandler<ItemResource> handler, ItemStack itemStack, int slot) {
     }
 }

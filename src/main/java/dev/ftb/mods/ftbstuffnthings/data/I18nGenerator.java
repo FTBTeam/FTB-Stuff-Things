@@ -132,7 +132,7 @@ public class I18nGenerator extends LanguageProvider {
         addBlock(BlocksRegistry.WARPED_STRAINER, "Warped Water Strainer");
         addBlock(BlocksRegistry.BAMBOO_SLUICE, "Bamboo Sluice");
 
-        addBlock(BlocksRegistry.TUBE, "Cast Iron Tube");
+//        addBlock(BlocksRegistry.TUBE, "Cast Iron Tube");
         addBlock(BlocksRegistry.JAR, "Glass Jar");
         addBlock(BlocksRegistry.TEMPERED_JAR, "Tempered Glass Jar");
         addBlock(BlocksRegistry.JAR_AUTOMATER, "Jar Automater");

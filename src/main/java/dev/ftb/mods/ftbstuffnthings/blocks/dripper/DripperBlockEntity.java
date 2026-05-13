@@ -1,6 +1,5 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.dripper;
 
-import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.DripperRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
@@ -15,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -132,9 +132,9 @@ public class DripperBlockEntity extends BlockEntity {
 		return Objects.hash(fluidHash, blockBelow);
 	}
 
-	private Optional<RecipeHolder<DripperRecipe>> searchForRecipe(ServerLevel serverLevel) {
-		return RecipesRegistry.DRIP_TYPE.get().streamRecipes(serverLevel)
-				.filter(r -> r.value().testInput(FluidUtil.getStack(tank, 0), serverLevel, getBlockPos().below()))
+	private Optional<RecipeHolder<DripperRecipe>> searchForRecipe(Level level) {
+		return RecipesRegistry.DRIP_TYPE.get().streamRecipes(level)
+				.filter(r -> r.value().testInput(FluidUtil.getStack(tank, 0), level, getBlockPos().below()))
 				.findFirst();
 	}
 }

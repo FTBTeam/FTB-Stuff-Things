@@ -136,8 +136,8 @@ public class BlocksRegistry {
             = BLOCKS.register("fusing_machine", FusingMachineBlock::new);
     public static final DeferredBlock<SuperCoolerBlock> SUPER_COOLER
             = BLOCKS.register("super_cooler", SuperCoolerBlock::new);
-    public static final DeferredBlock<TubeBlock> TUBE
-            = BLOCKS.register("tube", TubeBlock::new);
+//    public static final DeferredBlock<TubeBlock> TUBE
+//            = BLOCKS.register("tube", TubeBlock::new);
     public static final DeferredBlock<JarBlock> JAR
             = BLOCKS.register("jar", JarBlock::new);
     public static final DeferredBlock<TemperedJarBlock> TEMPERED_JAR

@@ -205,7 +205,7 @@ public class AutoHammerBlockEntity extends BlockEntity {
         }
     }
 
-    public static Optional<HammerRecipe> getRecipeForStack(ServerLevel level, ItemStack inputStack) {
+    public static Optional<HammerRecipe> getRecipeForStack(Level level, ItemStack inputStack) {
         if (inputStack.isEmpty()) {
             return Optional.empty();
         }
@@ -215,7 +215,7 @@ public class AutoHammerBlockEntity extends BlockEntity {
         ).map(RecipeHolder::value);
     }
 
-    public static Optional<RecipeHolder<HammerRecipe>> searchForRecipe(ServerLevel level, ItemStack stack) {
+    public static Optional<RecipeHolder<HammerRecipe>> searchForRecipe(Level level, ItemStack stack) {
         return RecipesRegistry.HAMMER_TYPE.get().streamRecipes(level)
                 .filter(r -> r.value().getIngredient().test(stack))
                 .findFirst();

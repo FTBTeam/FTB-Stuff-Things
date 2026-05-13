@@ -25,6 +25,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -137,9 +138,9 @@ public class WoodenBasinBlockEntity extends BlockEntity {
         return Objects.hash(blockAbove);
     }
 
-    private Optional<RecipeHolder<WoodenBasinRecipe>> searchForRecipe(ServerLevel serverLevel) {
-        return serverLevel.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.WOODEN_BASIN_TYPE.get(), NoInventory.INSTANCE, serverLevel)
-                .filter(r -> r.value().testInput(new BlockInWorld(serverLevel, getBlockPos().above(), true)))
+    private Optional<RecipeHolder<WoodenBasinRecipe>> searchForRecipe(Level level) {
+        return RecipesRegistry.WOODEN_BASIN_TYPE.get().streamRecipes(level)
+                .filter(r -> r.value().testInput(new BlockInWorld(level, getBlockPos().above(), true)))
                 .findFirst();
     }
 

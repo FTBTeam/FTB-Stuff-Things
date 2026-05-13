@@ -4,7 +4,6 @@ import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.TickTask;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public interface RecipeCaches {
@@ -31,7 +30,7 @@ public interface RecipeCaches {
 
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server != null) {
-            server.doRunTask(new TickTask(server.getTickCount(),
+            server.schedule(server.wrapRunnable(
                     () -> server.getPlayerList().getPlayers().forEach(FTBStuffNThings::syncLootSummaries)
             ));
         }

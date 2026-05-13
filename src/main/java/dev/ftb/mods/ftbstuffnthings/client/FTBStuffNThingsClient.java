@@ -1,7 +1,6 @@
 package dev.ftb.mods.ftbstuffnthings.client;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
-import dev.ftb.mods.ftbstuffnthings.client.model.TubeModel;
 import dev.ftb.mods.ftbstuffnthings.client.render.*;
 import dev.ftb.mods.ftbstuffnthings.client.screens.FusingMachineScreen;
 import dev.ftb.mods.ftbstuffnthings.client.screens.SuperCoolerScreen;
@@ -85,7 +84,8 @@ public class FTBStuffNThingsClient {
     }
 
     private void registerModelLoaders(ModelEvent.RegisterLoaders event) {
-        event.register(TubeModel.Loader.ID, TubeModel.Loader.INSTANCE);
+        // TODO tubes aren't in right now but uncomment this if they're added back
+//        event.register(TubeModel.Loader.ID, TubeModel.Loader.INSTANCE);
     }
 
     private void registerScreens(RegisterMenuScreensEvent event) {

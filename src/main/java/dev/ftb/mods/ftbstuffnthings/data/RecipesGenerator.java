@@ -15,7 +15,6 @@ import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -155,7 +154,7 @@ public class RecipesGenerator extends RecipeProvider {
         waterStrainer(BlocksRegistry.WARPED_STRAINER, Blocks.WARPED_PLANKS, output);
 
         for (MeshType type : MeshType.NON_EMPTY_VALUES) {
-            shaped(type.getItemStack().getItem(), Items.STRING,
+            shaped(type.createItemStack().getItem(), Items.STRING,
                     "SIS/ICI/SIS",
                     'S', Tags.Items.RODS_WOODEN,
                     'I', type.getIngredientTag(),

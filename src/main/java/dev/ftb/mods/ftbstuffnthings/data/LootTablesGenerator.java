@@ -18,14 +18,16 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.ValidationContext;
+import net.minecraft.world.level.storage.loot.ValidationContextSource;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -44,7 +46,7 @@ public class LootTablesGenerator extends LootTableProvider {
     }
 
     @Override
-    protected void validate(WritableRegistry<LootTable> writableregistry, ValidationContext validationcontext, ProblemReporter.Collector problemreporter$collector) {
+    protected void validate(WritableRegistry<LootTable> tables, ValidationContextSource validationContext, ProblemReporter.Collector problems) {
 
     }
 
@@ -89,13 +91,13 @@ public class LootTablesGenerator extends LootTableProvider {
 
         private void addStandardSerializedDrop(Block block, Identifier blockId) {
             LootPoolSingletonContainer.Builder<?> lootBuilder = LootItem.lootTableItem(block)
-                    .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY));
+                    .apply(CopyNameFunction.copyName(LootContext.BlockEntityTarget.BLOCK_ENTITY));
 
             if (block instanceof SerializableComponentsProvider scp) {
                 List<DataComponentType<?>> components = new ArrayList<>();
                 scp.addSerializableComponents(components);
                 if (!components.isEmpty()) {
-                    CopyComponentsFunction.Builder compBuilder = CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY);
+                    CopyComponentsFunction.Builder compBuilder = CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY);
                     components.forEach(compBuilder::include);
                     lootBuilder.apply(compBuilder);
                 }

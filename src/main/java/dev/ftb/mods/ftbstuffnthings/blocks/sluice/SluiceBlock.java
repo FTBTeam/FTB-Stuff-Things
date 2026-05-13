@@ -1,9 +1,9 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.sluice;
 
 import com.mojang.datafixers.util.Pair;
-import dev.ftb.mods.ftbstuffnthings.ModConfig;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
+import dev.ftb.mods.ftbstuffnthings.ModConfig;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.SerializableComponentsProvider;
 import dev.ftb.mods.ftbstuffnthings.items.MeshItem;
@@ -12,25 +12,25 @@ import dev.ftb.mods.ftbstuffnthings.registry.ComponentsRegistry;
 import dev.ftb.mods.ftbstuffnthings.util.TextUtil;
 import dev.ftb.mods.ftbstuffnthings.util.VoxelShapeUtils;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,15 +44,16 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.Lazy;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
@@ -166,11 +167,11 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (player.isShiftKeyDown()) {
             if (state.getValue(MESH) != MeshType.EMPTY) {
-                ItemStack current = state.getValue(MESH).getItemStack();
-                level.setBlock(pos, state.setValue(MESH, MeshType.EMPTY), 3);
+                ItemStack meshStack = state.getValue(MESH).createItemStack();
+                level.setBlock(pos, state.setValue(MESH, MeshType.EMPTY), Block.UPDATE_ALL);
 
                 if (!level.isClientSide()) {
-                    ItemHandlerHelper.giveItemToPlayer(player, current);
+                    player.getInventory().placeItemBackInInventory(meshStack);
                 }
 
                 return InteractionResult.SUCCESS;
@@ -183,51 +184,54 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (state.getValue(PART) == Part.FUNNEL || !(level.getBlockEntity(pos) instanceof SluiceBlockEntity sluice)) {
-            return ItemInteractionResult.FAIL;
+            return InteractionResult.FAIL;
         }
-        if (level.isClientSide) {
-            return ItemInteractionResult.SUCCESS;
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
         if (stack.isEmpty()) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.PASS;
         }
 
         if (stack.is(FTBStuffTags.Items.MESHES)) {
             if (stack.getItem() instanceof MeshItem meshItem) {
                 if (isMeshCompatibleWith(meshItem.mesh)) {
-                    ItemStack current = state.getValue(MESH).getItemStack();
+                    ItemStack meshStack = state.getValue(MESH).createItemStack();
                     level.setBlock(pos, state.setValue(MESH, meshItem.mesh), Block.UPDATE_ALL);
                     if (!player.isCreative()) {
                         stack.shrink(1);
-                        ItemHandlerHelper.giveItemToPlayer(player, current);
+                        player.getInventory().placeItemBackInInventory(meshStack);
                     }
                 } else {
-                    player.displayClientMessage(Component.translatable("ftbstuff.wrong_mesh").withStyle(ChatFormatting.GOLD), true);
-                    return ItemInteractionResult.FAIL;
+                    player.sendOverlayMessage(Component.translatable("ftbstuff.wrong_mesh").withStyle(ChatFormatting.GOLD));
+                    return InteractionResult.FAIL;
                 }
             } else {
                 FTBStuffNThings.LOGGER.error("item {} wrongly added added to item tag {} (not a MeshItem)!", stack.getHoverName().getString(), FTBStuffTags.Items.MESHES);
-                return ItemInteractionResult.FAIL;
+                return InteractionResult.FAIL;
             }
-        } else if (stack.getItem() instanceof BucketItem || stack.getCapability(Capabilities.FluidHandler.ITEM) != null) {
-            FluidUtil.interactWithFluidHandler(player, hand, Objects.requireNonNull(sluice.getFluidHandler()));
+        } else if (stack.getItem() instanceof BucketItem || stack.getCapability(Capabilities.Fluid.ITEM, null) != null) {
+            FluidUtil.interactWithFluidHandler(player, hand, pos, sluice.getFluidHandler(hitResult.getDirection()));
         } else {
-            // Right, the player is trying to insert an item into the sluice
+            // player is trying to insert an item into the sluice
             sluice.getRecipeFor(stack).ifPresent(recipe -> {
-                IItemHandler handler = Objects.requireNonNull(sluice.getItemHandler());
-                ItemStack excess = handler.insertItem(0, stack.copyWithCount(1), false);
-                if (excess.isEmpty()) {
-                    sluice.setChanged();
-                    sluice.syncItemToClients();
-                    if (!player.isCreative()) {
-                        stack.shrink(1);
+                var handler = Objects.requireNonNull(sluice.getItemHandler());
+                try (Transaction tx = Transaction.openRoot()) {
+                    int inserted = handler.insert(ItemResource.of(stack), 1, tx);
+                    if (inserted == 1) {
+                        sluice.setChanged();
+                        sluice.syncItemToClients();
+                        if (!player.isCreative()) {
+                            stack.shrink(1);
+                        }
+                        tx.commit();
                     }
                 }
             });
         }
 
-        return ItemInteractionResult.CONSUME;
+        return InteractionResult.CONSUME;
     }
 
     private boolean isMeshCompatibleWith(MeshType type) {
@@ -249,82 +253,42 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
     }
 
     @Override
-    @Deprecated
-    public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor world, BlockPos pos, BlockPos facingPos) {
-        return super.updateShape(state, facing, facingState, world, pos, facingPos);
-    }
-
-    @Override
-    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, ItemStack toolStack, boolean willHarvest, FluidState fluid) {
         Direction direction = state.getValue(HORIZONTAL_FACING);
 
         // If you break the funnel, reject and break the main block for the player
         if (state.getValue(PART) == Part.FUNNEL) {
             BlockPos endPos = pos.relative(direction.getOpposite());
             if (level.getBlockState(endPos).getBlock() instanceof SluiceBlock) {
-                level.destroyBlock(endPos, !level.isClientSide);
+                level.destroyBlock(endPos, !level.isClientSide());
                 return false;
             }
         }
 
-        return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
+        return super.onDestroyedByPlayer(state, level, pos, player, toolStack, willHarvest, fluid);
     }
 
     @Override
-    @Deprecated
-    public void onRemove(BlockState state, Level world, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            Direction direction = state.getValue(HORIZONTAL_FACING);
-            BlockPos otherPos = pos.relative(state.getValue(PART) == Part.FUNNEL
-                    ? direction.getOpposite()
-                    : direction);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Direction direction = state.getValue(HORIZONTAL_FACING);
+        BlockPos otherPos = pos.relative(state.getValue(PART) == Part.FUNNEL
+                ? direction.getOpposite()
+                : direction);
 
-            // Don't act on the funnel
-            if (state.getValue(PART) != Part.FUNNEL) {
-                world.removeBlock(otherPos, false);
-                popResource(world, pos, state.getValue(MESH).getItemStack());
-
-                super.onRemove(state, world, pos, newState, isMoving);
-            }
-        } else {
-            super.onRemove(state, world, pos, newState, isMoving);
-        }
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag tooltipFlag) {
-        boolean isShift = Screen.hasShiftDown();
-
-        if (isShift) {
-            tooltip.add(Component.translatable("ftbstuff.sluice.props.processing_time",
-                    Component.literal(props.get().timeMod().get() + "").withStyle(TextUtil.COLOUR_HIGHLIGHT))
-                    .withStyle(ChatFormatting.GRAY)
-            );
-            tooltip.add(Component.translatable("ftbstuff.sluice.props.fluid_usage",
-                            Component.literal(props.get().fluidMod().get() + "").withStyle(TextUtil.COLOUR_HIGHLIGHT))
-                    .withStyle(ChatFormatting.GRAY)
-            );
-            tooltip.add(Component.translatable("ftbstuff.sluice.props.tank",
-                            Component.literal(props.get().tankCap().get() + "").withStyle(TextUtil.COLOUR_HIGHLIGHT))
-                    .withStyle(ChatFormatting.GRAY)
-            );
-            tooltip.add(Component.translatable("ftbstuff.sluice.props.auto",
-                    Component.translatable("ftbstuff.sluice.props.auto.item").withStyle(TextUtil.ofBoolean(props.get().itemIO().get())),
-                    Component.translatable("ftbstuff.sluice.props.auto.fluid").withStyle(TextUtil.ofBoolean(props.get().fluidIO().get()))
-            ).withStyle(ChatFormatting.GRAY));
-        } else {
-            tooltip.add(Component.translatable("ftbstuff.hold_shift").withStyle(ChatFormatting.GRAY));
+        // Don't act on the funnel
+        if (state.getValue(PART) != Part.FUNNEL) {
+            level.removeBlock(otherPos, false);
         }
     }
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack item) {
         super.setPlacedBy(level, pos, state, entity, item);
-        if (!level.isClientSide) {
-            BlockPos lv = pos.relative(state.getValue(HORIZONTAL_FACING));
-            level.setBlock(lv, state.setValue(PART, Part.FUNNEL), 3);
-            level.blockUpdated(pos, Blocks.AIR);
-            state.updateNeighbourShapes(level, pos, 3);
+
+        if (!level.isClientSide()) {
+            BlockPos otherPos = pos.relative(state.getValue(HORIZONTAL_FACING));
+            level.setBlockAndUpdate(otherPos, state.setValue(PART, Part.FUNNEL));
+            state.updateNeighbourShapes(level, pos, Block.UPDATE_ALL);
         }
     }
 
@@ -370,4 +334,39 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
             return this.name;
         }
     }
+
+    public static class SluiceBlockItem extends BlockItem {
+        public SluiceBlockItem(Block block, Properties properties) {
+            super(block, properties);
+        }
+
+        @Override
+        public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+            boolean isShift = Minecraft.getInstance().hasShiftDown();
+
+            SluiceProperties props = ((SluiceBlock) getBlock()).getProps();
+
+            if (isShift) {
+                builder.accept(Component.translatable("ftbstuff.sluice.props.processing_time",
+                                Component.literal(props.timeMod().get() + "").withStyle(TextUtil.COLOUR_HIGHLIGHT))
+                        .withStyle(ChatFormatting.GRAY)
+                );
+                builder.accept(Component.translatable("ftbstuff.sluice.props.fluid_usage",
+                                Component.literal(props.fluidMod().get() + "").withStyle(TextUtil.COLOUR_HIGHLIGHT))
+                        .withStyle(ChatFormatting.GRAY)
+                );
+                builder.accept(Component.translatable("ftbstuff.sluice.props.tank",
+                                Component.literal(props.tankCap().get() + "").withStyle(TextUtil.COLOUR_HIGHLIGHT))
+                        .withStyle(ChatFormatting.GRAY)
+                );
+                builder.accept(Component.translatable("ftbstuff.sluice.props.auto",
+                        Component.translatable("ftbstuff.sluice.props.auto.item").withStyle(TextUtil.ofBoolean(props.itemIO().get())),
+                        Component.translatable("ftbstuff.sluice.props.auto.fluid").withStyle(TextUtil.ofBoolean(props.fluidIO().get()))
+                ).withStyle(ChatFormatting.GRAY));
+            } else {
+                builder.accept(Component.translatable("ftbstuff.hold_shift").withStyle(ChatFormatting.GRAY));
+            }
+        }
+    }
+
 }

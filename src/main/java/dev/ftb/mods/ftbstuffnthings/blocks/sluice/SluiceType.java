@@ -7,42 +7,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.function.BiFunction;
 
 public enum SluiceType implements StringRepresentable {
-    OAK("oak", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Oak::new),
-    SPRUCE("spruce", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Spruce::new),
-    BIRCH("birch", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Birch::new),
-    JUNGLE("jungle", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Jungle::new),
-    ACACIA("acacia", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Acacia::new),
-    DARK_OAK("dark_oak", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.DarkOak::new),
-    MANGROVE("mangrove", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Mangrove::new),
-    CHERRY("cherry", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Cherry::new),
-    PALE_OAK("pale_oak", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.PaleOak::new),
-    CRIMSON("crimson", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Crimson::new),
-    WARPED("warped", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Warped::new),
-    BAMBOO("bamboo", 1.0, 1.0, 12000,
-            false, false, false, 0,
-            SluiceBlockEntity.Bamboo::new),
+    OAK("oak", SluiceBlockEntity.Oak::new),
+    SPRUCE("spruce", SluiceBlockEntity.Spruce::new),
+    BIRCH("birch",  SluiceBlockEntity.Birch::new),
+    JUNGLE("jungle", SluiceBlockEntity.Jungle::new),
+    ACACIA("acacia", SluiceBlockEntity.Acacia::new),
+    DARK_OAK("dark_oak", SluiceBlockEntity.DarkOak::new),
+    MANGROVE("mangrove", SluiceBlockEntity.Mangrove::new),
+    CHERRY("cherry", SluiceBlockEntity.Cherry::new),
+    PALE_OAK("pale_oak", SluiceBlockEntity.PaleOak::new),
+    CRIMSON("crimson",  SluiceBlockEntity.Crimson::new),
+    WARPED("warped", SluiceBlockEntity.Warped::new),
+    BAMBOO("bamboo", SluiceBlockEntity.Bamboo::new),
     IRON("iron", 0.8, 0.6, 12000,
             true, false, false, 0,
             SluiceBlockEntity.Iron::new),
@@ -62,6 +38,10 @@ public enum SluiceType implements StringRepresentable {
     public final boolean defUpgradeable;
     public final int defEnergyUsage;
     private final BiFunction<BlockPos, BlockState, ? extends SluiceBlockEntity> beFactory;
+
+    SluiceType(String name, BiFunction<BlockPos, BlockState, ? extends SluiceBlockEntity> beFactory) {
+        this(name, 1.0, 1.0, 12000, false, false, false, 0, beFactory);
+    }
 
     SluiceType(String name, double defTimeMod, double defFluidMod, int defCapacity, boolean defItemIO, boolean defFluidIO, boolean defUpgradeable, int defEnergyUsage, BiFunction<BlockPos, BlockState, ? extends SluiceBlockEntity> beFactory) {
         this.name = name;

@@ -29,6 +29,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
@@ -111,8 +112,8 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
         }
     }
 
-    private Optional<RecipeHolder<FusingMachineRecipe>> searchForRecipe(ServerLevel serverLevel) {
-        return RecipesRegistry.FUSING_MACHINE_TYPE.get().streamRecipes(serverLevel)
+    private Optional<RecipeHolder<FusingMachineRecipe>> searchForRecipe(Level level) {
+        return RecipesRegistry.FUSING_MACHINE_TYPE.get().streamRecipes(level)
                 .sorted((h1, h2) -> h2.value().getInputs().size() - h1.value().getInputs().size()) // prioritise recipes with more ingredients
                 .filter(holder -> holder.value().test(itemHandler))
                 .findFirst();

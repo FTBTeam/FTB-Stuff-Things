@@ -4,7 +4,6 @@ import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.pump.PumpBlock;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingEnergy;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingFluidTank;
-import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.SluiceRecipe;
 import dev.ftb.mods.ftbstuffnthings.items.MeshType;
@@ -12,6 +11,7 @@ import dev.ftb.mods.ftbstuffnthings.network.SendSluiceStartPacket;
 import dev.ftb.mods.ftbstuffnthings.network.SyncDisplayItemPacket;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
+import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -37,15 +37,17 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
@@ -58,6 +60,7 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
 
     private final ItemStacksResourceHandler inputInventory = new SluiceItemHandler();
     private final EmittingEnergy energyStorage = new EmittingEnergy(100_000, energy -> setChanged());
+    @Nullable
     private BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> outputCache;
     private int processingProgress = 0;
     private int processingTime = 0;
@@ -96,7 +99,7 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
 
         if (!overflow.isEmpty()) {
             // Nothing else happens until the overflow is cleared
-            dropItemOrPushToInventory(overflow);
+            produceOutput(overflow);
         } else if (processingTime > 0) {
             // If we're processing, we need to process, not check for items
             processingProgress++;
@@ -107,47 +110,51 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
                 processingProgress = 0;
                 processingTime = 0;
 
-                // Take the item from the input inventory
-                ItemStack inputStack = inputInventory.extractItem(0, 1, false);
-
                 // Get the recipe
-                getRecipeFor(inputStack).ifPresent(recipe -> {
-                    recipe.value().getFluid().ifPresent(fluid -> {
-                        // TODO consumption upgrade
-                        // This is safe to assume we have the fluid as you can only insert fluid to this tank,
-                        //   and we checked it before starting the processing
-                        fluidTank.drain((int) (fluid.amount() * getProps().fluidMod().get()), IFluidHandler.FluidAction.EXECUTE);
-                    });
+                getRecipeFor(ItemUtil.getStack(inputInventory, 0)).ifPresent(recipe -> {
+                    try (Transaction tx = Transaction.openRoot()) {
+                        boolean itemOK = MiscUtil.removeResourceFromSlot(inputInventory, 0, 1, tx) == 1;
+                        boolean fluidOK = recipe.value().getFluid().map(fluid -> {
+                            // TODO consumption upgrade
+                            // This is safe to assume we have the fluid as you can only insert fluid to this tank,
+                            //   and we checked it before starting the processing
+                            int toDrain = (int) (fluid.amount() * getProps().fluidMod().get());
+                            return MiscUtil.removeResourceFromSlot(fluidTank, 0, toDrain, tx) == toDrain;
+                        }).orElse(true);
+                        boolean energyOK = energyStorage.extract(getProps().energyCost().get(), tx) == getProps().energyCost().get();
 
-                    energyStorage.extractEnergy(getProps().energyCost().get(), false);
-
-                    for (var result : recipe.value().getResults()) {
-                        // TODO luck upgrade
-                        if (serverLevel.getRandom().nextFloat() <= result.chance()) {
-                            dropItemOrPushToInventory(result.item());
+                        if (itemOK && fluidOK && energyOK) {
+                            // All good!
+                            tx.commit();
+                            for (var result : recipe.value().getResults()) {
+                                // TODO luck upgrade?
+                                if (serverLevel.getRandom().nextFloat() <= result.chance()) {
+                                    produceOutput(result.item().create());
+                                }
+                            }
                         }
                     }
                 });
             }
         } else {
-            ItemStack inputStack = inputInventory.getStackInSlot(0);
+            ItemStack inputStack = ItemUtil.getStack(inputInventory, 0);
             if (!inputStack.isEmpty()) {
                 setChanged();
                 getRecipeFor(inputStack).ifPresentOrElse(
                         recipe -> {
                             // Recipe found, but also make sure there's enough fluid and (possibly) energy in the sluice
-                            if (hasEnoughEnergy() && recipe.value().testFluid(fluidTank.getFluid(), true, getProps().fluidMod().get())) {
-                                // TODO speed upgrade
+                            if (hasEnoughEnergy() && recipe.value().testFluid(FluidUtil.getStack(fluidTank, 0), true, getProps().fluidMod().get())) {
+                                // TODO speed upgrade?
                                 double time = BASE_PROCESSING_TIME * getProps().timeMod().get() * recipe.value().getProcessingTimeMultiplier();
                                 processingTime = Math.max(1, (int) time);
                                 processingProgress = 0;
                                 PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) getLevel(),
-                                        new ChunkPos(getBlockPos()), new SendSluiceStartPacket(getBlockPos(), processingTime));
+                                        ChunkPos.containing(getBlockPos()), new SendSluiceStartPacket(getBlockPos(), processingTime));
                             }
                         },
                         () -> {
                             // No recipe found, not sure how we got here, maybe a hopper? Let's just pop the resource back out
-                            dropItemOrPushToInventory(inputStack);
+                            produceOutput(inputStack);
                             // Clear the slot
                             inputInventory.set(0, ItemResource.EMPTY, 0);
                         }
@@ -167,7 +174,7 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
         overflow = stack;
     }
 
-    private void dropItemOrPushToInventory(ItemStack stack) {
+    private void produceOutput(ItemStack stack) {
         if (stack.isEmpty()) {
             return;
         }
@@ -178,26 +185,33 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
         assert level instanceof ServerLevel;
         var inventory = getOutputInventory();
         if (inventory != null) {
-            stack = ItemHandlerHelper.insertItem(inventory, stack, false);
-            if (!stack.isEmpty()) {
-                // can't push to inventory? mark it as overflow, which stops processing until it's cleared
-                setOverflowItem(stack);
-                return;
+            // there is an inventory to push to, hopefully it has room...
+            try (Transaction tx = Transaction.openRoot()) {
+                int inserted = ResourceHandlerUtil.insertStacking(inventory, ItemResource.of(stack), stack.count(), tx);
+                if (inserted > 0) {
+                    tx.commit();
+                }
+                if (inserted < stack.count()) {
+                    // can't push some or all of the itemstack - mark it as overflow, which stops processing until it's cleared
+                    setOverflowItem(stack.copyWithCount(stack.count() - inserted));
+                    return;
+                } else {
+                    // all pushed!
+                    setOverflowItem(ItemStack.EMPTY);
+                }
             }
-        }
-
-        if (!stack.isEmpty()) {
+        } else if (!stack.isEmpty()) {
+            // there's no inventory to push, drop the result in-world
             BlockPos pos = worldPosition.relative(this.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING), 2);
-            double my = 0.14D * (level.random.nextFloat() * 0.4D);
+            double my = 0.14D * (level.getRandom().nextFloat() * 0.4D);
 
             ItemEntity itemEntity = new ItemEntity(level, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D, stack);
 
             itemEntity.setDeltaMovement(0, my, 0);
             level.addFreshEntity(itemEntity);
-        }
 
-        // if we got here, the output was cleared, one way or another
-        setOverflowItem(ItemStack.EMPTY);
+            setOverflowItem(ItemStack.EMPTY);
+        }
     }
 
     public int getProgress() {
@@ -207,6 +221,10 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
     @Override
     protected void dropItemContents() {
         super.dropItemContents();
+
+        assert getLevel() != null;
+
+        Block.popResource(getLevel(), getBlockPos(), getBlockState().getValue(SluiceBlock.MESH).createItemStack());
 
         if (!overflow.isEmpty()) {
             Block.popResource(getLevel(), getBlockPos(), overflow);
@@ -298,7 +316,7 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
     }
 
     public Optional<RecipeHolder<SluiceRecipe>> getRecipeFor(ItemStack input) {
-        return RecipeCaches.SLUICE.getCachedRecipe(() -> this.searchForRecipe(input), () -> this.genRecipeHash(input));
+        return RecipeCaches.SLUICE.getCachedRecipe(level, l -> this.searchForRecipe(l, input), () -> this.genRecipeHash(input));
     }
 
     private int genRecipeHash(ItemStack input) {
@@ -308,17 +326,15 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
         return Objects.hash(fluidHash, itemHash, getInstalledMesh());
     }
 
-    private Optional<RecipeHolder<SluiceRecipe>> searchForRecipe(ItemStack input) {
-        assert level instanceof ServerLevel;
-
-        return level.getServer().getRecipeManager().recipeMap().getRecipesFor(RecipesRegistry.SLUICE_TYPE.get(), NoInventory.INSTANCE, level)
+    private Optional<RecipeHolder<SluiceRecipe>> searchForRecipe(Level level, ItemStack input) {
+        return RecipesRegistry.SLUICE_TYPE.get().streamRecipes(level)
                 .filter(r -> fluidItemAndMeshMatch(r.value(), input))
                 .findFirst();
     }
 
     private boolean fluidItemAndMeshMatch(SluiceRecipe recipe, ItemStack input) {
         return recipe.getIngredient().test(input)
-                && recipe.testFluid(fluidTank.getFluid(), false)
+                && recipe.testFluid(FluidUtil.getStack(fluidTank, 0), false)
                 && recipe.getMeshTypes().contains(getInstalledMesh());
     }
 

@@ -11,7 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredItem;
-import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -44,11 +43,11 @@ public enum MeshType implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public String getSerializedName() {
         return this.name;
     }
 
-    public ItemStack getItemStack() {
+    public ItemStack createItemStack() {
         return meshItem == null ? ItemStack.EMPTY : meshItem.toStack();
     }
 
