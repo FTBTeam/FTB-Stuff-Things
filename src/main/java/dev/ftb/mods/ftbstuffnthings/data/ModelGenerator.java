@@ -13,6 +13,7 @@ import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.ConditionBuilder;
 import net.minecraft.client.data.models.blockstates.MultiPartGenerator;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.client.renderer.block.dispatch.Variant;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -48,24 +50,7 @@ public class ModelGenerator extends ModelProvider {
         super(output, FTBStuffNThings.MOD_ID);
     }
 
-    // TODO: REMOVE LATER
-    @Override
-    protected Stream<? extends Holder<Block>> getKnownBlocks() {
-        return Stream.of(
-                Stream.of(
-                        BlocksRegistry.PUMP
-                ), // hacks.
-                BlocksRegistry.COBBLEGENS.stream(),
-                BlocksRegistry.BASALTGENS.stream(),
-                BlocksRegistry.ALL_SLUICES.stream()
-        ).reduce(Stream.empty(), Stream::concat);
-    }
-
-    // TODO: REMOVE LATER
-    @Override
-    protected Stream<? extends Holder<Item>> getKnownItems() {
-        return Stream.empty();
-    }
+    private static final TextureMapping EMPTY_MAPPING = new TextureMapping();
 
     // Template slots
     private static final TextureSlot SLOT_0 = TextureSlot.create("0");
@@ -79,13 +64,43 @@ public class ModelGenerator extends ModelProvider {
     private static final ModelTemplate GENERATOR_TEMPLATE_STONE = simpleBlockTemplate("block/cobblestone_generator", SLOT_0, TextureSlot.PARTICLE);
     private static final ModelTemplate GENERATOR_TEMPLATE_BASALT = simpleBlockTemplate("block/basalt_generator", SLOT_0, TextureSlot.PARTICLE);
 
+    // TODO: REMOVE LATER
+    @Override
+    protected Stream<? extends Holder<Block>> getKnownBlocks() {
+        return Stream.of(
+                Stream.of(
+                        BlocksRegistry.PUMP,
+                        BlocksRegistry.DRIPPER
+                ), // hacks.
+                BlocksRegistry.COBBLEGENS.stream(),
+                BlocksRegistry.BASALTGENS.stream(),
+                BlocksRegistry.ALL_SLUICES.stream()
+        ).reduce(Stream.empty(), Stream::concat);
+    }
+
+    // TODO: REMOVE LATER
+    @Override
+    protected Stream<? extends Holder<Item>> getKnownItems() {
+        return Stream.of(
+            ItemsRegistry.DRIPPER
+        );
+    }
+
+
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-        BlocksRegistry.ALL_SLUICES.forEach(e -> this.registerSluice(blockModels, e));
-        registerMeshes(blockModels);
+        BlocksRegistry.ALL_SLUICES.forEach(e -> this.registerSluice(blockModels, itemModels, e));
+
+        createModelParentedBlock(blockModels, BlocksRegistry.DRIPPER, "dripper_base");
+
+        // Complex types
+        registerMeshes(blockModels, itemModels);
         registerPump(blockModels);
         registerGenerators(blockModels);
+        registerAutoHammer(blockModels, itemModels);
 
+
+        //#region TODO: Remove later
         if (true) {
             return;
         }
@@ -217,6 +232,42 @@ public class ModelGenerator extends ModelProvider {
 //        itemModels.generateFlatItem(ItemsRegistry.NETHERITE_SLUICE.get(), ModelTemplates.FLAT_ITEM);//"item/netherite_sluice", modLoc("item/sluice"), "0", modLoc("block/sluice/netherite_sluice"));
 
 //        BlocksRegistry.allCompressedBlocks().forEach(db -> simpleBlockItem(db.get()));
+        //#endregion
+    }
+
+    private void registerAutoHammer(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+        var baseSlot = TextureSlot.create("base");
+        var hammerSlot = TextureSlot.create("hammer");
+
+        ModelTemplate blockTemplate = simpleBlockTemplate("auto_hammer", baseSlot, hammerSlot);
+        ModelTemplate activeBlockTemplate = simpleBlockTemplate("auto_hammer_active", baseSlot, hammerSlot);
+
+        // Create the models
+        String[] materials = new String[] {"iron", "gold", "diamond", "netherite"};
+        for (String material : materials) {
+            applyBlockTemplate(blockTemplate, material + "_auto_hammer", new TextureMapping()
+                    .put(baseSlot, blockMaterial("auto_hammer_base"))
+                    .put(hammerSlot, blockMaterial("auto_hammer/" + material)), blockModels);
+
+            applyBlockTemplate(activeBlockTemplate, material + "_auto_hammer_active", new TextureMapping()
+                    .put(baseSlot, blockMaterial("auto_hammer_base"))
+                    .put(hammerSlot, blockMaterial("auto_hammer/" + material + "_active")), blockModels);
+        }
+
+        // States
+        Stream.of(BlocksRegistry.IRON_AUTO_HAMMER, BlocksRegistry.GOLD_AUTO_HAMMER, BlocksRegistry.DIAMOND_AUTO_HAMMER, BlocksRegistry.NETHERITE_AUTO_HAMMER).forEach(block -> {
+            MultiPartGenerator gen = MultiPartGenerator.multiPart(block.get());
+            String path = block.getId().getPath();
+
+            for (DirRotation horizontal : HORIZONTALS) {
+                gen.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, false).term(HORIZONTAL_FACING, horizontal.direction()),
+                        multiVariant(path, horizontal.mutator));
+                gen.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, true).term(HORIZONTAL_FACING, horizontal.direction()),
+                        multiVariant(path + "_active", horizontal.mutator));
+            }
+
+            blockModels.blockStateOutput.accept(gen);
+        });
     }
 
     private void registerGenerators(BlockModelGenerators blockModels) {
@@ -235,7 +286,7 @@ public class ModelGenerator extends ModelProvider {
                         .put(TextureSlot.PARTICLE, vanillaMaterial);
 
                 String generatorName = ourNaming + "_" + genType + "_generator";
-                applyTemplate(template, generatorName, textures, blockModels);
+                applyBlockTemplate(template, generatorName, textures, blockModels);
             }
         });
 
@@ -249,21 +300,15 @@ public class ModelGenerator extends ModelProvider {
                 );
             }
             blockModels.blockStateOutput.accept(generator);
-
-            // Create item models for each generator variant
-            blockModels.itemModelOutput.accept(
-                    block.asItem(),
-                    ItemModelUtils.plainModel(blockId(block.getId().getPath()))
-            );
         });
     }
 
-    void registerSluice(BlockModelGenerators generators, DeferredBlock<SluiceBlock> block) {
+    void registerSluice(BlockModelGenerators generators, ItemModelGenerators itemModels, DeferredBlock<SluiceBlock> block) {
         String type = block.get().getSluiceType().getSerializedName();
-        Material texture = blockMaterial("/sluice/" + type + "_sluice");
+        Material texture = blockMaterial("sluice/" + type + "_sluice");
 
-        applyTemplate(SLUICE_BODY_TEMPLATE, type + "_sluice_body", SLOT_0, texture, generators);
-        applyTemplate(SLUICE_FRONT_TEMPLATE, type + "_sluice_front", SLOT_0, texture, generators);
+        applyBlockTemplate(SLUICE_BODY_TEMPLATE, type + "_sluice_body", SLOT_0, texture, generators);
+        applyBlockTemplate(SLUICE_FRONT_TEMPLATE, type + "_sluice_front", SLOT_0, texture, generators);
 
         MultiPartGenerator generator = MultiPartGenerator.multiPart(block.get());
 
@@ -276,8 +321,8 @@ public class ModelGenerator extends ModelProvider {
                     .term(BlockStateProperties.HORIZONTAL_FACING, horizontal.direction())
                     .term(SluiceBlock.PART, SluiceBlock.Part.FUNNEL);
 
-            generator.with(mainCondition, multiVariant(blockId("sluice_body"), horizontal.mutator()));
-            generator.with(funnelCondition, multiVariant(blockId("sluice_front"), horizontal.mutator()));
+            generator.with(mainCondition, multiVariant(blockId(type + "_sluice_body"), horizontal.mutator()));
+            generator.with(funnelCondition, multiVariant(blockId(type + "_sluice_front"), horizontal.mutator()));
 
             for (MeshType meshType : MeshType.NON_EMPTY_VALUES) {
                 Identifier meshId = blockId(meshType.getSerializedName() + "_mesh");
@@ -292,16 +337,22 @@ public class ModelGenerator extends ModelProvider {
 
         generators.blockStateOutput.accept(generator);
 
-        // Generate item model
-        generators.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(blockId(block.getId().getPath())));
+        // Item model
+        var template = simpleItemTemplate("sluice", SLOT_0);
+        applyItemTemplate(template, type + "_sluice", new TextureMapping().put(SLOT_0, texture), itemModels);
+
+        itemModels.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(itemId(type + "_sluice")));
     }
 
-    private void registerMeshes(BlockModelGenerators generators) {
+    private void registerMeshes(BlockModelGenerators generators, ItemModelGenerators itemModels) {
         for (MeshType meshType : MeshType.values()) {
             var typeName = meshType.getSerializedName();
 
             generators.itemModelOutput.accept(meshType.asItem(), ItemModelUtils.plainModel(itemId(typeName + "_mesh")));
-            applyTemplate(MESH_TEMPLATE, typeName + "_mesh", SLOT_0, blockMaterial("mesh/" + typeName), generators);
+            applyBlockTemplate(MESH_TEMPLATE, typeName + "_mesh", SLOT_0, blockMaterial("mesh/" + typeName), generators);
+
+            // Item model
+            applyItemTemplate(MESH_TEMPLATE, typeName + "_mesh", new TextureMapping().put(SLOT_0, blockMaterial("mesh/" + typeName)), itemModels);
         }
     }
 
@@ -388,6 +439,18 @@ public class ModelGenerator extends ModelProvider {
 //    }
 
     //#region Helpers
+    void createModelParentedBlock(BlockModelGenerators blockModels, DeferredBlock<?> block, String modelLoc) {
+        var template = simpleBlockTemplate(modelLoc);
+        var modelId = applyBlockTemplate(template, block.getId().getPath(), blockModels);
+
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(block.get(), multiVariant(modelId)));
+    }
+
+    MultiVariant multiVariant(Identifier id) {
+        return new MultiVariant(WeightedList.of(new Variant(id)));
+    }
+
     MultiVariant multiVariant(Identifier id, VariantMutator mutator) {
         return new MultiVariant(WeightedList.of(new Variant(id).with(mutator)));
     }
@@ -405,15 +468,39 @@ public class ModelGenerator extends ModelProvider {
     }
 
     static ModelTemplate simpleBlockTemplate(String path) {
+        return simpleBlockTemplate(path, new TextureSlot[]{});
+    }
+
+    static ModelTemplate simpleBlockTemplateAllTexture(String path) {
         return simpleBlockTemplate(path, TextureSlot.ALL);
     }
 
-    Identifier applyTemplate(ModelTemplate template, String id, TextureMapping mapping, BlockModelGenerators generators) {
+    static ModelTemplate simpleItemTemplate(String path, TextureSlot... slots) {
+        return new ModelTemplate(
+                Optional.of(itemId(path)),
+                Optional.empty(),
+                slots
+        );
+    }
+
+    Identifier applyBlockTemplate(ModelTemplate template, String id, BlockModelGenerators generators) {
+        return template.create(blockId(id), EMPTY_MAPPING, generators.modelOutput);
+    }
+
+    Identifier applyBlockTemplate(ModelTemplate template, String id, TextureMapping mapping, BlockModelGenerators generators) {
         return template.create(blockId(id), mapping, generators.modelOutput);
     }
 
-    Identifier applyTemplate(ModelTemplate template, String id, TextureSlot slot, Material texture, BlockModelGenerators generators) {
+    Identifier applyBlockTemplate(ModelTemplate template, String id, TextureSlot slot, Material texture, BlockModelGenerators generators) {
         return template.create(blockId(id), new TextureMapping().put(slot, texture), generators.modelOutput);
+    }
+
+    Identifier applyItemTemplate(ModelTemplate template, String id, TextureMapping mapping, ItemModelGenerators generators) {
+        return template.create(itemId(id), mapping, generators.modelOutput);
+    }
+
+    Identifier applyItemTemplate(ModelTemplate template, String id, TextureSlot slot, Material texture, ItemModelGenerators generators) {
+        return template.create(itemId(id), new TextureMapping().put(slot, texture), generators.modelOutput);
     }
 
     Material blockMaterial(String path) {
