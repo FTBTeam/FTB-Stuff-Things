@@ -44,8 +44,6 @@ public class ModelGenerator extends ModelProvider {
         new DirRotation(Direction.WEST, 270, BlockModelGenerators.Y_ROT_270)
     );
 
-    private static final Id modId = new Id(FTBStuffNThings.MOD_ID);
-
     public ModelGenerator(PackOutput output) {
         super(output, FTBStuffNThings.MOD_ID);
     }
@@ -240,11 +238,11 @@ public class ModelGenerator extends ModelProvider {
                     .term(BlockStateProperties.HORIZONTAL_FACING, horizontal.direction())
                     .term(SluiceBlock.PART, SluiceBlock.Part.FUNNEL);
 
-            generator.with(mainCondition, multiVariant(modId.block("sluice_body"), horizontal.mutator()));
-            generator.with(funnelCondition, multiVariant(modId.block("sluice_front"), horizontal.mutator()));
+            generator.with(mainCondition, multiVariant(blockId("sluice_body"), horizontal.mutator()));
+            generator.with(funnelCondition, multiVariant(blockId("sluice_front"), horizontal.mutator()));
 
             for (MeshType meshType : MeshType.NON_EMPTY_VALUES) {
-                Identifier meshId = modId.block(meshType.getSerializedName() + "_mesh");
+                Identifier meshId = blockId(meshType.getSerializedName() + "_mesh");
                 ConditionBuilder meshCondition = new ConditionBuilder()
                         .term(SluiceBlock.MESH, meshType)
                         .term(HORIZONTAL_FACING, horizontal.direction())
@@ -261,7 +259,7 @@ public class ModelGenerator extends ModelProvider {
         for (MeshType meshType : MeshType.values()) {
             var typeName = meshType.getSerializedName();
 
-            generators.itemModelOutput.accept(meshType.asItem(), ItemModelUtils.plainModel(modId.item(typeName + "_mesh")));
+            generators.itemModelOutput.accept(meshType.asItem(), ItemModelUtils.plainModel(itemId(typeName + "_mesh")));
             applyTemplate(MESH_TEMPLATE, typeName + "_mesh", SLOT_0, blockMaterial("mesh/" + typeName), generators);
         }
     }
@@ -273,19 +271,19 @@ public class ModelGenerator extends ModelProvider {
 
         for (DirRotation horizontal : HORIZONTALS) {
             generator.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, false).term(HORIZONTAL_FACING, horizontal.direction()),
-                    multiVariant(modId.block("pump_off"), horizontal.mutator()));
+                    multiVariant(blockId("pump_off"), horizontal.mutator()));
             generator.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, true).term(HORIZONTAL_FACING, horizontal.direction()),
-                    multiVariant(modId.block("pump_on"), horizontal.mutator()));
+                    multiVariant(blockId("pump_on"), horizontal.mutator()));
             generator.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, true).term(HORIZONTAL_FACING, horizontal.direction()).term(PumpBlock.PROGRESS, PumpBlock.Progress.TWENTY),
-                    multiVariant(modId.block("pump_20"), horizontal.mutator()));
+                    multiVariant(blockId("pump_20"), horizontal.mutator()));
             generator.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, true).term(HORIZONTAL_FACING, horizontal.direction()).term(PumpBlock.PROGRESS, PumpBlock.Progress.FORTY),
-                    multiVariant(modId.block("pump_40"), horizontal.mutator()));
+                    multiVariant(blockId("pump_40"), horizontal.mutator()));
             generator.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, true).term(HORIZONTAL_FACING, horizontal.direction()).term(PumpBlock.PROGRESS, PumpBlock.Progress.SIXTY),
-                    multiVariant(modId.block("pump_60"), horizontal.mutator()));
+                    multiVariant(blockId("pump_60"), horizontal.mutator()));
             generator.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, true).term(HORIZONTAL_FACING, horizontal.direction()).term(PumpBlock.PROGRESS, PumpBlock.Progress.EIGHTY),
-                    multiVariant(modId.block("pump_80"), horizontal.mutator()));
+                    multiVariant(blockId("pump_80"), horizontal.mutator()));
             generator.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, true).term(HORIZONTAL_FACING, horizontal.direction()).term(PumpBlock.PROGRESS, PumpBlock.Progress.HUNDRED),
-                    multiVariant(modId.block("pump_100"), horizontal.mutator()));
+                    multiVariant(blockId("pump_100"), horizontal.mutator()));
         }
 
         generators.blockStateOutput.accept(generator);
@@ -359,7 +357,7 @@ public class ModelGenerator extends ModelProvider {
 
     static ModelTemplate simpleBlockTemplate(String path, TextureSlot... slots) {
         return new ModelTemplate(
-                Optional.of(modId.block(path)),
+                Optional.of(blockId(path)),
                 Optional.empty(),
                 slots
         );
@@ -370,35 +368,27 @@ public class ModelGenerator extends ModelProvider {
     }
 
     Identifier applyTemplate(ModelTemplate template, String id, TextureMapping mapping, BlockModelGenerators generators) {
-        return template.create(modId.block(id), mapping, generators.modelOutput);
+        return template.create(blockId(id), mapping, generators.modelOutput);
     }
 
     Identifier applyTemplate(ModelTemplate template, String id, TextureSlot slot, Material texture, BlockModelGenerators generators) {
-        return template.create(modId.block(id), new TextureMapping().put(slot, texture), generators.modelOutput);
+        return template.create(blockId(id), new TextureMapping().put(slot, texture), generators.modelOutput);
     }
 
     Material blockMaterial(String path) {
-        return new Material(modId.block(path));
+        return new Material(blockId(path));
     }
+
+    static Identifier blockId(String path) {
+        return Identifier.fromNamespaceAndPath(FTBStuffNThings.MOD_ID, "block/" + path);
+    }
+
+    static Identifier itemId(String path) {
+        return Identifier.fromNamespaceAndPath(FTBStuffNThings.MOD_ID, "item/" + path);
+    }
+
     //endregion
 
     private record DirRotation(Direction direction, int rotation, VariantMutator mutator) {
-    }
-
-    // TODO: Move to lib.
-    public record Id(String namespace) {
-        public static final Id MC = new Id("minecraft");
-
-        public Identifier create(String path) {
-            return Identifier.fromNamespaceAndPath(namespace, path);
-        }
-
-        public Identifier block(String path) {
-            return create("block/" + path);
-        }
-
-        public Identifier item(String path) {
-            return create("item/" + path);
-        }
     }
 }
