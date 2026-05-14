@@ -51,12 +51,14 @@ public class ModelGenerator extends ModelProvider {
     // TODO: REMOVE LATER
     @Override
     protected Stream<? extends Holder<Block>> getKnownBlocks() {
-        return Stream.concat(
+        return Stream.of(
                 Stream.of(
                         BlocksRegistry.PUMP
                 ), // hacks.
+                BlocksRegistry.COBBLEGENS.stream(),
+                BlocksRegistry.BASALTGENS.stream(),
                 BlocksRegistry.ALL_SLUICES.stream()
-        );
+        ).reduce(Stream.empty(), Stream::concat);
     }
 
     // TODO: REMOVE LATER
@@ -73,6 +75,9 @@ public class ModelGenerator extends ModelProvider {
     private static final ModelTemplate SLUICE_FRONT_TEMPLATE = simpleBlockTemplate("sluice_front", SLOT_0);
 
     private static final ModelTemplate MESH_TEMPLATE = simpleBlockTemplate("mesh", SLOT_0);
+
+    private static final ModelTemplate GENERATOR_TEMPLATE_STONE = simpleBlockTemplate("block/cobblestone_generator", SLOT_0, TextureSlot.PARTICLE);
+    private static final ModelTemplate GENERATOR_TEMPLATE_BASALT = simpleBlockTemplate("block/basalt_generator", SLOT_0, TextureSlot.PARTICLE);
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
@@ -215,8 +220,41 @@ public class ModelGenerator extends ModelProvider {
     }
 
     private void registerGenerators(BlockModelGenerators blockModels) {
-        Stream.of("cobblestone", "basalt").forEach(type -> {
+        // Create the base model for all the variants to use
+        String[] textureTypes = new String[] {"cobblestone", "iron_block", "gold_block", "diamond_block", "netherite_block"};
 
+        Stream.of("cobblestone", "basalt").forEach(genType -> {
+            ModelTemplate template = genType.equals("basalt") ? GENERATOR_TEMPLATE_BASALT : GENERATOR_TEMPLATE_STONE;
+
+            for (String textureType : textureTypes) {
+                var vanillaMaterial = blockMaterial(textureType);
+
+                var ourNaming = textureType.replace("cobble", "").replace("_block", "");
+                var textures = new TextureMapping()
+                        .put(SLOT_0, blockMaterial("/generator/" + ourNaming))
+                        .put(TextureSlot.PARTICLE, vanillaMaterial);
+
+                String generatorName = ourNaming + "_" + genType + "_generator";
+                applyTemplate(template, generatorName, textures, blockModels);
+            }
+        });
+
+        // Now we need state configs for all variants but we can reuse the same models.
+        Stream.concat(BlocksRegistry.COBBLEGENS.stream(), BlocksRegistry.BASALTGENS.stream()).forEach(block -> {
+            MultiPartGenerator generator = MultiPartGenerator.multiPart(block.get());
+            for (DirRotation horizontal : HORIZONTALS) {
+                generator.with(
+                        new ConditionBuilder().term(HORIZONTAL_FACING, horizontal.direction()),
+                        multiVariant(blockId(block.getId().getPath()), horizontal.mutator())
+                );
+            }
+            blockModels.blockStateOutput.accept(generator);
+
+            // Create item models for each generator variant
+            blockModels.itemModelOutput.accept(
+                    block.asItem(),
+                    ItemModelUtils.plainModel(blockId(block.getId().getPath()))
+            );
         });
     }
 
@@ -253,6 +291,9 @@ public class ModelGenerator extends ModelProvider {
         }
 
         generators.blockStateOutput.accept(generator);
+
+        // Generate item model
+        generators.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(blockId(block.getId().getPath())));
     }
 
     private void registerMeshes(BlockModelGenerators generators) {
