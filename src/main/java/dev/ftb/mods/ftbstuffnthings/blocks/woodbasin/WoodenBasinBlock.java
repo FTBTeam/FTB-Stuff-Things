@@ -1,9 +1,9 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.woodbasin;
 
-import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -20,10 +20,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,16 +73,22 @@ public class WoodenBasinBlock extends Block implements EntityBlock {
                 ItemInteractionResult.SUCCESS;
     }
 
-    @EventBusSubscriber(modid = FTBStuffNThings.MODID)
-    public static class Listener {
-        @SubscribeEvent
-        public static void onEntityFall(LivingFallEvent event) {
-            if (!event.getEntity().level().isClientSide) {
-                BlockPos pos = event.getEntity().getOnPos();
-                if (event.getDistance() > 0.5 && event.getEntity().level().getBlockEntity(pos.below()) instanceof WoodenBasinBlockEntity basin) {
-                    basin.trySqueezing(event.getEntity());
-                }
-            }
+    public void onEntityFall(Entity entity, BlockPos pos, float fallDistance) {
+        if (fallDistance > 0.5 && entity.level().getBlockEntity(pos) instanceof WoodenBasinBlockEntity basin) {
+            basin.trySqueezing(entity);
         }
     }
+
+//    @EventBusSubscriber(modid = FTBStuffNThings.MODID)
+//    public static class Listener {
+//        @SubscribeEvent
+//        public static void onEntityFall(LivingFallEvent event) {
+//            if (!event.getEntity().level().isClientSide) {
+//                BlockPos pos = event.getEntity().getOnPos();
+//                if (event.getDistance() > 0.5 && event.getEntity().level().getBlockEntity(pos.below()) instanceof WoodenBasinBlockEntity basin) {
+//                    basin.trySqueezing(event.getEntity());
+//                }
+//            }
+//        }
+//    }
 }
