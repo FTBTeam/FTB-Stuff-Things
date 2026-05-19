@@ -27,8 +27,7 @@
           ]
         },
         {
-          "type": "minecraft:item",
-          "name": "minecraft:air",
+          "type": "minecraft:empty",
           "weight": 20
         },
         {
@@ -56,10 +55,6 @@
         {
           "type": "minecraft:loot_table",
           "value": "minecraft:gameplay/fishing/junk"
-        },
-        {
-          "type": "minecraft:loot_table",
-          "value": "minecraft:chests/ancient_city"
         }
       ]
     },
@@ -68,8 +63,7 @@
       "rolls": 1,
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "minecraft:air",
+          "type": "minecraft:empty",
           "weight": 7
         },
         {

@@ -5,9 +5,7 @@
     }
   ],
   "type": "ftbstuff:hammer",
-  "input": {
-    "item": "ftbstuff:compressed_basalt_2"
-  },
+  "input": "ftbstuff:compressed_basalt_2",
   "results": [
     {
       "count": 64,

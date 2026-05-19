@@ -8,13 +8,13 @@
   "input_fluids": [
     {
       "amount": 1000,
-      "fluid": "minecraft:water"
+      "ingredient": "minecraft:water"
     }
   ],
   "input_items": [
     {
       "count": 1,
-      "tag": "c:dusts/redstone"
+      "ingredient": "#c:dusts/redstone"
     }
   ],
   "output_fluids": [

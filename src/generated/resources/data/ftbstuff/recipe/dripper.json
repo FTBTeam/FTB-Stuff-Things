@@ -2,22 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "tag": "minecraft:wooden_buttons"
-    },
-    "P": {
-      "tag": "minecraft:wooden_slabs"
-    },
-    "S": {
-      "tag": "c:rods/wooden"
-    }
+    "B": "#minecraft:wooden_buttons",
+    "P": "#minecraft:wooden_slabs",
+    "S": "#c:rods/wooden"
   },
   "pattern": [
     "SPS",
     "SBS"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:dripper"
   }
 }

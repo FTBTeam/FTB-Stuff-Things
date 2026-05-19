@@ -14,7 +14,6 @@
       "translate": "ftbstuff.advancement.root.desc"
     },
     "icon": {
-      "count": 1,
       "id": "ftbstuff:crate"
     },
     "show_toast": false,

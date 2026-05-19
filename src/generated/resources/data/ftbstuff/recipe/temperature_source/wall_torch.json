@@ -1,10 +1,6 @@
 {
   "type": "ftbstuff:temperature_source",
   "blockstate": "minecraft:wall_torch[facing=north]",
-  "display_item": {
-    "count": 1,
-    "id": "minecraft:torch"
-  },
   "efficiency": 0.25,
   "hide_from_jei": true,
   "temperature": "hot"

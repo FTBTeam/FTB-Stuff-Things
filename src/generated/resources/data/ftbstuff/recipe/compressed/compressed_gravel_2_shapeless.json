@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "ftbstuff:compressed_gravel_3"
-    }
+    "ftbstuff:compressed_gravel_3"
   ],
   "result": {
     "count": 9,

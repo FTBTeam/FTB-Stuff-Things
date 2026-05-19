@@ -10,12 +10,8 @@
     "ticks_to_process": 60
   },
   "inputs": [
-    {
-      "item": "minecraft:cobblestone"
-    },
-    {
-      "item": "minecraft:gravel"
-    }
+    "minecraft:cobblestone",
+    "minecraft:gravel"
   ],
   "result": {
     "amount": 1000,

@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "N": {
-      "tag": "c:nuggets/cast_iron"
-    }
+    "N": "#c:nuggets/cast_iron"
   },
   "pattern": [
     "NNN",
@@ -12,7 +10,6 @@
     "NNN"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:cast_iron_ingot"
   }
 }

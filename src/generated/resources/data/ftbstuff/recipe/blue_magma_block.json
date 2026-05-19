@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "L": {
-      "item": "minecraft:lava_bucket"
-    },
-    "M": {
-      "item": "minecraft:magma_block"
-    },
-    "S": {
-      "item": "minecraft:soul_sand"
-    }
+    "L": "minecraft:lava_bucket",
+    "M": "minecraft:magma_block",
+    "S": "minecraft:soul_sand"
   },
   "pattern": [
     "SMS",
@@ -18,7 +12,6 @@
     "SMS"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:blue_magma_block"
   }
 }

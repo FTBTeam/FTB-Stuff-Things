@@ -12,7 +12,6 @@ import dev.ftb.mods.ftbstuffnthings.blocks.pump.PumpBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.supercooler.SuperCoolerBlockEntity;
-import dev.ftb.mods.ftbstuffnthings.blocks.tube.TubeBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.woodbasin.WoodenBasinBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
@@ -95,8 +94,6 @@ public class BlockEntitiesRegistry {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PumpBlockEntity>> PUMP
             = register("pump", PumpBlockEntity::new, BlocksRegistry.PUMP);
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TubeBlockEntity>> TUBE
-            = register("tube", TubeBlockEntity::new, BlocksRegistry.TUBE);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<JarBlockEntity>> JAR
             = register("jar", JarBlockEntity::new, BlocksRegistry.JAR);
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TemperedJarBlockEntity>> TEMPERED_JAR

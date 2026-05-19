@@ -1,34 +1,82 @@
 {
-  "variants": {
-    "active=false,facing=east": {
-      "model": "ftbstuff:block/fusing_machine",
-      "y": 90
+  "multipart": [
+    {
+      "apply": {
+        "model": "ftbstuff:block/fusing_machine"
+      },
+      "when": {
+        "active": "false",
+        "facing": "north"
+      }
     },
-    "active=false,facing=north": {
-      "model": "ftbstuff:block/fusing_machine"
+    {
+      "apply": {
+        "model": "ftbstuff:block/fusing_machine_active"
+      },
+      "when": {
+        "active": "true",
+        "facing": "north"
+      }
     },
-    "active=false,facing=south": {
-      "model": "ftbstuff:block/fusing_machine",
-      "y": 180
+    {
+      "apply": {
+        "model": "ftbstuff:block/fusing_machine",
+        "y": 90
+      },
+      "when": {
+        "active": "false",
+        "facing": "east"
+      }
     },
-    "active=false,facing=west": {
-      "model": "ftbstuff:block/fusing_machine",
-      "y": 270
+    {
+      "apply": {
+        "model": "ftbstuff:block/fusing_machine_active",
+        "y": 90
+      },
+      "when": {
+        "active": "true",
+        "facing": "east"
+      }
     },
-    "active=true,facing=east": {
-      "model": "ftbstuff:block/fusing_machine_active",
-      "y": 90
+    {
+      "apply": {
+        "model": "ftbstuff:block/fusing_machine",
+        "y": 180
+      },
+      "when": {
+        "active": "false",
+        "facing": "south"
+      }
     },
-    "active=true,facing=north": {
-      "model": "ftbstuff:block/fusing_machine_active"
+    {
+      "apply": {
+        "model": "ftbstuff:block/fusing_machine_active",
+        "y": 180
+      },
+      "when": {
+        "active": "true",
+        "facing": "south"
+      }
     },
-    "active=true,facing=south": {
-      "model": "ftbstuff:block/fusing_machine_active",
-      "y": 180
+    {
+      "apply": {
+        "model": "ftbstuff:block/fusing_machine",
+        "y": 270
+      },
+      "when": {
+        "active": "false",
+        "facing": "west"
+      }
     },
-    "active=true,facing=west": {
-      "model": "ftbstuff:block/fusing_machine_active",
-      "y": 270
+    {
+      "apply": {
+        "model": "ftbstuff:block/fusing_machine_active",
+        "y": 270
+      },
+      "when": {
+        "active": "true",
+        "facing": "west"
+      }
     }
-  }
+  ]
 }

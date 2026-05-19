@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "G": {
-      "tag": "c:ingots/gold"
-    },
-    "H": {
-      "item": "ftbstuff:iron_hammer"
-    },
-    "I": {
-      "tag": "c:ingots/iron"
-    },
-    "R": {
-      "tag": "c:dusts/redstone"
-    },
-    "X": {
-      "tag": "c:glass_blocks"
-    }
+    "G": "#c:ingots/gold",
+    "H": "ftbstuff:iron_hammer",
+    "I": "#c:ingots/iron",
+    "R": "#c:dusts/redstone",
+    "X": "#c:glass_blocks"
   },
   "pattern": [
     "IGI",
@@ -24,7 +14,6 @@
     "RGR"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:iron_auto_hammer"
   }
 }

@@ -1,10 +1,6 @@
 {
   "type": "ftbstuff:temperature_source",
   "blockstate": "minecraft:beacon",
-  "display_item": {
-    "count": 1,
-    "id": "minecraft:beacon"
-  },
   "efficiency": 4.0,
   "temperature": "superheated"
 }

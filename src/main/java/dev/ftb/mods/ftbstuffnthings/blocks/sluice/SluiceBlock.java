@@ -212,7 +212,7 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
                 return InteractionResult.FAIL;
             }
         } else if (stack.getItem() instanceof BucketItem || stack.getCapability(Capabilities.Fluid.ITEM, null) != null) {
-            FluidUtil.interactWithFluidHandler(player, hand, pos, sluice.getFluidHandler(hitResult.getDirection()));
+            FluidUtil.interactWithFluidHandler(player, hand, pos, sluice.getFluidHandler(null));
         } else {
             // player is trying to insert an item into the sluice
             sluice.getRecipeFor(stack).ifPresent(recipe -> {

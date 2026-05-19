@@ -8,16 +8,15 @@
   "input_fluids": [
     {
       "amount": 1000,
-      "fluid": "minecraft:water"
+      "ingredient": "minecraft:water"
     },
     {
       "amount": 1000,
-      "fluid": "minecraft:lava"
+      "ingredient": "minecraft:lava"
     }
   ],
   "output_items": [
     {
-      "count": 1,
       "id": "minecraft:obsidian"
     }
   ],

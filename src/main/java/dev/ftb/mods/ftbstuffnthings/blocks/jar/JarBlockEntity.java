@@ -1,10 +1,8 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.jar;
 
-import dev.ftb.mods.ftbstuffnthings.blocks.tube.ITubeConnectable;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ComponentsRegistry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
@@ -30,16 +28,11 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 
-public class JarBlockEntity extends BlockEntity implements ITubeConnectable {
+public class JarBlockEntity extends BlockEntity {
     private final FluidStacksResourceHandler tank = new JarFluidTank();
 
     public JarBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(BlockEntitiesRegistry.JAR.get(), blockPos, blockState);
-    }
-
-    @Override
-    public boolean isSideTubeConnectable(Direction side) {
-        return side == Direction.UP;
     }
 
     @Override

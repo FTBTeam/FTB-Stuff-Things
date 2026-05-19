@@ -151,4 +151,8 @@ public class AutoHammerBlock extends Block implements EntityBlock {
             level.setBlock(pos, newState, Block.UPDATE_ALL);
         }
     }
+
+    public String getMaterial() {
+        return props.getMaterialId();
+    }
 }

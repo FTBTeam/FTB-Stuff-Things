@@ -2,24 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": {
-      "item": "ftbstuff:diamond_auto_hammer"
-    },
-    "G": {
-      "tag": "c:ingots/gold"
-    },
-    "I": {
-      "tag": "c:ingots/iron"
-    },
-    "R": {
-      "tag": "c:dusts/redstone"
-    },
-    "T": {
-      "item": "ftbstuff:netherite_hammer"
-    },
-    "X": {
-      "tag": "c:glass_blocks"
-    }
+    "C": "ftbstuff:diamond_auto_hammer",
+    "G": "#c:ingots/gold",
+    "I": "#c:ingots/iron",
+    "R": "#c:dusts/redstone",
+    "T": "ftbstuff:netherite_hammer",
+    "X": "#c:glass_blocks"
   },
   "pattern": [
     "ITI",
@@ -27,7 +15,6 @@
     "RGR"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:netherite_auto_hammer"
   }
 }

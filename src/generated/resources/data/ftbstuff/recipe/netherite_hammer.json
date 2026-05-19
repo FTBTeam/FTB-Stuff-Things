@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "H": {
-      "tag": "c:ingots/netherite"
-    },
-    "R": {
-      "tag": "c:rods/wooden"
-    }
+    "H": "#c:ingots/netherite",
+    "R": "#c:rods/wooden"
   },
   "pattern": [
     "HRH",
@@ -15,7 +11,6 @@
     " R "
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:netherite_hammer"
   }
 }

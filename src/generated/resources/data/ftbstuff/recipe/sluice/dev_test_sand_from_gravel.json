@@ -7,11 +7,9 @@
   "type": "ftbstuff:sluice",
   "fluid": {
     "amount": 1000,
-    "fluid": "minecraft:water"
+    "ingredient": "minecraft:water"
   },
-  "input": {
-    "item": "minecraft:gravel"
-  },
+  "input": "minecraft:gravel",
   "mesh_types": [
     "cloth",
     "iron",
@@ -21,7 +19,6 @@
     {
       "chance": 0.5,
       "item": {
-        "count": 1,
         "id": "minecraft:sand"
       }
     }

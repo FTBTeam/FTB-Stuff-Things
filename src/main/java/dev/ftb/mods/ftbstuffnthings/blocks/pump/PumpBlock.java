@@ -170,7 +170,7 @@ public class PumpBlock extends AbstractMachineBlock implements EntityBlock {
             return InteractionResult.SUCCESS;
         }
 
-        return InteractionResult.PASS;
+        return stack.isEmpty() ? InteractionResult.TRY_WITH_EMPTY_HAND : InteractionResult.PASS;
     }
 
     private void sendTileUpdate(Level level, BlockPos pos, BlockState state, PumpBlockEntity tile) {

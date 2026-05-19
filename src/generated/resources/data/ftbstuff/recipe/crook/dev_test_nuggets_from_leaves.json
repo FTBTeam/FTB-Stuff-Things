@@ -5,22 +5,18 @@
     }
   ],
   "type": "ftbstuff:crook",
-  "input": {
-    "tag": "minecraft:leaves"
-  },
+  "input": "#minecraft:leaves",
   "max": 1,
   "results": [
     {
       "chance": 0.5,
       "item": {
-        "count": 1,
         "id": "minecraft:gold_nugget"
       }
     },
     {
       "chance": 0.5,
       "item": {
-        "count": 1,
         "id": "minecraft:iron_nugget"
       }
     }

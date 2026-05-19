@@ -13,19 +13,25 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import java.util.function.BiFunction;
 
 public enum AutoHammerProperties {
-    IRON(ItemsRegistry.IRON_HAMMER, ModConfig.IRON_HAMMER_SPEED, AutoHammerBlockEntity.Iron::new),
-    GOLD(ItemsRegistry.GOLD_HAMMER , ModConfig.GOLD_HAMMER_SPEED, AutoHammerBlockEntity.Gold::new),
-    DIAMOND(ItemsRegistry.DIAMOND_HAMMER, ModConfig.DIAMOND_HAMMER_SPEED, AutoHammerBlockEntity.Diamond::new),
-    NETHERITE(ItemsRegistry.NETHERITE_HAMMER, ModConfig.NETHERITE_HAMMER_SPEED, AutoHammerBlockEntity.Netherite::new);
+    IRON("iron", ItemsRegistry.IRON_HAMMER, ModConfig.IRON_HAMMER_SPEED, AutoHammerBlockEntity.Iron::new),
+    GOLD("gold", ItemsRegistry.GOLD_HAMMER , ModConfig.GOLD_HAMMER_SPEED, AutoHammerBlockEntity.Gold::new),
+    DIAMOND("diamond", ItemsRegistry.DIAMOND_HAMMER, ModConfig.DIAMOND_HAMMER_SPEED, AutoHammerBlockEntity.Diamond::new),
+    NETHERITE("netherite", ItemsRegistry.NETHERITE_HAMMER, ModConfig.NETHERITE_HAMMER_SPEED, AutoHammerBlockEntity.Netherite::new);
 
+    private final String materialId;
     private final DeferredItem<HammerItem> hammerItem;
     private final IntValue hammerSpeed;
     private final BiFunction<BlockPos, BlockState, ? extends AutoHammerBlockEntity> beFactory;
 
-    AutoHammerProperties(DeferredItem<HammerItem> hammerItem, IntValue hammerSpeed, BiFunction<BlockPos, BlockState, ? extends AutoHammerBlockEntity> beFactory) {
+    AutoHammerProperties(String materialId, DeferredItem<HammerItem> hammerItem, IntValue hammerSpeed, BiFunction<BlockPos, BlockState, ? extends AutoHammerBlockEntity> beFactory) {
+        this.materialId = materialId;
         this.hammerItem = hammerItem;
         this.hammerSpeed = hammerSpeed;
         this.beFactory = beFactory;
+    }
+
+    public String getMaterialId() {
+        return materialId;
     }
 
     public Item getHammerItem() {

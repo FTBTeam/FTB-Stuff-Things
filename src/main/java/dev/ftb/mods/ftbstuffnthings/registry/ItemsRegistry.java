@@ -15,7 +15,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ItemsRegistry {
@@ -111,8 +110,6 @@ public class ItemsRegistry {
     public static final DeferredItem<BlockItem> CRUSHED_ENDSTONE = blockItem("crushed_endstone", BlocksRegistry.CRUSHED_ENDSTONE);
     public static final DeferredItem<BlockItem> CRUSHED_NETHERRACK = blockItem("crushed_netherrack", BlocksRegistry.CRUSHED_NETHERRACK);
 
-    public static final DeferredItem<BlockItem> TUBE
-            = blockItem("tube", BlocksRegistry.TUBE);
     public static final DeferredItem<JarBlock.JarBlockItem> JAR
             = blockItem("jar", BlocksRegistry.JAR, JarBlock.JarBlockItem::new);
     public static final DeferredItem<TemperedJarBlock.TemperedJarBlockItem> TEMPERED_JAR

@@ -7,11 +7,9 @@
   "type": "ftbstuff:sluice",
   "fluid": {
     "amount": 10,
-    "fluid": "minecraft:water"
+    "ingredient": "minecraft:water"
   },
-  "input": {
-    "item": "minecraft:soul_sand"
-  },
+  "input": "minecraft:soul_sand",
   "mesh_types": [
     "blazing"
   ],
@@ -19,7 +17,6 @@
     {
       "chance": 1.0,
       "item": {
-        "count": 1,
         "id": "minecraft:blaze_powder"
       }
     }

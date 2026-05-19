@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "ftbstuff:compressed_stone"
-    }
+    "A": "ftbstuff:compressed_stone"
   },
   "pattern": [
     "AAA",
@@ -12,7 +10,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:compressed_stone_2"
   }
 }

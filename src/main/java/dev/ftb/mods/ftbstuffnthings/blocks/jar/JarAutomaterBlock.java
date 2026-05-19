@@ -1,6 +1,5 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.jar;
 
-import dev.ftb.mods.ftbstuffnthings.blocks.tube.ITubeConnectable;
 import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,7 +25,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
-public class JarAutomaterBlock extends Block implements ITubeConnectable {
+public class JarAutomaterBlock extends Block {
     public static final VoxelShape SHAPE = box(3, 0, 3, 13, 13, 13);
 
     public JarAutomaterBlock(Properties properties) {
@@ -88,10 +87,5 @@ public class JarAutomaterBlock extends Block implements ITubeConnectable {
         }
 
         return InteractionResult.PASS;
-    }
-
-    @Override
-    public boolean isSideTubeConnectable(Direction side) {
-        return side != Direction.DOWN;
     }
 }

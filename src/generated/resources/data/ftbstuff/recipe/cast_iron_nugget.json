@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "ftbstuff:cast_iron_ingot"
-    }
+    "ftbstuff:cast_iron_ingot"
   ],
   "result": {
     "count": 9,

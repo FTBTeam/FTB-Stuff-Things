@@ -26,6 +26,7 @@ public class FTBStuffRecipeType<T extends Recipe<NoInventory>> implements Recipe
         RecipeMap map = level instanceof ServerLevel serverLevel ?
                 serverLevel.getServer().getRecipeManager().recipeMap() :
                 FTBStuffNThingsClient.getInstance().getRecipeMap();
-        return map.getRecipesFor(this, NoInventory.INSTANCE, level);
+        return map.byType(this).stream();
+//        return map.getRecipesFor(this, NoInventory.INSTANCE, level);
     }
 }

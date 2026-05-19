@@ -97,12 +97,6 @@ public class TemperedJarBlock extends JarBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        ItemStack item = player.getItemInHand(hand);
-
-        if (hitResult.getDirection() == Direction.UP && item.getItem() == ItemsRegistry.TUBE.get()) {
-            return InteractionResult.PASS;
-        }
-
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof TemperedJarBlockEntity jar) {
             if (!player.isShiftKeyDown()) {
                 if (!jar.onRightClick(player, hand)) {

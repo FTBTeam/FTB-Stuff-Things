@@ -5,12 +5,9 @@
     }
   ],
   "type": "ftbstuff:hammer",
-  "input": {
-    "item": "minecraft:gravel"
-  },
+  "input": "minecraft:gravel",
   "results": [
     {
-      "count": 1,
       "id": "minecraft:sand"
     }
   ]

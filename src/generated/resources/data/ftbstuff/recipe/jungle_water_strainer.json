@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "M": {
-      "item": "ftbstuff:cloth_mesh"
-    },
-    "P": {
-      "item": "minecraft:jungle_planks"
-    },
-    "S": {
-      "tag": "c:rods/wooden"
-    }
+    "M": "ftbstuff:cloth_mesh",
+    "P": "minecraft:jungle_planks",
+    "S": "#c:rods/wooden"
   },
   "pattern": [
     "S S",
@@ -18,7 +12,6 @@
     "PMP"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:jungle_water_strainer"
   }
 }

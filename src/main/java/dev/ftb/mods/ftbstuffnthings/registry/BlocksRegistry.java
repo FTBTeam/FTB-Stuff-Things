@@ -22,7 +22,6 @@ import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceType;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.supercooler.SuperCoolerBlock;
-import dev.ftb.mods.ftbstuffnthings.blocks.tube.TubeBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.woodbasin.WoodenBasinBlock;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.item.DyeColor;
@@ -34,7 +33,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
@@ -91,7 +89,9 @@ public class BlocksRegistry {
             = BLOCKS.registerBlock("diamond_auto_hammer", (p) -> new AutoHammerBlock(p, AutoHammerProperties.DIAMOND));
     public static final DeferredBlock<AutoHammerBlock> NETHERITE_AUTO_HAMMER
             = BLOCKS.registerBlock("netherite_auto_hammer", (p) -> new AutoHammerBlock(p, AutoHammerProperties.NETHERITE));
-    public static final List<DeferredBlock<AutoHammerBlock>> ALL_AUTO_HAMMERS = List.of(IRON_AUTO_HAMMER, GOLD_AUTO_HAMMER, DIAMOND_AUTO_HAMMER, NETHERITE_AUTO_HAMMER);
+    public static final List<DeferredBlock<AutoHammerBlock>> ALL_AUTO_HAMMERS = List.of(
+            IRON_AUTO_HAMMER, GOLD_AUTO_HAMMER, DIAMOND_AUTO_HAMMER, NETHERITE_AUTO_HAMMER
+    );
 
     // Cobble & Basalt generators
     public static final DeferredBlock<CobblegenBlock> STONE_COBBLESTONE_GENERATOR
@@ -135,8 +135,8 @@ public class BlocksRegistry {
             = BLOCKS.registerBlock("fusing_machine", FusingMachineBlock::new);
     public static final DeferredBlock<SuperCoolerBlock> SUPER_COOLER
             = BLOCKS.registerBlock("super_cooler", SuperCoolerBlock::new);
-    public static final DeferredBlock<TubeBlock> TUBE
-            = BLOCKS.registerBlock("tube", TubeBlock::new);
+//    public static final DeferredBlock<TubeBlock> TUBE
+//            = BLOCKS.registerBlock("tube", TubeBlock::new);
     public static final DeferredBlock<JarBlock> JAR
             = BLOCKS.registerBlock("jar", JarBlock::new);
     public static final DeferredBlock<TemperedJarBlock> TEMPERED_JAR
@@ -148,7 +148,7 @@ public class BlocksRegistry {
             () -> Block.Properties.ofFullCopy(Blocks.STONE)
                     .mapColor(MapColor.NETHER)
                     .requiresCorrectToolForDrops()
-                    .lightLevel(state -> 3)
+                    .lightLevel(_ -> 3)
                     .randomTicks()
                     .strength(0.5F)
                     .isValidSpawn((_, _, _, entity) -> entity.fireImmune())
@@ -307,7 +307,7 @@ public class BlocksRegistry {
                 maxLevel, Block::new);
     }
 
-    private static BlockBehaviour.@NotNull Properties dustBlockProperties() {
+    private static BlockBehaviour.Properties dustBlockProperties() {
         return BlockBehaviour.Properties.ofFullCopy(Blocks.SAND).strength(0.4F).sound(SoundType.SAND);
     }
 

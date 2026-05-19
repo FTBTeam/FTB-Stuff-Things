@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "ftbstuff:compressed_dust_2"
-    }
+    "ftbstuff:compressed_dust_2"
   ],
   "result": {
     "count": 9,

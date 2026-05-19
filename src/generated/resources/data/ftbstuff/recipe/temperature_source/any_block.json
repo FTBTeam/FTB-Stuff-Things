@@ -3,9 +3,10 @@
   "blockstate": "minecraft:stone",
   "display_item": {
     "components": {
-      "minecraft:custom_name": "{\"translate\":\"ftbstuff.any_block\"}"
+      "minecraft:custom_name": {
+        "translate": "ftbstuff.any_block"
+      }
     },
-    "count": 1,
     "id": "minecraft:stone"
   }
 }

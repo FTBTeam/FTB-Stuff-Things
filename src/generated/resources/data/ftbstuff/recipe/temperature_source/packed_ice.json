@@ -1,9 +1,5 @@
 {
   "type": "ftbstuff:temperature_source",
   "blockstate": "minecraft:packed_ice",
-  "display_item": {
-    "count": 1,
-    "id": "minecraft:packed_ice"
-  },
   "temperature": "chilled"
 }

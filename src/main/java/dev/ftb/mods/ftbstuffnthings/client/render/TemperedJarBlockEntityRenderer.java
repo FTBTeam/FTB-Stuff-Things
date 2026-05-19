@@ -40,7 +40,7 @@ public class TemperedJarBlockEntityRenderer implements BlockEntityRenderer<Tempe
     public void extractRenderState(TemperedJarBlockEntity blockEntity, TemperedJarRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
 
-        state.fluidRenderData = FluidRenderData.fromTank(JarBlockEntityRenderer.JAR_BOUNDS, blockEntity.getFluidHandler());
+        state.fluidRenderData = FluidRenderData.fromTank(blockEntity, JarBlockEntityRenderer.JAR_BOUNDS, blockEntity.getFluidHandler());
 
         ResourceHandler<ItemResource> handler = blockEntity.getInputItemHandler();
         for (int i = 0; i < handler.size(); i++) {
@@ -56,7 +56,7 @@ public class TemperedJarBlockEntityRenderer implements BlockEntityRenderer<Tempe
 
     @Override
     public void submit(TemperedJarRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        RenderUtil.renderFluid3d(state.fluidRenderData, submitNodeCollector, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY);
+        state.fluidRenderData.submit(submitNodeCollector, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY);
 
         submitItems(state, poseStack, submitNodeCollector);
     }

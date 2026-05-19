@@ -1,10 +1,6 @@
 {
   "type": "ftbstuff:temperature_source",
   "blockstate": "minecraft:campfire[lit=true]",
-  "display_item": {
-    "count": 1,
-    "id": "minecraft:campfire"
-  },
   "efficiency": 0.5,
   "temperature": "hot"
 }

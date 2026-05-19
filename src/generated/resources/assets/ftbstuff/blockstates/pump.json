@@ -78,6 +78,81 @@
     {
       "apply": {
         "model": "ftbstuff:block/pump_off",
+        "y": 180
+      },
+      "when": {
+        "active": "false",
+        "facing": "east"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/pump_on",
+        "y": 180
+      },
+      "when": {
+        "active": "true",
+        "facing": "east"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/pump_20",
+        "y": 180
+      },
+      "when": {
+        "active": "true",
+        "facing": "east",
+        "progress": "twenty"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/pump_40",
+        "y": 180
+      },
+      "when": {
+        "active": "true",
+        "facing": "east",
+        "progress": "forty"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/pump_60",
+        "y": 180
+      },
+      "when": {
+        "active": "true",
+        "facing": "east",
+        "progress": "sixty"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/pump_80",
+        "y": 180
+      },
+      "when": {
+        "active": "true",
+        "facing": "east",
+        "progress": "eighty"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/pump_100",
+        "y": 180
+      },
+      "when": {
+        "active": "true",
+        "facing": "east",
+        "progress": "hundred"
+      }
+    },
+    {
+      "apply": {
+        "model": "ftbstuff:block/pump_off",
         "y": 270
       },
       "when": {
@@ -215,81 +290,6 @@
       "when": {
         "active": "true",
         "facing": "west",
-        "progress": "hundred"
-      }
-    },
-    {
-      "apply": {
-        "model": "ftbstuff:block/pump_off",
-        "y": 180
-      },
-      "when": {
-        "active": "false",
-        "facing": "east"
-      }
-    },
-    {
-      "apply": {
-        "model": "ftbstuff:block/pump_on",
-        "y": 180
-      },
-      "when": {
-        "active": "true",
-        "facing": "east"
-      }
-    },
-    {
-      "apply": {
-        "model": "ftbstuff:block/pump_20",
-        "y": 180
-      },
-      "when": {
-        "active": "true",
-        "facing": "east",
-        "progress": "twenty"
-      }
-    },
-    {
-      "apply": {
-        "model": "ftbstuff:block/pump_40",
-        "y": 180
-      },
-      "when": {
-        "active": "true",
-        "facing": "east",
-        "progress": "forty"
-      }
-    },
-    {
-      "apply": {
-        "model": "ftbstuff:block/pump_60",
-        "y": 180
-      },
-      "when": {
-        "active": "true",
-        "facing": "east",
-        "progress": "sixty"
-      }
-    },
-    {
-      "apply": {
-        "model": "ftbstuff:block/pump_80",
-        "y": 180
-      },
-      "when": {
-        "active": "true",
-        "facing": "east",
-        "progress": "eighty"
-      }
-    },
-    {
-      "apply": {
-        "model": "ftbstuff:block/pump_100",
-        "y": 180
-      },
-      "when": {
-        "active": "true",
-        "facing": "east",
         "progress": "hundred"
       }
     }

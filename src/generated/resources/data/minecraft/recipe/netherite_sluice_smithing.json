@@ -1,16 +1,9 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "minecraft:netherite_ingot"
-  },
-  "base": {
-    "item": "ftbstuff:diamond_sluice"
-  },
+  "addition": "#minecraft:netherite_tool_materials",
+  "base": "ftbstuff:diamond_sluice",
   "result": {
-    "count": 1,
     "id": "ftbstuff:netherite_sluice"
   },
-  "template": {
-    "item": "minecraft:netherite_upgrade_smithing_template"
-  }
+  "template": "minecraft:netherite_upgrade_smithing_template"
 }

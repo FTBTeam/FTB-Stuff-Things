@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:basalt"
-    }
+    "A": "minecraft:basalt"
   },
   "pattern": [
     "AAA",
@@ -12,7 +10,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:compressed_basalt"
   }
 }

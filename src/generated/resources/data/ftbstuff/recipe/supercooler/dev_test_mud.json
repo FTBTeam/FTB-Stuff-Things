@@ -11,15 +11,12 @@
   },
   "fluid": {
     "amount": 100,
-    "fluid": "minecraft:water"
+    "ingredient": "minecraft:water"
   },
   "inputs": [
-    {
-      "item": "minecraft:dirt"
-    }
+    "minecraft:dirt"
   ],
   "result": {
-    "count": 1,
     "id": "minecraft:mud"
   }
 }

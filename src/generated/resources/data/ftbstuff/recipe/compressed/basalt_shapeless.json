@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "ftbstuff:compressed_basalt"
-    }
+    "ftbstuff:compressed_basalt"
   ],
   "result": {
     "count": 9,

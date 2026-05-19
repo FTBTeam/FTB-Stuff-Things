@@ -1,9 +1,5 @@
 {
   "type": "ftbstuff:temperature_source",
   "blockstate": "minecraft:respawn_anchor[charges=0]",
-  "display_item": {
-    "count": 1,
-    "id": "minecraft:respawn_anchor"
-  },
   "efficiency": 8.0
 }

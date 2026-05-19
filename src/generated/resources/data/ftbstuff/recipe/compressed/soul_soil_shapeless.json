@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "ftbstuff:compressed_soul_soil"
-    }
+    "ftbstuff:compressed_soul_soil"
   ],
   "result": {
     "count": 9,

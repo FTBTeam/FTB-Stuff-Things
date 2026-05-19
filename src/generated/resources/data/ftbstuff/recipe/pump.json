@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "minecraft:oak_planks"
-    },
-    "S": {
-      "item": "minecraft:stone"
-    },
-    "W": {
-      "tag": "c:buckets/water"
-    }
+    "B": "minecraft:oak_planks",
+    "S": "minecraft:stone",
+    "W": "#c:buckets/water"
   },
   "pattern": [
     "WWW",
@@ -18,7 +12,6 @@
     "BBB"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:pump"
   }
 }

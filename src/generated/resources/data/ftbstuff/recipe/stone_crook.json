@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "S": {
-      "item": "ftbstuff:stone_rod"
-    }
+    "S": "ftbstuff:stone_rod"
   },
   "pattern": [
     "SS",
@@ -12,7 +10,6 @@
     " S"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:stone_crook"
   }
 }

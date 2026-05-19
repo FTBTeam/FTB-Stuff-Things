@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "ftbstuff:cast_iron_block"
-    }
+    "ftbstuff:cast_iron_block"
   ],
   "result": {
     "count": 9,

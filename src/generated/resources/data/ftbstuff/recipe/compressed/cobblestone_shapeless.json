@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "ftbstuff:compressed_cobblestone"
-    }
+    "ftbstuff:compressed_cobblestone"
   ],
   "result": {
     "count": 9,

@@ -1,9 +1,5 @@
 {
   "type": "ftbstuff:temperature_source",
   "blockstate": "minecraft:glowstone",
-  "display_item": {
-    "count": 1,
-    "id": "minecraft:glowstone"
-  },
   "efficiency": 1.25
 }

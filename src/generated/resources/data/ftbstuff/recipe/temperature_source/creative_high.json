@@ -1,10 +1,6 @@
 {
   "type": "ftbstuff:temperature_source",
   "blockstate": "ftbstuff:creative_high_temperature_source",
-  "display_item": {
-    "count": 1,
-    "id": "ftbstuff:creative_high_temperature_source"
-  },
   "efficiency": 100.0,
   "hide_from_jei": true,
   "temperature": "superheated"

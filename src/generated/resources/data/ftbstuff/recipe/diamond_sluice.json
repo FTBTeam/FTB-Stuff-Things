@@ -2,19 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "D": {
-      "tag": "c:gems/diamond"
-    },
-    "S": {
-      "item": "ftbstuff:iron_sluice"
-    }
+    "D": "#c:gems/diamond",
+    "S": "ftbstuff:iron_sluice"
   },
   "pattern": [
     "DD",
     "SD"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:diamond_sluice"
   }
 }

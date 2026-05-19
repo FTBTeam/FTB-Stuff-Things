@@ -11,18 +11,12 @@
   },
   "fluid": {
     "amount": 1000,
-    "fluid": "minecraft:water"
+    "ingredient": "minecraft:water"
   },
   "inputs": [
-    {
-      "tag": "minecraft:sand"
-    },
-    {
-      "tag": "c:gravels"
-    },
-    {
-      "tag": "c:dyes/white"
-    }
+    "#minecraft:sand",
+    "#c:gravels",
+    "#c:dyes/white"
   ],
   "result": {
     "count": 2,

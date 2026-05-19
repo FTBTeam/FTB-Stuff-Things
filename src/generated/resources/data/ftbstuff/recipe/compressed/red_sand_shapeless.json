@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "ftbstuff:compressed_red_sand"
-    }
+    "ftbstuff:compressed_red_sand"
   ],
   "result": {
     "count": 9,

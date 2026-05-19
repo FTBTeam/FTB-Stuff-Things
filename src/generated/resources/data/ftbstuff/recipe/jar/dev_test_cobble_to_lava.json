@@ -8,7 +8,7 @@
   "input_items": [
     {
       "count": 4,
-      "tag": "c:cobblestones"
+      "ingredient": "#c:cobblestones"
     }
   ],
   "output_fluids": [

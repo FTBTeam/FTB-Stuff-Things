@@ -122,4 +122,8 @@ public class CobblegenBlock extends Block implements EntityBlock {
     public BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(BlockStateProperties.HORIZONTAL_FACING)));
     }
+
+    public IResourceGenProps getGeneratorProps() {
+        return props;
+    }
 }

@@ -1,9 +1,5 @@
 {
   "type": "ftbstuff:temperature_source",
   "blockstate": "minecraft:magma_block",
-  "display_item": {
-    "count": 1,
-    "id": "minecraft:magma_block"
-  },
   "temperature": "hot"
 }

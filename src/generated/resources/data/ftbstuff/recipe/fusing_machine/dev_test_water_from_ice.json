@@ -10,9 +10,7 @@
     "ticks_to_process": 20
   },
   "inputs": [
-    {
-      "item": "minecraft:ice"
-    }
+    "minecraft:ice"
   ],
   "result": {
     "amount": 1000,

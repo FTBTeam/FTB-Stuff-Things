@@ -1,10 +1,6 @@
 {
   "type": "ftbstuff:temperature_source",
   "blockstate": "minecraft:blue_ice",
-  "display_item": {
-    "count": 1,
-    "id": "minecraft:blue_ice"
-  },
   "efficiency": 4.0,
   "temperature": "chilled"
 }

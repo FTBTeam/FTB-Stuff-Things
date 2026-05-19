@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "ftbstuff:compressed_dust_2"
-    }
+    "A": "ftbstuff:compressed_dust_2"
   },
   "pattern": [
     "AAA",
@@ -12,7 +10,6 @@
     "AAA"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:compressed_dust_3"
   }
 }

@@ -2,19 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "S": {
-      "tag": "c:rods/wooden"
-    },
-    "W": {
-      "item": "minecraft:dark_oak_log"
-    }
+    "S": "#c:rods/wooden",
+    "W": "minecraft:dark_oak_log"
   },
   "pattern": [
     "WS",
     "WW"
   ],
   "result": {
-    "count": 1,
     "id": "ftbstuff:dark_oak_sluice"
   }
 }

@@ -83,10 +83,6 @@ public class JarBlock extends Block implements EntityBlock, SerializableComponen
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         ItemStack item = player.getItemInHand(hand);
 
-        if (hitResult.getDirection() == Direction.UP && item.getItem() == ItemsRegistry.TUBE.get()) {
-            return InteractionResult.PASS;
-        }
-
         if (!level.isClientSide()) {
             BlockEntity tileEntity = level.getBlockEntity(pos);
 
