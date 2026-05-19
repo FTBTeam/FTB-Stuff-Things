@@ -24,9 +24,9 @@ import java.util.List;
 public class SluiceCategory extends BaseStuffCategory<SluiceRecipe> {
     private final static Comparator<ItemWithChance> COMPARATOR = (a, b) -> (int) ((b.chance() * 100) - (a.chance() * 100));
 
-    protected SluiceCategory() {
+    public SluiceCategory() {
         super(
-                RecipeTypes.SLUICE,
+                JeiRecipeTypes.SLUICE,
                 Component.translatable("ftbstuff.sluice"),
                 guiHelper().drawableBuilder(bgTexture("jei_sluice.png"),
                         0, 0, 156, 78).setTextureSize(180, 78).build(),

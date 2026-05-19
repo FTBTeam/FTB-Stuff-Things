@@ -30,7 +30,7 @@ public class FusingMachineCategory extends BaseStuffCategory<FusingMachineRecipe
     private final IDrawableAnimated progress;
 
     public FusingMachineCategory() {
-        super(RecipeTypes.FUSING_MACHINE,
+        super(JeiRecipeTypes.FUSING_MACHINE,
                 Component.translatable("block.ftbstuff.fusing_machine"),
                 guiHelper().drawableBuilder(BACKGROUND, 0, 0, 106, 28)
                         .setTextureSize(134, 28)
@@ -95,7 +95,7 @@ public class FusingMachineCategory extends BaseStuffCategory<FusingMachineRecipe
             return List.of(
                     IGuiClickableArea.createBasic(CLICK_AREA.getX(), CLICK_AREA.getY(),
                             CLICK_AREA.getWidth(), CLICK_AREA.getHeight(),
-                            RecipeTypes.FUSING_MACHINE)
+                            JeiRecipeTypes.FUSING_MACHINE)
             );
         }
     }

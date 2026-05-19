@@ -34,7 +34,7 @@ public class SuperCoolerCategory extends BaseStuffCategory<SuperCoolerRecipe> {
     private final IDrawableAnimated progress;
 
     public SuperCoolerCategory() {
-        super(RecipeTypes.SUPER_COOLER,
+        super(JeiRecipeTypes.SUPER_COOLER,
                 Component.translatable("block.ftbstuff.super_cooler"),
                 guiHelper().drawableBuilder(BACKGROUND, 0, 0, 146, 28)
                         .setTextureSize(174, 28)
@@ -102,7 +102,7 @@ public class SuperCoolerCategory extends BaseStuffCategory<SuperCoolerRecipe> {
             return List.of(
                     IGuiClickableArea.createBasic(CLICK_AREA.getX(), CLICK_AREA.getY(),
                             CLICK_AREA.getWidth(), CLICK_AREA.getHeight(),
-                            RecipeTypes.SUPER_COOLER)
+                            JeiRecipeTypes.SUPER_COOLER)
             );
         }
     }

@@ -11,8 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 
 public class TemperatureSourceCategory extends BaseStuffCategory<TemperatureSourceRecipe> {
-    protected TemperatureSourceCategory() {
-        super(RecipeTypes.TEMPERATURE_SOURCE,
+    public TemperatureSourceCategory() {
+        super(JeiRecipeTypes.TEMPERATURE_SOURCE,
                 Component.translatable("ftbstuff.temperature_source"),
                 guiHelper().drawableBuilder(bgTexture("jei_temperature_source.png"), 0, 0, 71, 30)
                         .setTextureSize(128, 64).build(),

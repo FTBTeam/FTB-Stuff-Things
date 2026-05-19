@@ -117,7 +117,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
         if (!fluidBacklog.isEmpty()) {
             output.store("FluidBacklog", FluidStack.CODEC.listOf(), fluidBacklog);
         }
-        if (currentRecipe != null) output.putString("Recipe", currentRecipe.id().toString());
+        if (currentRecipe != null) output.putString("Recipe", currentRecipe.id().identifier().toString());
     }
 
     @Override

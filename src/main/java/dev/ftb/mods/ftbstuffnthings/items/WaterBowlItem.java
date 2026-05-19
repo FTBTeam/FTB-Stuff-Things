@@ -8,7 +8,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -19,7 +18,6 @@ import net.minecraft.world.phys.HitResult;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
@@ -27,6 +25,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.ItemAccessFluidHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jetbrains.annotations.UnknownNullability;
 
 public class WaterBowlItem extends Item {
 	protected static final int BOWL_CAPACITY = FluidType.BUCKET_VOLUME / 4;
@@ -51,8 +50,8 @@ public class WaterBowlItem extends Item {
 	}
 
 	public static class WaterBowlFluidHandler extends ItemAccessFluidHandler {
-		public WaterBowlFluidHandler(ItemStack container) {
-			super(ItemAccess.forStack(container), ComponentsRegistry.STORED_FLUID.get(), BOWL_CAPACITY);
+		public WaterBowlFluidHandler(ItemAccess container) {
+			super(container, ComponentsRegistry.STORED_FLUID.get(), BOWL_CAPACITY);
 		}
 
 		@Override

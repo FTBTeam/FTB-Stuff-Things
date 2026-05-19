@@ -1,6 +1,12 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "ftbstuff:block/diamond_cobblestone_generator"
+    "model": "ftbstuff:block/diamond_cobblestone_generator",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": -12618012
+      }
+    ]
   }
 }

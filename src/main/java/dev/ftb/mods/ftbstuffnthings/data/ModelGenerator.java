@@ -5,10 +5,12 @@ import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.TemperedJarBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.pump.PumpBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlock;
+import dev.ftb.mods.ftbstuffnthings.client.FluidCapsuleTintSource;
 import dev.ftb.mods.ftbstuffnthings.items.MeshType;
 import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
+import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -107,7 +109,8 @@ public class ModelGenerator extends ModelProvider {
         registerCompressedBlocks(blockModels);
 
         // Simple items
-        simpleItem(itemModels, ItemsRegistry.FLUID_CAPSULE, "item/fluid_container_base", "item/fluid_container_overlay");
+        itemModels.generateItemWithTintedOverlay(ItemsRegistry.FLUID_CAPSULE.get(), FluidCapsuleTintSource.DEFAULT);
+//        simpleItem(itemModels, ItemsRegistry.FLUID_CAPSULE, "item/fluid_container_base", "item/fluid_container_overlay");
         simpleItem(itemModels, ItemsRegistry.DRIPPER, "item/dripper");
         simpleItem(itemModels, ItemsRegistry.WATER_BOWL, "item/water_bowl");
         simpleItem(itemModels, ItemsRegistry.CAST_IRON_GEAR, "item/cast_iron_gear");
@@ -204,7 +207,7 @@ public class ModelGenerator extends ModelProvider {
 
             applyBlockTemplate(activeBlockTemplate, material + "_auto_hammer_active", new TextureMapping()
                     .put(baseSlot, blockMaterial("auto_hammer/" + material + "_base"))
-                    .put(hammerSlot, blockMaterial("auto_hammer/" + material + "_hammer")), blockModels);
+                    .put(hammerSlot, blockMaterial("auto_hammer/" + material + "_hammer_active")), blockModels);
 
             itemModels.itemModelOutput.accept(db.asItem(), ItemModelUtils.plainModel(blockId(material + "_auto_hammer")));
         });
@@ -275,7 +278,11 @@ public class ModelGenerator extends ModelProvider {
             String generatorName = ourNaming + "_" + genType + "_generator";
             applyBlockTemplate(template, generatorName, textures, blockModels);
 
-            itemModels.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(blockId(ourNaming + "_" + genType +  "_generator")));
+            itemModels.itemModelOutput.accept(block.asItem(), ItemModelUtils.tintedModel(
+                            blockId(ourNaming + "_" + genType +  "_generator"),
+                            new Constant(4159204)
+                    )
+            );
         });
 
         // Now we need state configs for all variants but we can reuse the same models.

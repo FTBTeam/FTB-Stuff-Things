@@ -154,12 +154,12 @@ public class FTBStuffNThings {
 
         event.registerItem(
                 Capabilities.Fluid.ITEM,
-                (stack, ctx) -> new FluidCapsuleItem.FluidHandler(stack),
+                (stack, itemAccess) -> new FluidCapsuleItem.FluidHandler(itemAccess),
                 ItemsRegistry.FLUID_CAPSULE
         );
         event.registerItem(
                 Capabilities.Fluid.ITEM,
-                (stack, _) -> new WaterBowlItem.WaterBowlFluidHandler(stack),
+                (stack, itemAccess) -> new WaterBowlItem.WaterBowlFluidHandler(itemAccess),
                 ItemsRegistry.WATER_BOWL
         );
 

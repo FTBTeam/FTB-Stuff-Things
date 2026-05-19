@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.List;
 
 public class TemperedJarCategory extends BaseStuffCategory<JarRecipe> {
-    protected TemperedJarCategory() {
-        super(RecipeTypes.TEMPERED_JAR,
+    public TemperedJarCategory() {
+        super(JeiRecipeTypes.TEMPERED_JAR,
                 Component.translatable(BlocksRegistry.TEMPERED_JAR.get().getDescriptionId()),
                 guiHelper().drawableBuilder(bgTexture("jei_tempered_jar.png"), 0, 0, 150, 18)
                         .setTextureSize(256, 32).build(),
@@ -85,7 +85,7 @@ public class TemperedJarCategory extends BaseStuffCategory<JarRecipe> {
         public Collection<IGuiClickableArea> getGuiClickableAreas(TemperedJarScreen containerScreen, double guiMouseX, double guiMouseY) {
             return List.of(
                     IGuiClickableArea.createBasic(TemperedJarScreen.JEI_AREA.getX(), TemperedJarScreen.JEI_AREA.getY(),
-                            TemperedJarScreen.JEI_AREA.getWidth(), TemperedJarScreen.JEI_AREA.getHeight(), RecipeTypes.TEMPERED_JAR),
+                            TemperedJarScreen.JEI_AREA.getWidth(), TemperedJarScreen.JEI_AREA.getHeight(), JeiRecipeTypes.TEMPERED_JAR),
                     new TemperatureClickableGuiArea(containerScreen)
             );
         }
@@ -99,7 +99,7 @@ public class TemperedJarCategory extends BaseStuffCategory<JarRecipe> {
 
         @Override
         public void onClick(IFocusFactory focusFactory, IRecipesGui recipesGui) {
-            recipesGui.showTypes(List.of(RecipeTypes.TEMPERATURE_SOURCE));
+            recipesGui.showTypes(List.of(JeiRecipeTypes.TEMPERATURE_SOURCE));
         }
 
         @Override

@@ -85,7 +85,7 @@ public class DripperBlock extends Block implements EntityBlock {
 				return bottleRes;
 			}
 
-			FluidUtil.interactWithFluidHandler(player, hand, level, pos, hitResult.getDirection());
+			FluidUtil.interactWithFluidHandler(player, hand, pos, tank);
 
 			if (tank.getAmountAsInt(0) == 0) {
 				player.sendOverlayMessage(Component.translatable("ftblibrary.empty"));

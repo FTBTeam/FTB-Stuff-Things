@@ -279,9 +279,9 @@ public abstract class SluiceBlockEntity extends AbstractMachineBlockEntity {
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var tag = super.getUpdateTag(registries);
-        this.saveAdditional(TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries));
-        return tag;
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        saveAdditional(output);
+        return output.buildResult();
     }
 
     @Nullable

@@ -5,40 +5,34 @@ import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.BaseResourceGenBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.client.render.state.ResourcegenRenderState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+
 public class ResourcegenBlockEntityRenderer implements BlockEntityRenderer<BaseResourceGenBlockEntity, ResourcegenRenderState> {
-    public static final float TEX_ANIM = 10f;
-    public static final float SPEED_FACTOR = 3f;  // Increase this value to slow down the animation
-    public static final int TEXTURE_OFFSET = 2;   // Adjust as needed
+    private static final float TEX_ANIM = 10f;
+    private static final float SPEED_FACTOR = 3f;  // Increase this value to slow down the animation
+    private static final int TEXTURE_OFFSET = 2;   // Adjust as needed
+    private static final BlockDisplayContext DISPLAY_CONTEXT = BlockDisplayContext.create();
 
-    public ResourcegenBlockEntityRenderer(BlockEntityRendererProvider.Context ignoredContext) {
+    private final BlockModelResolver resolver;
+
+    public ResourcegenBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        resolver = context.blockModelResolver();
     }
-
-//    @Override
-//    public void render(BaseResourceGenBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-//        if (blockEntity.getLevel() != null
-//                && blockEntity.getLevel().isLoaded(blockEntity.getBlockPos())
-//                && blockEntity.getBlockState().getValue(BlockStateProperties.ENABLED))
-//        {
-//            var tick = blockEntity.getLevel().getGameTime();
-//            int time = (int) ((tick / SPEED_FACTOR) % TEX_ANIM);
-//            time = (time + TEXTURE_OFFSET) % (int) TEX_ANIM;
-//
-//            poseStack.pushPose();
-//            poseStack.translate(0.375, 0.125, 0.375);
-//            RenderUtil.renderBlock(poseStack, bufferSource, packedLight, packedOverlay, blockEntity.generatedItem().getDefaultInstance(), time);
-//            poseStack.popPose();
-//        }
-//    }
 
     @Override
     public ResourcegenRenderState createRenderState() {
@@ -59,6 +53,7 @@ public class ResourcegenBlockEntityRenderer implements BlockEntityRenderer<BaseR
         } else {
             state.blockState = null;
         }
+        resolver.update(state.renderState, Objects.requireNonNullElse(state.blockState, Blocks.AIR.defaultBlockState()), DISPLAY_CONTEXT);
     }
 
     @Override
@@ -68,6 +63,8 @@ public class ResourcegenBlockEntityRenderer implements BlockEntityRenderer<BaseR
 
             poseStack.pushPose();
             poseStack.translate(0.375, 0.125, 0.375);
+            poseStack.scale(0.25f, 0.25f, 0.25f);
+            state.renderState.submit(poseStack, submitNodeCollector, LightCoordsUtil.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, 0);
             submitNodeCollector.submitBreakingBlockModel(poseStack, model, 0L, state.time);
             poseStack.popPose();
         }

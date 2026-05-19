@@ -34,7 +34,7 @@ public class LootSummaryCategory extends BaseStuffCategory<WrappedLootSummary> {
 
     public LootSummaryCategory() {
         super(
-                RecipeTypes.LOOT_SUMMARY,
+                JeiRecipeTypes.LOOT_SUMMARY,
                 Component.translatable("ftbstuff.jei.loot_summary"),
                 guiHelper().drawableBuilder(bgTexture("jei_loot_table.png"), 0, 0, 156, 126).setTextureSize(180, 126).build(),
                 guiHelper().createDrawableItemStack(ItemsRegistry.CRATE.toStack())

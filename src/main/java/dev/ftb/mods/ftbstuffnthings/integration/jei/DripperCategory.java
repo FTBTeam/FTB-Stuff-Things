@@ -17,7 +17,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 public class DripperCategory extends BaseStuffCategory<DripperRecipe> {
 	public DripperCategory() {
-		super(RecipeTypes.DRIPPER,
+		super(JeiRecipeTypes.DRIPPER,
 				Component.translatable(BlocksRegistry.DRIPPER.get().getDescriptionId()),
 				guiHelper().drawableBuilder(bgTexture("jei_dripper.png"),
 						0, 0, 91, 30).setTextureSize(128, 64).build(),

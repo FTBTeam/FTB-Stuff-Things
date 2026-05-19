@@ -1,6 +1,12 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "ftbstuff:block/netherite_basalt_generator"
+    "model": "ftbstuff:block/netherite_basalt_generator",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": -12618012
+      }
+    ]
   }
 }

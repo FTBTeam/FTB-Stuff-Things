@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 
 public class HammerCategory extends BaseStuffCategory<HammerRecipe> {
     public HammerCategory() {
-        super(RecipeTypes.HAMMER,
+        super(JeiRecipeTypes.HAMMER,
                 Component.translatable(ItemsRegistry.STONE_HAMMER.get().getDescriptionId()),
                 guiHelper().drawableBuilder(bgTexture("jei_hammer.png"),
                         0, 0, 156, 62).setTextureSize(180, 62).build(),

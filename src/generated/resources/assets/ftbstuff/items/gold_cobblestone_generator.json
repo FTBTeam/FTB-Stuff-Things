@@ -1,6 +1,12 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "ftbstuff:block/gold_cobblestone_generator"
+    "model": "ftbstuff:block/gold_cobblestone_generator",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": -12618012
+      }
+    ]
   }
 }

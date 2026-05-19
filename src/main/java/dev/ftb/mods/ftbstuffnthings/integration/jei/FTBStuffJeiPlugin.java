@@ -14,11 +14,9 @@ import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IJeiHelpers;
-import mezz.jei.api.recipe.IRecipeManager;
 import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.IJeiRuntime;
-import mezz.jei.api.runtime.IRecipesGui;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.crafting.Recipe;
@@ -35,17 +33,9 @@ import java.util.function.Function;
 public class FTBStuffJeiPlugin implements IModPlugin {
     @Nullable
     static IJeiHelpers jeiHelpers;
-//    @Nullable
-//    static IRecipeManager recipeManager;
-//    @Nullable
-//    static IRecipesGui recipesGui;
 
     @Override
     public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
-//        recipeManager = jeiRuntime.getRecipeManager();
-//        recipesGui = jeiRuntime.getRecipesGui();
-        jeiHelpers = jeiRuntime.getJeiHelpers();
-
         jeiRuntime.getIngredientManager().addIngredientsAtRuntime(FTBStuffIngredientTypes.TEMPERATURE, Arrays.asList(Temperature.values()));
     }
 
@@ -61,6 +51,8 @@ public class FTBStuffJeiPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
+        jeiHelpers = registration.getJeiHelpers();
+
         registration.addRecipeCategories(
                 new TemperedJarCategory(),
                 new TemperatureSourceCategory(),
@@ -77,37 +69,37 @@ public class FTBStuffJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        addRecipeType(registration, RecipesRegistry.TEMPERED_JAR_TYPE.get(), RecipeTypes.TEMPERED_JAR, TemperedJarCategory::sortRecipes);
-        addRecipeType(registration, RecipesRegistry.TEMPERATURE_SOURCE_TYPE.get(), RecipeTypes.TEMPERATURE_SOURCE, TemperatureSourceRecipe::sortRecipes);
-        addRecipeType(registration, RecipesRegistry.DRIP_TYPE.get(), RecipeTypes.DRIPPER);
-        addRecipeType(registration, RecipesRegistry.CROOK_TYPE.get(), RecipeTypes.CROOK);
-        addRecipeType(registration, RecipesRegistry.HAMMER_TYPE.get(), RecipeTypes.HAMMER);
-        addRecipeType(registration, RecipesRegistry.FUSING_MACHINE_TYPE.get(), RecipeTypes.FUSING_MACHINE);
-        addRecipeType(registration, RecipesRegistry.SUPER_COOLER_TYPE.get(), RecipeTypes.SUPER_COOLER);
-        addRecipeType(registration, RecipesRegistry.SLUICE_TYPE.get(), RecipeTypes.SLUICE);
-        addRecipeType(registration, RecipesRegistry.WOODEN_BASIN_TYPE.get(), RecipeTypes.WOODEN_BASIN);
+        addRecipeType(registration, RecipesRegistry.TEMPERED_JAR_TYPE.get(), JeiRecipeTypes.TEMPERED_JAR, TemperedJarCategory::sortRecipes);
+        addRecipeType(registration, RecipesRegistry.TEMPERATURE_SOURCE_TYPE.get(), JeiRecipeTypes.TEMPERATURE_SOURCE, TemperatureSourceRecipe::sortRecipes);
+        addRecipeType(registration, RecipesRegistry.DRIP_TYPE.get(), JeiRecipeTypes.DRIPPER);
+        addRecipeType(registration, RecipesRegistry.CROOK_TYPE.get(), JeiRecipeTypes.CROOK);
+        addRecipeType(registration, RecipesRegistry.HAMMER_TYPE.get(), JeiRecipeTypes.HAMMER);
+        addRecipeType(registration, RecipesRegistry.FUSING_MACHINE_TYPE.get(), JeiRecipeTypes.FUSING_MACHINE);
+        addRecipeType(registration, RecipesRegistry.SUPER_COOLER_TYPE.get(), JeiRecipeTypes.SUPER_COOLER);
+        addRecipeType(registration, RecipesRegistry.SLUICE_TYPE.get(), JeiRecipeTypes.SLUICE);
+        addRecipeType(registration, RecipesRegistry.WOODEN_BASIN_TYPE.get(), JeiRecipeTypes.WOODEN_BASIN);
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addCraftingStation(RecipeTypes.TEMPERED_JAR, ItemsRegistry.TEMPERED_JAR.toStack());
-        registration.addCraftingStation(RecipeTypes.TEMPERATURE_SOURCE, ItemsRegistry.CREATIVE_HOT_TEMPERATURE_SOURCE.toStack());
-        registration.addCraftingStation(RecipeTypes.TEMPERATURE_SOURCE, ItemsRegistry.CREATIVE_SUPERHEATED_TEMPERATURE_SOURCE.toStack());
-        registration.addCraftingStation(RecipeTypes.TEMPERATURE_SOURCE, ItemsRegistry.CREATIVE_CHILLED_TEMPERATURE_SOURCE.toStack());
-        registration.addCraftingStation(RecipeTypes.CROOK, ItemsRegistry.CROOK.toStack());
-        registration.addCraftingStation(RecipeTypes.DRIPPER, ItemsRegistry.DRIPPER.toStack());
-        registration.addCraftingStation(RecipeTypes.FUSING_MACHINE, ItemsRegistry.FUSING_MACHINE.toStack());
-        registration.addCraftingStation(RecipeTypes.SUPER_COOLER, ItemsRegistry.SUPER_COOLER.toStack());
-        registration.addCraftingStation(RecipeTypes.WOODEN_BASIN, ItemsRegistry.WOODEN_BASIN.toStack());
+        registration.addCraftingStation(JeiRecipeTypes.TEMPERED_JAR, ItemsRegistry.TEMPERED_JAR.toStack());
+        registration.addCraftingStation(JeiRecipeTypes.TEMPERATURE_SOURCE, ItemsRegistry.CREATIVE_HOT_TEMPERATURE_SOURCE.toStack());
+        registration.addCraftingStation(JeiRecipeTypes.TEMPERATURE_SOURCE, ItemsRegistry.CREATIVE_SUPERHEATED_TEMPERATURE_SOURCE.toStack());
+        registration.addCraftingStation(JeiRecipeTypes.TEMPERATURE_SOURCE, ItemsRegistry.CREATIVE_CHILLED_TEMPERATURE_SOURCE.toStack());
+        registration.addCraftingStation(JeiRecipeTypes.CROOK, ItemsRegistry.CROOK.toStack());
+        registration.addCraftingStation(JeiRecipeTypes.DRIPPER, ItemsRegistry.DRIPPER.toStack());
+        registration.addCraftingStation(JeiRecipeTypes.FUSING_MACHINE, ItemsRegistry.FUSING_MACHINE.toStack());
+        registration.addCraftingStation(JeiRecipeTypes.SUPER_COOLER, ItemsRegistry.SUPER_COOLER.toStack());
+        registration.addCraftingStation(JeiRecipeTypes.WOODEN_BASIN, ItemsRegistry.WOODEN_BASIN.toStack());
 
         for (var item : ItemsRegistry.ALL_HAMMERS) {
-            registration.addCraftingStation(RecipeTypes.HAMMER, item.toStack());
+            registration.addCraftingStation(JeiRecipeTypes.HAMMER, item.toStack());
         }
         for (var block : BlocksRegistry.ALL_AUTO_HAMMERS) {
-            registration.addCraftingStation(RecipeTypes.HAMMER, block.toStack());
+            registration.addCraftingStation(JeiRecipeTypes.HAMMER, block.toStack());
         }
         for (var block : BlocksRegistry.ALL_SLUICES) {
-            registration.addCraftingStation(RecipeTypes.SLUICE, block.toStack());
+            registration.addCraftingStation(JeiRecipeTypes.SLUICE, block.toStack());
         }
 
 //        BlocksRegistry.waterStrainers().forEach(b -> registration.addRecipeCatalyst(b.toStack(), RecipeTypes.LOOT_SUMMARY));
@@ -122,7 +114,7 @@ public class FTBStuffJeiPlugin implements IModPlugin {
 
     @Override
     public void registerAdvanced(IAdvancedRegistration registration) {
-        registration.addSimpleRecipeManagerPlugin(RecipeTypes.LOOT_SUMMARY, LootSummaryPlugin.INSTANCE);
+        registration.addSimpleRecipeManagerPlugin(JeiRecipeTypes.LOOT_SUMMARY, LootSummaryPlugin.INSTANCE);
     }
 
     @Override

@@ -17,8 +17,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class WoodenBasinCategory extends BaseStuffCategory<WoodenBasinRecipe> {
-    protected WoodenBasinCategory() {
-        super(RecipeTypes.WOODEN_BASIN,
+    public WoodenBasinCategory() {
+        super(JeiRecipeTypes.WOODEN_BASIN,
                 Component.translatable(BlocksRegistry.WOODEN_BASIN.get().getDescriptionId()),
                 guiHelper().drawableBuilder(bgTexture("jei_wooden_basin.png"), 0, 0, 64, 64)
                         .setTextureSize(64, 64).build(),

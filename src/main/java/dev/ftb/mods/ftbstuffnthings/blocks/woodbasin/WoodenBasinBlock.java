@@ -25,6 +25,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import org.jspecify.annotations.Nullable;
 
@@ -70,7 +71,7 @@ public class WoodenBasinBlock extends Block implements EntityBlock {
                 return InteractionResult.CONSUME;
             }
         }
-        return stack.getCapability(Capabilities.Fluid.ITEM, null) == null ?
+        return stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forPlayerInteraction(player, hand)) == null ?
                 InteractionResult.PASS :
                 InteractionResult.SUCCESS;
     }

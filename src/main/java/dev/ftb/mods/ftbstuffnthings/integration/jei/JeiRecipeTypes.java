@@ -6,7 +6,7 @@ import dev.ftb.mods.ftbstuffnthings.util.lootsummary.WrappedLootSummary;
 import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.world.item.crafting.Recipe;
 
-public class RecipeTypes {
+public class JeiRecipeTypes {
     public static final IRecipeType<JarRecipe> TEMPERED_JAR = register("jar", JarRecipe.class);
     public static final IRecipeType<TemperatureSourceRecipe> TEMPERATURE_SOURCE = register("temperature_source", TemperatureSourceRecipe.class);
     public static final IRecipeType<DripperRecipe> DRIPPER = register("dripper", DripperRecipe.class);

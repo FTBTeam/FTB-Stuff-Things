@@ -18,7 +18,7 @@ public class CrookCategory extends BaseStuffCategory<CrookRecipe> {
     private static final Comparator<ItemWithChance> COMPARATOR = (a, b) -> (int) ((b.chance() * 100) - (a.chance() * 100));
 
     public CrookCategory() {
-        super(RecipeTypes.CROOK,
+        super(JeiRecipeTypes.CROOK,
                 Component.translatable("item.ftbstuff.stone_crook"),
                 guiHelper().drawableBuilder(bgTexture("jei_crook.png"), 0, 0, 156, 78).setTextureSize(180, 78).build(),
                 guiHelper().createDrawableItemStack(ItemsRegistry.CROOK.toStack())
@@ -29,7 +29,7 @@ public class CrookCategory extends BaseStuffCategory<CrookRecipe> {
     public void setRecipe(IRecipeLayoutBuilder builder, CrookRecipe crookRecipe, IFocusGroup iFocusGroup) {
         builder.addSlot(RecipeIngredientRole.INPUT, 5, 5)
                 .add(crookRecipe.getIngredient())
-                .addRichTooltipCallback((recipeSlotView, tooltip) -> {
+                .addRichTooltipCallback((_, tooltip) -> {
                     if (crookRecipe.getResults().size() > 1 && crookRecipe.getMax() > 0) {
                         tooltip.add(Component.translatable("ftbstuff.crook.limit", crookRecipe.getMax()));
                     }
@@ -57,7 +57,7 @@ public class CrookCategory extends BaseStuffCategory<CrookRecipe> {
             stack.pushMatrix();
             stack.translate(36 + (i % 7 * 18), 23.5f + (row * 24));
             stack.scale(.5F, .5F);
-            graphics.centeredText(Minecraft.getInstance().font, Math.round(outputs.get(i).chance() * 100) + "%", 0, 0, 0xFFFFFF);
+            graphics.centeredText(Minecraft.getInstance().font, Math.round(outputs.get(i).chance() * 100) + "%", 0, 0, 0xFFFFFFFF);
             stack.popMatrix();
         }
     }

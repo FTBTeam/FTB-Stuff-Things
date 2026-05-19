@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 
 public class FluidCapsuleItem extends Item {
     public FluidCapsuleItem(Properties properties) {
-        super(properties.component(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).stacksTo(1));
+        super(properties.stacksTo(1));
     }
 
     public static ItemStack of(FluidStack fluidStack) {
@@ -45,12 +45,14 @@ public class FluidCapsuleItem extends Item {
     }
 
     public static class FluidHandler extends ItemAccessFluidHandler {
-        public FluidHandler(ItemStack container) {
-            super(ItemAccess.forStack(container), ComponentsRegistry.STORED_FLUID.get(), FluidType.BUCKET_VOLUME);
+        public FluidHandler(ItemAccess container) {
+            super(container, ComponentsRegistry.STORED_FLUID.get(), FluidType.BUCKET_VOLUME);
         }
 
         @Override
         protected ItemResource update(ItemResource accessResource, int index, FluidResource newResource, int newAmount) {
+            // FIXME: returning empty here doesn't work
+            //        may need NeoForge patching to fix this...
             return newAmount == 0 ? ItemResource.EMPTY : super.update(accessResource, index, newResource, newAmount);
         }
 
