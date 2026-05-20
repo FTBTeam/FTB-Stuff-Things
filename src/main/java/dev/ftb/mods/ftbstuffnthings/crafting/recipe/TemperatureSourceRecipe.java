@@ -18,7 +18,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -38,7 +37,7 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
             Codec.DOUBLE.optionalFieldOf("efficiency", 1.0)
                     .forGetter(TemperatureSourceRecipe::getEfficiency),
             ItemStackTemplate.CODEC.optionalFieldOf("display_item")
-                    .forGetter(TemperatureSourceRecipe::getDisplayStack),
+                    .forGetter(r -> r.displayStack),
             Codec.BOOL.optionalFieldOf("hide_from_jei", false)
                     .forGetter(TemperatureSourceRecipe::hideFromJEI)
     ).apply(builder, TemperatureSourceRecipe::new));
@@ -47,7 +46,7 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
             ByteBufCodecs.STRING_UTF8, TemperatureSourceRecipe::getBlockStateStr,
             NeoForgeStreamCodecs.enumCodec(Temperature.class), TemperatureSourceRecipe::getTemperature,
             ByteBufCodecs.DOUBLE, TemperatureSourceRecipe::getEfficiency,
-            ByteBufCodecs.optional(ItemStackTemplate.STREAM_CODEC), TemperatureSourceRecipe::getDisplayStack,
+            ByteBufCodecs.optional(ItemStackTemplate.STREAM_CODEC), r -> r.displayStack,
             ByteBufCodecs.BOOL, TemperatureSourceRecipe::hideFromJEI,
             TemperatureSourceRecipe::new
     );
@@ -57,15 +56,15 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
     private final String blockStateStr;
     private final BlockState blockState;
     private final TemperatureAndEfficiency temperatureAndEfficiency;
-    private final Optional<ItemStackTemplate> stack;
+    private final Optional<ItemStackTemplate> displayStack;
     private final boolean hideFromJEI;
     private final Map<String,String> predicates;
 
-    public TemperatureSourceRecipe(String blockStateStr, Temperature temperature, double efficiency, Optional<ItemStackTemplate> stack, boolean hideFromJEI) {
+    public TemperatureSourceRecipe(String blockStateStr, Temperature temperature, double efficiency, Optional<ItemStackTemplate> displayStack, boolean hideFromJEI) {
         super(RecipesRegistry.TEMPERATURE_SOURCE_SERIALIZER, RecipesRegistry.TEMPERATURE_SOURCE_TYPE);
 
         this.temperatureAndEfficiency = new TemperatureAndEfficiency(temperature, efficiency);
-        this.stack = stack;
+        this.displayStack = displayStack;
         this.hideFromJEI = hideFromJEI;
         this.blockStateStr = blockStateStr;
         try {
@@ -89,10 +88,10 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
         return res;
     }
 
-    public static @NotNull List<TemperatureSourceRecipe> sortRecipes(List<TemperatureSourceRecipe> l) {
+    public static List<TemperatureSourceRecipe> sortRecipes(List<TemperatureSourceRecipe> l) {
         return l.stream().sorted(Comparator.comparing(TemperatureSourceRecipe::getTemperature)
                 .thenComparing(TemperatureSourceRecipe::getEfficiency)
-                .thenComparing(r -> r.getDisplayStack().map(ItemStackTemplate::create).orElse(ItemStack.EMPTY).getHoverName().getString())
+                .thenComparing(r -> r.getDisplayStack().getHoverName().getString())
         ).toList();
     }
 
@@ -113,8 +112,8 @@ public class TemperatureSourceRecipe extends BaseRecipe<TemperatureSourceRecipe>
         return temperatureAndEfficiency.efficiency();
     }
 
-    public Optional<ItemStackTemplate> getDisplayStack() {
-        return stack;
+    public ItemStack getDisplayStack() {
+        return displayStack.map(ItemStackTemplate::create).orElseGet(() -> new ItemStack(blockState.getBlock().asItem()));
     }
 
     public boolean hideFromJEI() {

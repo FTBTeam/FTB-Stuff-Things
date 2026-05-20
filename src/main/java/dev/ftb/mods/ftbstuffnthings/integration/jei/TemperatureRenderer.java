@@ -3,7 +3,9 @@ package dev.ftb.mods.ftbstuffnthings.integration.jei;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.ingredients.IIngredientRenderer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.TooltipFlag;
 
@@ -14,7 +16,8 @@ public enum TemperatureRenderer implements IIngredientRenderer<Temperature> {
 
     @Override
     public void render(GuiGraphicsExtractor guiGraphics, Temperature ingredient) {
-        guiGraphics.blit(ingredient.getTexture(), 0, 0, 0, 0, 16, 16, 16, 16);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, ingredient.getTexture(), 0, 0,
+                0, 0, 16, 16, 16, 16);
     }
 
     @Override

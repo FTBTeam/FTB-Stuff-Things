@@ -70,14 +70,15 @@ public class TemperedJarScreen extends AbstractContainerScreen<TemperedJarMenu> 
         int maxY = topPos + FLUID_AREA.getY() + FLUID_AREA.getHeight();
 
         guiGraphics.fill(minX, minY, maxX, maxY, 0xFF8B8B8B);
-        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, minX - 4, minY - 13,
-                176, 0, 56, 94, 256, 256);
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, CRAFTING_ICON, leftPos + JEI_AREA.getX(), topPos + JEI_AREA.getY(),
                 0, 0, 16, 16, 16, 16);
 
         renderTemperatureIndicator(guiGraphics, mouseX, mouseY, minX, maxY);
         renderFluids(guiGraphics, mouseX, mouseY);
         renderProgressBar(guiGraphics);
+
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, minX - 4, minY - 13,
+                176, 0, 56, 94, 256, 256, 0xFFFFFFFF);
     }
 
     @Override
@@ -127,9 +128,9 @@ public class TemperedJarScreen extends AbstractContainerScreen<TemperedJarMenu> 
 
     private void renderTemperatureIndicator(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, int xPos, int yPos) {
         TemperatureAndEfficiency temp = menu.getJar().getTemperature();
-        guiGraphics.blit(temp.temperature().getTexture(),
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, temp.temperature().getTexture(),
                 leftPos + TEMPERATURE_AREA.getX(), topPos + TEMPERATURE_AREA.getY(),
-                0, 0, 16, 16, 16, 16);
+                0f, 0f, 16, 16, 16, 16);
     }
 
     private void renderProgressBar(GuiGraphicsExtractor guiGraphics) {

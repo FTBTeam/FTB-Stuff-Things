@@ -73,7 +73,7 @@ public class SluiceCategory extends BaseStuffCategory<SluiceRecipe> {
             poseStack.pushMatrix();
             poseStack.translate(36 + (i % 7 * 18), 23.5f + (row * 24));
             poseStack.scale(.5F, .5F);
-            guiGraphics.centeredText(Minecraft.getInstance().font, Math.round(itemWithWeights.get(i).chance() * 100) + "%", 0, 0, 0xFFFFFF);
+            guiGraphics.centeredText(Minecraft.getInstance().font, Math.round(itemWithWeights.get(i).chance() * 100) + "%", 0, 0, 0xFFFFFFFF);
             poseStack.popMatrix();
         }
     }

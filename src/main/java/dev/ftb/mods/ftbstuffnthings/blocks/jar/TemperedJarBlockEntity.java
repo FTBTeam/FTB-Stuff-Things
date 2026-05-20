@@ -72,6 +72,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.*;
@@ -92,7 +93,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
     private final JarItemHandler itemHandler = new JarItemHandler();
     private final JarFluidHandler fluidHandler = new JarFluidHandler();
     private final JarContainerData containerData = new JarContainerData();
-    private boolean syncNeeded;
+    private boolean needClientSync;
     private long lastItemFluidSync = 0L;
     private final Map<Direction, BlockCapabilityCache<ResourceHandler<ItemResource>, Direction>> itemOutputs = new EnumMap<>(Direction.class);
     private final Map<Direction, BlockCapabilityCache<ResourceHandler<FluidResource>, Direction>> fluidOutputs = new EnumMap<>(Direction.class);
@@ -170,7 +171,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
 
         List<SimpleFluidContent> list = new ArrayList<>();
         for (int i = 0; i < fluidHandler.size(); i++) {
-            list.add(SimpleFluidContent.copyOf(net.neoforged.neoforge.transfer.fluid.FluidUtil.getStack(fluidHandler, i)));
+            list.add(SimpleFluidContent.copyOf(FluidUtil.getStack(fluidHandler, i)));
         }
 
         if (!list.isEmpty()) {
@@ -188,21 +189,19 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
 
         if (!pendingRecipeId.isEmpty() && getLevel() instanceof ServerLevel serverLevel) {
             ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, Identifier.parse(pendingRecipeId));
-            serverLevel.getServer().getRecipeManager().byKey(key).ifPresent(r -> {
-                if (r.value() instanceof JarRecipe) {
-                    //noinspection unchecked
-                    currentRecipe = (RecipeHolder<JarRecipe>) r;
-                }
-            });
+            var h = serverLevel.getServer().getRecipeManager().recipeMap().byKey(key);
+            if (h != null && h.value() instanceof JarRecipe j) {
+                currentRecipe = new RecipeHolder<>(h.id(), j);
+            }
             pendingRecipeId = "";
         }
     }
 
     public void serverTick(ServerLevel serverLevel) {
-        if (syncNeeded && serverLevel.getGameTime() - lastItemFluidSync > 10L) {
+        if (needClientSync && serverLevel.getGameTime() - lastItemFluidSync > 10L) {
             // don't sync items & fluids more than once every 10 ticks for performance reasons
             PacketDistributor.sendToPlayersTrackingChunk(serverLevel, ChunkPos.containing(getBlockPos()), SyncJarContentsPacket.wholeJar(this));
-            syncNeeded = false;
+            needClientSync = false;
             lastItemFluidSync = serverLevel.getGameTime();
         }
 
@@ -331,7 +330,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
                 }
                 tx.commit();
             }
-            syncNeeded = true;
+            needClientSync = true;
 
             boolean outputsFull = false;
             // produce output
@@ -465,7 +464,6 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
     public boolean onRightClick(Player player, InteractionHand hand) {
         boolean res = false;
         if (FluidUtil.interactWithFluidHandler(player, hand, getBlockPos(), fluidHandler)) {
-            syncNeeded = true;
             res = true;
         }
 
@@ -599,7 +597,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
         protected void onContentsChanged(int slot, ItemStack previousContents) {
             if (level != null && !level.isClientSide()) {
                 setChanged();
-                syncNeeded = true;
+                needClientSync = true;
                 if (!ItemStack.isSameItemSameComponents(stacks.get(slot), previousContents)) {
                     needRecipeSearch = true;
                 }
@@ -614,9 +612,30 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    private static class JarFluidHandler extends FluidStacksResourceHandler {
+    private class JarFluidHandler extends FluidStacksResourceHandler {
         private JarFluidHandler() {
             super(3, TANK_CAPACITY);
+        }
+
+        @Override
+        protected void onContentsChanged(int index, FluidStack previousContents) {
+            setChanged();
+            needClientSync = true;
+            if (!FluidStack.isSameFluidSameComponents(stacks.get(index), previousContents)) {
+                needRecipeSearch = true;
+            }
+            inputResourceLocator.invalidate();
+        }
+
+        @Override
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            for (int i = 0; i < size(); i++) {
+                // don't allow the same fluid in more than one slot
+                if (getResource(i).equals(resource)) {
+                    return super.insert(i, resource, amount, transaction);
+                }
+            }
+            return super.insert(index, resource, amount, transaction);
         }
 
         public void clear() {

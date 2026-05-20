@@ -33,15 +33,17 @@ public record FluidRenderData(FluidBounds bounds, List<Layer> fluidLayers, boole
         int totalFluid = 0;
         List<Layer> layers = new ArrayList<>();
         for (int i = 0; i < handler.size(); i++) {
-            totalFluid += handler.getAmountAsInt(i);
-            Fluid fluid = handler.getResource(i).getFluid();
-            FluidState fluidState = fluid.defaultFluidState();
-            var fluidModel = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidState);
-            int tint = 0xFF000000 | (fluidModel.fluidTintSource() == null ?
-                    0xFFFFFFF :
-                    fluidModel.fluidTintSource().colorInWorld(fluidState, fluidState.createLegacyBlock(), tintGetter, pos)
-            );
-            layers.add(new Layer(fluidModel, tint, (float) handler.getAmountAsInt(i) / totalCapacity));
+            if (handler.getAmountAsInt(i) > 0) {
+                totalFluid += handler.getAmountAsInt(i);
+                Fluid fluid = handler.getResource(i).getFluid();
+                FluidState fluidState = fluid.defaultFluidState();
+                var fluidModel = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluidState);
+                int tint = 0xFF000000 | (fluidModel.fluidTintSource() == null ?
+                        0xFFFFFFF :
+                        fluidModel.fluidTintSource().colorInWorld(fluidState, fluidState.createLegacyBlock(), tintGetter, pos)
+                );
+                layers.add(new Layer(fluidModel, tint, (float) handler.getAmountAsInt(i) / totalCapacity));
+            }
         }
 
         return new FluidRenderData(bounds, layers, totalFluid == 0);

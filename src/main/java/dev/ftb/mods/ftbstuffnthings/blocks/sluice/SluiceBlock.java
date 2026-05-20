@@ -44,6 +44,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.util.Lazy;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -211,7 +212,9 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
                 FTBStuffNThings.LOGGER.error("item {} wrongly added added to item tag {} (not a MeshItem)!", stack.getHoverName().getString(), FTBStuffTags.Items.MESHES);
                 return InteractionResult.FAIL;
             }
-        } else if (stack.getItem() instanceof BucketItem || stack.getCapability(Capabilities.Fluid.ITEM, null) != null) {
+        } else if (stack.getItem() instanceof BucketItem || stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forPlayerInteraction(player, hand)) != null) {
+            // null direction here to get the actual fluid handler
+            // a non-null direction wouldn't work for basic sluices which don't offer piping automation
             FluidUtil.interactWithFluidHandler(player, hand, pos, sluice.getFluidHandler(null));
         } else {
             // player is trying to insert an item into the sluice

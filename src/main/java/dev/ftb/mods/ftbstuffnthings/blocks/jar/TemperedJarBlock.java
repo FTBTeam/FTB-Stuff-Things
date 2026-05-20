@@ -144,7 +144,11 @@ public class TemperedJarBlock extends JarBlock {
             super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
 
             List<SimpleFluidContent> l = itemStack.getOrDefault(ComponentsRegistry.FLUID_TANKS, List.of());
-            l.forEach(content -> builder.accept(MiscUtil.makeFluidStackDesc(content.copy())));
+            l.forEach(content -> {
+                if (!content.isEmpty()) {
+                    builder.accept(MiscUtil.makeFluidStackDesc(content.copy()));
+                }
+            });
         }
     }
 }

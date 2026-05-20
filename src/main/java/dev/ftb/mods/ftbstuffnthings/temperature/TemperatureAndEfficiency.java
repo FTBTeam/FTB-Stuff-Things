@@ -23,7 +23,7 @@ public record TemperatureAndEfficiency(Temperature temperature, double efficienc
 				serverLevel.getServer().getRecipeManager().recipeMap() :
 				FTBStuffNThingsClient.getInstance().getRecipeMap();
 
-		return recipeMap.getRecipesFor(RecipesRegistry.TEMPERATURE_SOURCE_TYPE.get(), NoInventory.INSTANCE, level)
+		return RecipesRegistry.TEMPERATURE_SOURCE_TYPE.get().streamRecipes(level)
 				.filter(r -> r.value().test(state))
 				.map(r -> r.value().getTemperatureAndEfficiency())
 				.findFirst()

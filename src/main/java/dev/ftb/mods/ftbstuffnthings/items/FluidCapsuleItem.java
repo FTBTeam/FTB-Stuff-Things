@@ -14,7 +14,6 @@ import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.ItemAccessFluidHandler;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.function.Consumer;
@@ -50,16 +49,20 @@ public class FluidCapsuleItem extends Item {
         }
 
         @Override
-        protected ItemResource update(ItemResource accessResource, int index, FluidResource newResource, int newAmount) {
-            // FIXME: returning empty here doesn't work
-            //        may need NeoForge patching to fix this...
-            return newAmount == 0 ? ItemResource.EMPTY : super.update(accessResource, index, newResource, newAmount);
-        }
-
-        @Override
         public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
             // only allow filling if it's completely empty
             return getAmountAsInt(index) == 0 ? super.insert(index, resource, amount, transaction) : 0;
+        }
+
+        @Override
+        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            int amountInCapsule = getAmountAsInt(index);
+            int extracted = super.extract(index, resource, amount, transaction);
+            if (extracted == amountInCapsule) {
+                // extracted all of the fluid; shrink the container stack
+                itemAccess.extract(itemAccess.getResource(), 1, transaction);
+            }
+            return extracted;
         }
     }
 }

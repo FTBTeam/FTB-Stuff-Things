@@ -27,13 +27,10 @@ public class TemperatureSourceCategory extends BaseStuffCategory<TemperatureSour
                 .addRichTooltipCallback((recipeSlotView, tooltip) ->
                         tooltip.add(Component.translatable("ftbstuff.efficiency", recipe.getTemperatureAndEfficiency().formatEfficiency())));
 
-        ItemStack itemStack = recipe.getDisplayStack()
-                .map(ItemStackTemplate::create)
-                .orElse(ItemStack.EMPTY);
-
-        if (!itemStack.isEmpty()) {
+        ItemStack displayStack = recipe.getDisplayStack();
+        if (!displayStack.isEmpty()) {
             builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 3, 7)
-                    .add(VanillaTypes.ITEM_STACK, itemStack);
+                    .add(VanillaTypes.ITEM_STACK, displayStack);
         }
     }
 }
