@@ -1,13 +1,20 @@
 package dev.ftb.mods.ftbstuffnthings.blocks;
 
+import dev.ftb.mods.ftbstuffnthings.client.ClientUtil;
+import dev.ftb.mods.ftbstuffnthings.registry.ComponentsRegistry;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -25,8 +32,12 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import org.jspecify.annotations.Nullable;
+
+import java.util.function.Consumer;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.WATERLOGGED;
 
@@ -85,27 +96,6 @@ public abstract class AbstractMachineBlock extends Block implements EntityBlock 
         return state;
     }
 
-    // TODO tooltips for block items
-
-//    @Override
-//    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-//        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-//
-//        if (context.level() != null) {
-//            if (context.level().isClientSide()) {
-//                ClientUtil.maybeAddBlockTooltip(stack, tooltipComponents);
-//            }
-//            int energy = stack.getOrDefault(ComponentsRegistry.STORED_ENERGY, 0);
-//            if (energy > 0) {
-//                tooltipComponents.add(Component.translatable("ftbstuff.tooltip.energy", energy).withStyle(ChatFormatting.YELLOW));
-//            }
-//            FluidStack fluidStack = stack.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy();
-//            if (!fluidStack.isEmpty()) {
-//                tooltipComponents.add(Component.translatable("ftbstuff.tooltip.fluid", fluidStack.getAmount(), fluidStack.getHoverName()).withStyle(ChatFormatting.YELLOW));
-//            }
-//        }
-//    }
-
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (!level.isClientSide()) {
@@ -136,29 +126,6 @@ public abstract class AbstractMachineBlock extends Block implements EntityBlock 
         };
     }
 
-//    private static boolean doFluidInteraction(BlockEntity te, Direction face, Player player, InteractionHand hand, boolean isInserting) {
-//        return net.neoforged.neoforge.transfer.fluid.FluidUtil.interactWithFluidHandler(player, hand, player.level(), te.getBlockPos(), face);
-//
-//        ItemStack stack = player.getItemInHand(hand);
-//        return FluidUtil.getFluidHandler(stack).map(stackHandler -> {
-//            IFluidHandler handler = te.getLevel().getCapability(Capabilities.FluidHandler.BLOCK, te.getBlockPos(), te.getBlockState(), te, face);
-//            if (handler != null) {
-//                if (stackHandler.getTanks() == 0) return false;
-//                int capacity = stackHandler.getTankCapacity(0);
-//                PlayerInvWrapper invWrapper = new PlayerInvWrapper(player.getInventory());
-//                FluidActionResult result = isInserting ?
-//                        FluidUtil.tryEmptyContainerAndStow(player.getItemInHand(hand), handler, invWrapper, capacity, player, true) :
-//                        FluidUtil.tryFillContainerAndStow(player.getItemInHand(hand), handler, invWrapper, capacity, player, true);
-//                if (result.isSuccess()) {
-//                    player.setItemInHand(hand, result.getResult());
-//                    return true;
-//                }
-//                return false;
-//            }
-//            return false;
-//        }).orElse(false);
-//    }
-
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
         return isDirectional() ?
@@ -171,5 +138,30 @@ public abstract class AbstractMachineBlock extends Block implements EntityBlock 
         return isDirectional() ?
                 state.setValue(BlockStateProperties.HORIZONTAL_FACING, mirror.mirror(state.getValue(BlockStateProperties.HORIZONTAL_FACING))) :
                 state;
+    }
+
+    public static class MachineBlockItem extends BlockItem {
+        public MachineBlockItem(Block block, Properties properties) {
+            super(block, properties);
+        }
+
+        @Override
+        public void appendHoverText(ItemStack itemStack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
+            super.appendHoverText(itemStack, context, display, builder, tooltipFlag);
+
+            if (context.level() != null) {
+                if (context.level().isClientSide()) {
+                    ClientUtil.maybeAddBlockTooltip(itemStack, builder);
+                }
+                int energy = itemStack.getOrDefault(ComponentsRegistry.STORED_ENERGY, 0);
+                if (energy > 0) {
+                    builder.accept(Component.translatable("ftbstuff.tooltip.energy", energy).withStyle(ChatFormatting.YELLOW));
+                }
+                FluidStack fluidStack = itemStack.getOrDefault(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.EMPTY).copy();
+                if (!fluidStack.isEmpty()) {
+                    builder.accept(Component.translatable("ftbstuff.tooltip.fluid", fluidStack.getAmount(), fluidStack.getHoverName()).withStyle(ChatFormatting.YELLOW));
+                }
+            }
+        }
     }
 }

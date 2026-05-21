@@ -1,9 +1,9 @@
 package dev.ftb.mods.ftbstuffnthings.registry;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
+import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.BasaltgenProperties;
 import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.CobblegenProperties;
-import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerType;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.JarBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.TemperedJarBlock;
@@ -74,8 +74,8 @@ public class ItemsRegistry {
 
     public static final DeferredItem<BlockItem> WOODEN_BASIN = blockItem("wooden_basin", BlocksRegistry.WOODEN_BASIN);
 
-    public static final DeferredItem<BlockItem> FUSING_MACHINE = blockItem("fusing_machine", BlocksRegistry.FUSING_MACHINE);
-    public static final DeferredItem<BlockItem> SUPER_COOLER = blockItem("super_cooler", BlocksRegistry.SUPER_COOLER);
+    public static final DeferredItem<BlockItem> FUSING_MACHINE = blockItem("fusing_machine", BlocksRegistry.FUSING_MACHINE, AbstractMachineBlock.MachineBlockItem::new);
+    public static final DeferredItem<BlockItem> SUPER_COOLER = blockItem("super_cooler", BlocksRegistry.SUPER_COOLER, AbstractMachineBlock.MachineBlockItem::new);
 
     public static final DeferredItem<BlockItem> CAST_IRON_BLOCK = blockItem("cast_iron_block", BlocksRegistry.CAST_IRON_BLOCK);
 
