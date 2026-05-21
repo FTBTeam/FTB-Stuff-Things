@@ -1,6 +1,6 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.pump;
 
-import dev.ftb.mods.ftbstuffnthings.ModConfig;
+import dev.ftb.mods.ftbstuffnthings.config.ServerConfig;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlockEntity;
@@ -97,7 +97,7 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
             var handler = fluidCache.getCapability();
             if (handler != null) {
                 try (Transaction tx = Transaction.openRoot()) {
-                    totalFilled += handler.insert(FluidResource.of(Fluids.WATER), ModConfig.PUMP_FLUID_TRANSFER.get(), tx);
+                    totalFilled += handler.insert(FluidResource.of(Fluids.WATER), ServerConfig.PUMP_FLUID_TRANSFER.get(), tx);
                     handleCreateItemInsertion(handler, tx);
                     tx.commit();
                 }
@@ -188,12 +188,12 @@ public class PumpBlockEntity extends AbstractMachineBlockEntity {
     }
 
     public boolean windUp() {
-        int maxCharge = ModConfig.PUMP_MAX_CHARGE.get();
+        int maxCharge = ServerConfig.PUMP_MAX_CHARGE.get();
 
         if (timeLeft >= maxCharge) {
             return false;
         }
-        timeLeft = Math.min(maxCharge, timeLeft + ModConfig.PUMP_CHARGEUP_AMOUNT.get());
+        timeLeft = Math.min(maxCharge, timeLeft + ServerConfig.PUMP_CHARGEUP_AMOUNT.get());
 
         updatePumpProgress();
         setChanged();

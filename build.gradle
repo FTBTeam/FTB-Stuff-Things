@@ -104,8 +104,9 @@ dependencies {
     compileOnly("dev.latvian.mods:rhino:${rhino_version}")
 }
 
-tasks.named("jar") {
-    dependsOn("sourcesJar")
+tasks.register("sourcesJar", Jar) {
+    archiveClassifier.set("sources")
+    from sourceSets.main.allJava
 }
 
 tasks.named("jar") {

@@ -1,7 +1,7 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.strainer;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
-import dev.ftb.mods.ftbstuffnthings.ModConfig;
+import dev.ftb.mods.ftbstuffnthings.config.ServerConfig;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.capabilities.ComparatorItemStackHandler;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
@@ -45,7 +45,7 @@ public class WaterStrainerBlockEntity extends AbstractMachineBlockEntity {
     }
 
     public void tickServer(ServerLevel serverLevel) {
-        if (getBlockState().getValue(BlockStateProperties.WATERLOGGED) && serverLevel.getGameTime() % ModConfig.STRAINER_TICK_RATE.get() == 0) {
+        if (getBlockState().getValue(BlockStateProperties.WATERLOGGED) && serverLevel.getGameTime() % ServerConfig.STRAINER_TICK_RATE.get() == 0) {
             LootTable table = getLootTable(serverLevel);
             LootParams params = new LootParams.Builder(serverLevel)
                     .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(this.worldPosition))
@@ -67,7 +67,7 @@ public class WaterStrainerBlockEntity extends AbstractMachineBlockEntity {
     private LootTable getLootTable(ServerLevel serverLevel) {
         if (lootTable == null) {
             try {
-                Identifier tableId = ModConfig.getStrainerLootTable()
+                Identifier tableId = ServerConfig.getStrainerLootTable()
                         .orElseThrow(() -> new IllegalStateException("invalid strainer loot table resource location"));
                 lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, tableId));
             } catch (IllegalStateException e) {

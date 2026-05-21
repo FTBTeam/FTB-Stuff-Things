@@ -3,7 +3,7 @@ package dev.ftb.mods.ftbstuffnthings.blocks.sluice;
 import com.mojang.datafixers.util.Pair;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
-import dev.ftb.mods.ftbstuffnthings.ModConfig;
+import dev.ftb.mods.ftbstuffnthings.config.ServerConfig;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.SerializableComponentsProvider;
 import dev.ftb.mods.ftbstuffnthings.items.MeshItem;
@@ -117,7 +117,7 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
                 .setValue(PART, Part.MAIN)
                 .setValue(HORIZONTAL_FACING, Direction.NORTH));
 
-        this.props = ModConfig.makeSluiceProperties(sluiceType);
+        this.props = ServerConfig.makeSluiceProperties(sluiceType);
     }
 
     public SluiceType getSluiceType() {

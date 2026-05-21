@@ -1,16 +1,16 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.hammer;
 
 import dev.ftb.mods.ftblibrary.config.value.IntValue;
-import dev.ftb.mods.ftbstuffnthings.ModConfig;
+import dev.ftb.mods.ftbstuffnthings.config.ServerConfig;
 import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import org.apache.commons.lang3.StringUtils;
 
 public enum AutoHammerType {
-    IRON("iron", ModConfig.IRON_HAMMER_SPEED),
-    GOLD("gold", ModConfig.GOLD_HAMMER_SPEED),
-    DIAMOND("diamond", ModConfig.DIAMOND_HAMMER_SPEED),
-    NETHERITE("netherite", ModConfig.NETHERITE_HAMMER_SPEED);
+    IRON("iron", ServerConfig.IRON_HAMMER_SPEED),
+    GOLD("gold", ServerConfig.GOLD_HAMMER_SPEED),
+    DIAMOND("diamond", ServerConfig.DIAMOND_HAMMER_SPEED),
+    NETHERITE("netherite", ServerConfig.NETHERITE_HAMMER_SPEED);
 
     private final String materialId;
     private final IntValue hammerSpeed;

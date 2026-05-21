@@ -7,6 +7,8 @@ import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.TemperedJarBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlockEntity;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlockEntity;
+import dev.ftb.mods.ftbstuffnthings.config.ServerConfig;
+import dev.ftb.mods.ftbstuffnthings.config.StartupConfig;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.items.FluidCapsuleItem;
 import dev.ftb.mods.ftbstuffnthings.items.WaterBowlItem;
@@ -50,7 +52,8 @@ public class FTBStuffNThings {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public FTBStuffNThings(IEventBus modEventBus) {
-        ConfigManager.getInstance().registerServerConfig(ModConfig.CONFIG, MOD_ID, false);
+        ConfigManager.getInstance().registerStartupConfig(StartupConfig.CONFIG, MOD_ID);
+        ConfigManager.getInstance().registerServerConfig(ServerConfig.CONFIG, MOD_ID, false);
 
         BlocksRegistry.init(modEventBus);
         ItemsRegistry.init(modEventBus);
@@ -85,7 +88,7 @@ public class FTBStuffNThings {
         // sent to players when they log in, and when a /reload is done on the server
         LootSummaryCollection lsc = new LootSummaryCollection();
 
-        ModConfig.getStrainerLootTable().ifPresent(lootTableId -> BlocksRegistry.allWaterStrainers().forEach(b ->
+        ServerConfig.getStrainerLootTable().ifPresent(lootTableId -> BlocksRegistry.allWaterStrainers().forEach(b ->
                 lsc.addEntry(b.getKey(), lootTableId, makeBlockParams(serverPlayer, b.get().defaultBlockState())))
         );
         BlocksRegistry.allBarrels().forEach(b ->

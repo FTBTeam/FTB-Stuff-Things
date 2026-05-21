@@ -1,9 +1,10 @@
-package dev.ftb.mods.ftbstuffnthings;
+package dev.ftb.mods.ftbstuffnthings.config;
 
 import dev.ftb.mods.ftblibrary.config.value.BooleanValue;
 import dev.ftb.mods.ftblibrary.config.value.Config;
 import dev.ftb.mods.ftblibrary.config.value.IntValue;
 import dev.ftb.mods.ftblibrary.config.value.StringValue;
+import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceProperties;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceType;
 import net.minecraft.resources.Identifier;
@@ -14,14 +15,10 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
-public interface ModConfig {
-    Config CONFIG = Config.create(FTBStuffNThings.MOD_ID).standardTopLevelComment(FTBStuffNThings.MOD_NAME, FTBStuffNThings.MOD_ID, false);
+public interface ServerConfig {
+    String KEY = FTBStuffNThings.MOD_ID + "-server";
 
-    Config GENERAL_CONFIG = CONFIG.addGroup("general");
-    BooleanValue INCLUDE_DEV_RECIPES = GENERAL_CONFIG.addBoolean("include_dev_recipes", false)
-            .comment("If true, dev/testing recipes will be available outside a development environment", "Leave this false unless actually testing the mod.");
-    BooleanValue HIDE_TEMPERATURE_INGREDIENTS = GENERAL_CONFIG.addBoolean("hide_temperature_ingredients", false)
-            .comment("If true, the custom temperature ingredients will not be displayed");
+    Config CONFIG = Config.create(KEY).standardTopLevelComment(FTBStuffNThings.MOD_NAME, KEY, false);
 
     Config SLUICE_CONFIG = CONFIG.addGroup("sluice");
     Map<SluiceType,SluiceProperties> SLUICE_PROPERTIES = Util.make(new EnumMap<>(SluiceType.class), map -> {
@@ -87,7 +84,7 @@ public interface ModConfig {
     Config WATER_STRAINER_CONFIG = CONFIG.addGroup("water_strainer");
     IntValue STRAINER_TICK_RATE = WATER_STRAINER_CONFIG.addInt("strainer_tick_rate", 20, 1, Integer.MAX_VALUE)
             .comment("The delay between each strainer generation in ticks");
-    StringValue STRAINER_LOOT_TABLE = WATER_STRAINER_CONFIG.addString("strainer_loot_table", FTBStuffNThings.MOD_ID + ":custom/water_strainer_test")
+    StringValue STRAINER_LOOT_TABLE = WATER_STRAINER_CONFIG.addString("strainer_loot_table", KEY + ":custom/water_strainer_test")
             .comment("Location of the loot table used to generate strainer loot from");
 
     Config PUMP_CONFIG = CONFIG.addGroup("pump");

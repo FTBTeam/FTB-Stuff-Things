@@ -1,17 +1,17 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.cobblegen;
 
 import dev.ftb.mods.ftblibrary.config.value.IntValue;
-import dev.ftb.mods.ftbstuffnthings.ModConfig;
+import dev.ftb.mods.ftbstuffnthings.config.ServerConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public enum BasaltgenProperties implements IResourceGenProps {
-    STONE("stone", "cobblestone", ModConfig.STONE_BASALTGEN_AMOUNT),
-    IRON("iron", "iron_block", ModConfig.IRON_BASALTGEN_AMOUNT),
-    GOLD("gold", "gold_block", ModConfig.GOLD_BASALTGEN_AMOUNT),
-    DIAMOND("diamond", "diamond_block", ModConfig.DIAMOND_BASALTGEN_AMOUNT),
-    NETHERITE("netherite", "netherite_block", ModConfig.NETHERITE_BASALTGEN_AMOUNT);
+    STONE("stone", "cobblestone", ServerConfig.STONE_BASALTGEN_AMOUNT),
+    IRON("iron", "iron_block", ServerConfig.IRON_BASALTGEN_AMOUNT),
+    GOLD("gold", "gold_block", ServerConfig.GOLD_BASALTGEN_AMOUNT),
+    DIAMOND("diamond", "diamond_block", ServerConfig.DIAMOND_BASALTGEN_AMOUNT),
+    NETHERITE("netherite", "netherite_block", ServerConfig.NETHERITE_BASALTGEN_AMOUNT);
 
     private final String name;
     private final String textureId;

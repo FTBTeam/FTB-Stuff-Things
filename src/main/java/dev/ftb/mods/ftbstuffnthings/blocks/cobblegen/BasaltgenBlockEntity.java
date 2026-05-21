@@ -1,6 +1,6 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.cobblegen;
 
-import dev.ftb.mods.ftbstuffnthings.ModConfig;
+import dev.ftb.mods.ftbstuffnthings.config.ServerConfig;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Item;
@@ -19,6 +19,6 @@ public class BasaltgenBlockEntity extends BaseResourceGenBlockEntity {
 
     @Override
     protected int tickRate() {
-        return ModConfig.BASALTGEN_TICK_RATE.get();
+        return ServerConfig.BASALTGEN_TICK_RATE.get();
     }
 }

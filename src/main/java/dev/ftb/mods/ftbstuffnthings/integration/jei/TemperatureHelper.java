@@ -1,8 +1,9 @@
 package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
 import com.google.common.base.MoreObjects;
-import dev.ftb.mods.ftbstuffnthings.ModConfig;
+import dev.ftb.mods.ftbstuffnthings.config.ServerConfig;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
+import dev.ftb.mods.ftbstuffnthings.config.StartupConfig;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.api.ingredients.IIngredientType;
@@ -40,7 +41,7 @@ public enum TemperatureHelper implements IIngredientHelper<Temperature> {
 
     @Override
     public boolean isHiddenFromRecipeViewersByTags(Temperature ingredient) {
-        return ModConfig.HIDE_TEMPERATURE_INGREDIENTS.get();
+        return StartupConfig.HIDE_TEMPERATURE_INGREDIENTS.get();
     }
 
     @Override
