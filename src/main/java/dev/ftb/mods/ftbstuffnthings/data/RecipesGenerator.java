@@ -3,9 +3,10 @@ package dev.ftb.mods.ftbstuffnthings.data;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
 import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlock;
+import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerType;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlock;
+import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceType;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlock;
-import dev.ftb.mods.ftbstuffnthings.crafting.DevEnvironmentCondition;
 import dev.ftb.mods.ftbstuffnthings.crafting.ItemWithChance;
 import dev.ftb.mods.ftbstuffnthings.data.recipe.*;
 import dev.ftb.mods.ftbstuffnthings.items.HammerItem;
@@ -26,9 +27,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.Util;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
@@ -41,7 +40,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.crafting.SizedIngredient;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
@@ -158,36 +156,36 @@ public class RecipesGenerator extends RecipeProvider {
             shaped(type.asItem(), Items.STRING,
                     "SIS/ICI/SIS",
                     'S', Tags.Items.RODS_WOODEN,
-                    'I', type.getIngredientTag(),
+                    'I', Objects.requireNonNull(type.getIngredientTag()),
                     'C', Tags.Items.STRINGS
             ).save(output);
         }
 
-        woodSluice(BlocksRegistry.OAK_SLUICE, Blocks.OAK_LOG, output);
-        woodSluice(BlocksRegistry.SPRUCE_SLUICE, Blocks.SPRUCE_LOG, output);
-        woodSluice(BlocksRegistry.BIRCH_SLUICE, Blocks.BIRCH_LOG, output);
-        woodSluice(BlocksRegistry.JUNGLE_SLUICE, Blocks.JUNGLE_LOG, output);
-        woodSluice(BlocksRegistry.ACACIA_SLUICE, Blocks.ACACIA_LOG, output);
-        woodSluice(BlocksRegistry.DARK_OAK_SLUICE, Blocks.DARK_OAK_LOG, output);
-        woodSluice(BlocksRegistry.MANGROVE_SLUICE, Blocks.MANGROVE_LOG, output);
-        woodSluice(BlocksRegistry.CHERRY_SLUICE, Blocks.CHERRY_LOG, output);
-        //Pale is 1.21.4 --woodSluice(BlocksRegistry.PALE_OAK_SLUICE, Blocks.PALE_OAK_LOG, output);
-        woodSluice(BlocksRegistry.CRIMSON_SLUICE, Blocks.CRIMSON_STEM, output);
-        woodSluice(BlocksRegistry.WARPED_SLUICE, Blocks.WARPED_STEM, output);
-        woodSluice(BlocksRegistry.BAMBOO_SLUICE, Blocks.BAMBOO_BLOCK, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.OAK), Blocks.OAK_LOG, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.SPRUCE), Blocks.SPRUCE_LOG, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.BIRCH), Blocks.BIRCH_LOG, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.JUNGLE), Blocks.JUNGLE_LOG, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.ACACIA), Blocks.ACACIA_LOG, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.DARK_OAK), Blocks.DARK_OAK_LOG, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.MANGROVE), Blocks.MANGROVE_LOG, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.CHERRY), Blocks.CHERRY_LOG, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.PALE_OAK), Blocks.PALE_OAK_LOG, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.CRIMSON), Blocks.CRIMSON_STEM, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.WARPED), Blocks.WARPED_STEM, output);
+        woodSluice(BlocksRegistry.getSluice(SluiceType.BAMBOO), Blocks.BAMBOO_BLOCK, output);
 
-        shaped(BlocksRegistry.IRON_SLUICE.get(), Items.STICK,
+        shaped(BlocksRegistry.getSluice(SluiceType.IRON).get(), Items.STICK,
                 "IC/SI",
                 'I', Tags.Items.INGOTS_IRON,
                 'C', Items.IRON_CHAIN,
                 'S', FTBStuffTags.Items.WOODEN_SLUICES
         ).save(output);
-        shaped(BlocksRegistry.DIAMOND_SLUICE.get(), Items.STICK,
+        shaped(BlocksRegistry.getSluice(SluiceType.DIAMOND).get(), Items.STICK,
                 "DD/SD",
                 'D', Tags.Items.GEMS_DIAMOND,
-                'S', BlocksRegistry.IRON_SLUICE.get()
+                'S', BlocksRegistry.getSluice(SluiceType.IRON).get()
         ).save(output);
-        netheriteSmithing(BlocksRegistry.DIAMOND_SLUICE.asItem(), RecipeCategory.TOOLS, BlocksRegistry.NETHERITE_SLUICE.asItem());
+        netheriteSmithing(BlocksRegistry.getSluice(SluiceType.DIAMOND).asItem(), RecipeCategory.TOOLS, BlocksRegistry.getSluice(SluiceType.NETHERITE).asItem());
 
         // hammers & autohammers
         shapedHammer(ItemsRegistry.STONE_HAMMER, Items.COBBLESTONE, Tags.Items.COBBLESTONES, output);
@@ -196,7 +194,7 @@ public class RecipesGenerator extends RecipeProvider {
         shapedHammer(ItemsRegistry.DIAMOND_HAMMER, Items.DIAMOND, Tags.Items.GEMS_DIAMOND, output);
         shapedHammer(ItemsRegistry.NETHERITE_HAMMER, Items.NETHERITE_INGOT, Tags.Items.INGOTS_NETHERITE, output);
 
-        shaped(BlocksRegistry.IRON_AUTO_HAMMER, ItemsRegistry.IRON_AUTO_HAMMER.get(),
+        shaped(AutoHammerType.IRON.getBlock(), ItemsRegistry.IRON_HAMMER.get(),
                 "IGI/XHX/RGR",
                 'I', Tags.Items.INGOTS_IRON,
                 'X', Tags.Items.GLASS_BLOCKS,
@@ -204,9 +202,9 @@ public class RecipesGenerator extends RecipeProvider {
                 'G', Tags.Items.INGOTS_GOLD,
                 'H', ItemsRegistry.IRON_HAMMER.get()
         ).save(output);
-        shapedAutoHammer(BlocksRegistry.GOLD_AUTO_HAMMER, BlocksRegistry.IRON_AUTO_HAMMER, ItemsRegistry.GOLD_HAMMER, output);
-        shapedAutoHammer(BlocksRegistry.DIAMOND_AUTO_HAMMER, BlocksRegistry.GOLD_AUTO_HAMMER, ItemsRegistry.DIAMOND_HAMMER, output);
-        shapedAutoHammer(BlocksRegistry.NETHERITE_AUTO_HAMMER, BlocksRegistry.DIAMOND_AUTO_HAMMER, ItemsRegistry.NETHERITE_HAMMER, output);
+        shapedAutoHammer(AutoHammerType.GOLD.getBlock(), AutoHammerType.IRON.getBlock(), ItemsRegistry.GOLD_HAMMER, output);
+        shapedAutoHammer(AutoHammerType.DIAMOND.getBlock(), AutoHammerType.GOLD.getBlock(), ItemsRegistry.DIAMOND_HAMMER, output);
+        shapedAutoHammer(AutoHammerType.NETHERITE.getBlock(), AutoHammerType.DIAMOND.getBlock(), ItemsRegistry.NETHERITE_HAMMER, output);
 
         BlocksRegistry.compressedBlockTranslations().keySet().forEach(id -> compressedBlockRecipe(output, id));
 
@@ -395,7 +393,7 @@ public class RecipesGenerator extends RecipeProvider {
     private void dripperRecipes(RecipeOutput output) {
         new DripperRecipeBuilder(stateStr(Blocks.DIRT), stateStr(Blocks.MUD), new FluidStackTemplate(Fluids.WATER, 50))
                 .withChance(0.2)
-                .saveTest(output.withConditions(DevEnvironmentCondition.INSTANCE), FTBStuffNThings.id("dirt_to_mud"));
+                .saveTest(output, FTBStuffNThings.id("dirt_to_mud"));
         new DripperRecipeBuilder(stateStr(Blocks.IRON_BLOCK), stateStr(Blocks.GOLD_BLOCK), new FluidStackTemplate(Fluids.LAVA, 250))
                 .withChance(0.01)
                 .saveTest(output, FTBStuffNThings.id("iron_to_gold"));

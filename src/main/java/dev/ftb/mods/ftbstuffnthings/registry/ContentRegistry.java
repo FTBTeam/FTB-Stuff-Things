@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.fusingmachine.FusingMachineMenu;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.TemperedJarMenu;
+import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceType;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerMenu;
 import dev.ftb.mods.ftbstuffnthings.blocks.supercooler.SuperCoolerMenu;
 import dev.ftb.mods.ftbstuffnthings.crafting.DevEnvironmentCondition;
@@ -35,7 +36,7 @@ public class ContentRegistry {
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CREATIVE_TAB = CREATIVE_MODE_TABS.register("obb_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("ftbstuff.itemGroup.tab"))
-            .icon(() -> new ItemStack(BlocksRegistry.OAK_SLUICE.get()))
+            .icon(() -> new ItemStack(BlocksRegistry.getSluice(SluiceType.OAK).get()))
             .displayItems((parameters, output) -> {
                 for (DeferredHolder<Item, ? extends Item> entry : ItemsRegistry.ITEMS.getEntries()) {
                     output.accept(new ItemStack(entry.get()));

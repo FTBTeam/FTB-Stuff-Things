@@ -1,5 +1,6 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.hammer;
 
+import dev.ftb.mods.ftblibrary.util.Lazy;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineBlock;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.HammerRecipe;
@@ -45,7 +46,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class AutoHammerBlockEntity extends BlockEntity {
-    private final AutoHammerProperties props;
     private final AutoHammerItemHandler itemHandler = new AutoHammerItemHandler();  // internal handler
     private final InputHandler inputHandler = new InputHandler(itemHandler);  // public handler for capabilities
 
@@ -62,14 +62,19 @@ public class AutoHammerBlockEntity extends BlockEntity {
     private BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> outputCache;
     @Nullable
     private HammerRecipe currentRecipe = null;
+    private final Lazy<AutoHammerType> hammerProps = Lazy.of(this::initHammerProps);
 
-    protected AutoHammerBlockEntity(BlockEntityType<?> type, AutoHammerProperties props, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
-        this.props = props;
+    public AutoHammerBlockEntity(BlockPos pos, BlockState blockState) {
+        super(BlockEntitiesRegistry.AUTO_HAMMER.get(), pos, blockState);
     }
 
     public static void registerCapabilities(RegisterCapabilitiesEvent event, BlockEntityType<? extends AutoHammerBlockEntity> machine) {
         event.registerBlockEntity(Capabilities.Item.BLOCK, machine, AutoHammerBlockEntity::getItemHandler);
+    }
+
+    public AutoHammerType initHammerProps() {
+        if (getBlockState().getBlock() instanceof AutoHammerBlock hammer) return hammer.getHammerProps();
+        throw new IllegalStateException("expected an autohammer block at " + getBlockPos() + " !");
     }
 
     @Nullable
@@ -108,7 +113,7 @@ public class AutoHammerBlockEntity extends BlockEntity {
 
     public void tickClient(Level level) {
         if (!processingStack.isEmpty() && getBlockState().getValue(AbstractMachineBlock.ACTIVE)) {
-            if (++displayProgress >= props.getHammerSpeed()) {
+            if (++displayProgress >= hammerProps.get().getHammerSpeed()) {
                 displayProgress = 0;
                 if (processingStack.getItem() instanceof BlockItem blockItem) {
                     level.addDestroyBlockEffect(getBlockPos(), blockItem.getBlock().defaultBlockState());
@@ -170,7 +175,7 @@ public class AutoHammerBlockEntity extends BlockEntity {
                 );
             }
         } else {
-            if (progress <= props.getHammerSpeed()) {
+            if (progress <= hammerProps.get().getHammerSpeed()) {
                 progress++;
                 setChanged();
             } else {
@@ -339,7 +344,7 @@ public class AutoHammerBlockEntity extends BlockEntity {
     }
 
     public int getDestroyStage() {
-        return (int) ((float) displayProgress / props.getHammerSpeed() * 10f);
+        return (int) ((float) displayProgress / hammerProps.get().getHammerSpeed() * 10f);
     }
 
     public int getProgress() {
@@ -347,7 +352,7 @@ public class AutoHammerBlockEntity extends BlockEntity {
     }
 
     public int getMaxProgress() {
-        return props.getHammerSpeed();
+        return hammerProps.get().getHammerSpeed();
     }
 
     public Collection<ItemStack> getOverflow() {
@@ -364,30 +369,6 @@ public class AutoHammerBlockEntity extends BlockEntity {
 
     public void clearCapabilityCaches() {
         inputCache = outputCache = null;
-    }
-
-    public static class Iron extends AutoHammerBlockEntity {
-        public Iron(BlockPos pos, BlockState blockState) {
-            super(BlockEntitiesRegistry.IRON_HAMMER.get(), AutoHammerProperties.IRON, pos, blockState);
-        }
-    }
-
-    public static class Gold extends AutoHammerBlockEntity {
-        public Gold(BlockPos pos, BlockState blockState) {
-            super(BlockEntitiesRegistry.GOLD_HAMMER.get(), AutoHammerProperties.GOLD, pos, blockState);
-        }
-    }
-
-    public static class Diamond extends AutoHammerBlockEntity {
-        public Diamond(BlockPos pos, BlockState blockState) {
-            super(BlockEntitiesRegistry.DIAMOND_HAMMER.get(), AutoHammerProperties.DIAMOND, pos, blockState);
-        }
-    }
-
-    public static class Netherite extends AutoHammerBlockEntity {
-        public Netherite(BlockPos pos, BlockState blockState) {
-            super(BlockEntitiesRegistry.NETHERITE_HAMMER.get(), AutoHammerProperties.NETHERITE, pos, blockState);
-        }
     }
 
     private class AutoHammerItemHandler extends ItemStackResourceHandler {

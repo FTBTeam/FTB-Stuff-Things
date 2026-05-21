@@ -13,6 +13,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.util.Lazy;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -30,13 +31,18 @@ public abstract class BaseResourceGenBlockEntity extends BlockEntity {
     @Nullable
     private BlockCapabilityCache<ResourceHandler<ItemResource>, Direction> outputCache;
     private int ticks;
-    private final IResourceGenProps props;
+    private final Lazy<IResourceGenProps> props = Lazy.of(this::initProps);
 
-    protected BaseResourceGenBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState, IResourceGenProps props) {
+    protected BaseResourceGenBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        this.props = props;
     }
 
+    private IResourceGenProps initProps() {
+        if (getBlockState().getBlock() instanceof ResourceGeneratorBlock gen) {
+            return gen.getGeneratorProps();
+        }
+        throw new IllegalStateException("expected a generator block at " + getBlockPos());
+    }
     public abstract Item generatedItem();
 
     protected abstract int tickRate();
@@ -54,7 +60,7 @@ public abstract class BaseResourceGenBlockEntity extends BlockEntity {
 
         var connectedInventory = getConnectedInventory();
         ItemResource resource = ItemResource.of(generatedItem());
-        int amount = props.itemsPerOperation();
+        int amount = props.get().itemsPerOperation();
 
         try (Transaction tx = Transaction.openRoot()) {
             if (connectedInventory != null) {

@@ -1,0 +1,38 @@
+package dev.ftb.mods.ftbstuffnthings.blocks.hammer;
+
+import dev.ftb.mods.ftblibrary.config.value.IntValue;
+import dev.ftb.mods.ftbstuffnthings.ModConfig;
+import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import org.apache.commons.lang3.StringUtils;
+
+public enum AutoHammerType {
+    IRON("iron", ModConfig.IRON_HAMMER_SPEED),
+    GOLD("gold", ModConfig.GOLD_HAMMER_SPEED),
+    DIAMOND("diamond", ModConfig.DIAMOND_HAMMER_SPEED),
+    NETHERITE("netherite", ModConfig.NETHERITE_HAMMER_SPEED);
+
+    private final String materialId;
+    private final IntValue hammerSpeed;
+
+    AutoHammerType(String materialId, IntValue hammerSpeed) {
+        this.materialId = materialId;
+        this.hammerSpeed = hammerSpeed;
+    }
+
+    public String getMaterialId() {
+        return materialId;
+    }
+
+    public int getHammerSpeed() {
+        return hammerSpeed.get();
+    }
+
+    public String description() {
+        return StringUtils.capitalize(materialId) + " Auto-Hammer";
+    }
+
+    public DeferredBlock<AutoHammerBlock> getBlock() {
+        return BlocksRegistry.getAutoHammer(this);
+    }
+}

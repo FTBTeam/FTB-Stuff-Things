@@ -36,8 +36,8 @@ public class ItemTagsGenerator extends ItemTagsProvider {
 
         ItemsRegistry.ALL_HAMMERS.forEach(hammer -> addItemsToTag(FTBStuffTags.Items.HAMMERS, hammer));
         ItemsRegistry.ALL_MESHES.forEach(mesh -> addItemsToTag(FTBStuffTags.Items.MESHES, mesh));
-        BlocksRegistry.WOODEN_SLUICE.forEach(sluice -> addItemsToTag(FTBStuffTags.Items.WOODEN_SLUICES, sluice));
-        BlocksRegistry.waterStrainers().forEach(strainer -> addItemsToTag(FTBStuffTags.Items.WATER_STRAINER, strainer));
+        BlocksRegistry.woodenSluices().forEach(sluice -> addItemsToTag(FTBStuffTags.Items.WOODEN_SLUICES, sluice));
+        BlocksRegistry.allWaterStrainers().forEach(strainer -> addItemsToTag(FTBStuffTags.Items.WATER_STRAINER, strainer));
     }
 
     @SafeVarargs

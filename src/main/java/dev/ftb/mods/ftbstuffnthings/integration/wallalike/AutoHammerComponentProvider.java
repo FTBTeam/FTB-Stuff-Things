@@ -1,17 +1,13 @@
 package dev.ftb.mods.ftbstuffnthings.integration.wallalike;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
-import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
-import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 import snownee.jade.api.ui.BoxStyle;
@@ -20,10 +16,10 @@ import snownee.jade.api.ui.JadeUI;
 import java.util.ArrayList;
 import java.util.List;
 
-enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+enum AutoHammerComponentProvider implements IBlockComponentProvider {
     INSTANCE;
 
-    private static final Identifier ID = FTBStuffNThings.id("autohammer");
+    static final Identifier ID = FTBStuffNThings.id("autohammer");
 
     private static final Component WAITING = Component.literal(" ")
             .append(Component.translatable("ftbstuff.autohammer.waiting").withStyle(ChatFormatting.WHITE));
@@ -50,8 +46,7 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerData
 //            iTooltip.add(JadeUI.progress(progress, WAITING, JadeUI.progressStyle().color(0xADFF0000), BoxStyle.nestedBox(), true));
 //        }
 
-        ItemStack processingStack = serverData.getCompound("processing")
-                .map(tag -> blockAccessor.decodeFromNbt(ItemStack.OPTIONAL_STREAM_CODEC, tag).orElse(ItemStack.EMPTY))
+        ItemStack processingStack = blockAccessor.decodeFromNbt(ItemStack.OPTIONAL_STREAM_CODEC, serverData.get("processing"))
                 .orElse(ItemStack.EMPTY);
 
         List<ItemStack> outputItems = new ArrayList<>();
@@ -94,24 +89,6 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider, IServerData
             text.append(JadeUI.text(Component.translatable("ftbstuff.jade.buffer")));
             iTooltip.append(JadeUI.box(text, BoxStyle.transparent()).alignSelfEnd());
         }
-    }
-
-
-    @Override
-    public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
-        if (!(blockAccessor.getBlockEntity() instanceof AutoHammerBlockEntity autoHammerEntity)) {
-            return;
-        }
-
-        compoundTag.putInt("progress", autoHammerEntity.getProgress());
-        compoundTag.putInt("maxProgress", autoHammerEntity.getMaxProgress());
-        compoundTag.putInt("timeout", autoHammerEntity.getTimeout());
-        compoundTag.putInt("maxTimeout", autoHammerEntity.getMaxTimeout());
-        compoundTag.put("processing", blockAccessor.encodeAsNbt(ItemStack.OPTIONAL_STREAM_CODEC, autoHammerEntity.getProcessingStack()));
-        compoundTag.put("output", Util.make(new ListTag(), l ->
-                autoHammerEntity.getOverflow().forEach(stack ->
-                        l.add(blockAccessor.encodeAsNbt(ItemStack.OPTIONAL_STREAM_CODEC, stack))))
-        );
     }
 
     @Override

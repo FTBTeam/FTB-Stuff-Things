@@ -29,10 +29,10 @@ import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
-public class CobblegenBlock extends Block implements EntityBlock {
+public class ResourceGeneratorBlock extends Block implements EntityBlock {
     private final IResourceGenProps props;
 
-    public CobblegenBlock(Properties properties, IResourceGenProps props) {
+    public ResourceGeneratorBlock(Properties properties, IResourceGenProps props) {
         super(properties.mapColor(MapColor.STONE).strength(1F, 1F).noOcclusion());
 
         this.props = props;

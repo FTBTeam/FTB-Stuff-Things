@@ -6,28 +6,31 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.function.BiFunction;
-
 public enum BasaltgenProperties implements IResourceGenProps {
-    STONE("cobblestone", ModConfig.STONE_BASALTGEN_AMOUNT, BasaltgenBlockEntity.Stone::new),
-    IRON("iron_block", ModConfig.IRON_BASALTGEN_AMOUNT, BasaltgenBlockEntity.Iron::new),
-    GOLD("gold_block", ModConfig.GOLD_BASALTGEN_AMOUNT, BasaltgenBlockEntity.Gold::new),
-    DIAMOND("diamond_block", ModConfig.DIAMOND_BASALTGEN_AMOUNT, BasaltgenBlockEntity.Diamond::new),
-    NETHERITE("netherite_block", ModConfig.NETHERITE_BASALTGEN_AMOUNT, BasaltgenBlockEntity.Netherite::new);
+    STONE("stone", "cobblestone", ModConfig.STONE_BASALTGEN_AMOUNT),
+    IRON("iron", "iron_block", ModConfig.IRON_BASALTGEN_AMOUNT),
+    GOLD("gold", "gold_block", ModConfig.GOLD_BASALTGEN_AMOUNT),
+    DIAMOND("diamond", "diamond_block", ModConfig.DIAMOND_BASALTGEN_AMOUNT),
+    NETHERITE("netherite", "netherite_block", ModConfig.NETHERITE_BASALTGEN_AMOUNT);
 
-    private final String id;
+    private final String name;
+    private final String textureId;
     private final IntValue itemsPerOp;
-    private final BiFunction<BlockPos, BlockState, ? extends BasaltgenBlockEntity> beFactory;
 
-    BasaltgenProperties(String id, IntValue itemsPerOp, BiFunction<BlockPos, BlockState, ? extends BasaltgenBlockEntity> beFactory) {
-        this.id = id;
+    BasaltgenProperties(String name, String textureId, IntValue itemsPerOp) {
+        this.name = name;
+        this.textureId = textureId;
         this.itemsPerOp = itemsPerOp;
-        this.beFactory = beFactory;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
     public String textureId() {
-        return id;
+        return textureId;
     }
 
     @Override
@@ -42,6 +45,6 @@ public enum BasaltgenProperties implements IResourceGenProps {
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState blockState) {
-        return beFactory.apply(pos, blockState);
+        return new BasaltgenBlockEntity(pos, blockState);
     }
 }

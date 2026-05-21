@@ -79,7 +79,7 @@ public class LootTablesGenerator extends LootTableProvider {
             }
 
             // Barrels should drop another loot table instead of themselves
-            BlocksRegistry.BARRELS.forEach(barrel -> {
+            BlocksRegistry.allBarrels().forEach(barrel -> {
                 var name = barrel.getId().getPath();
                 add(barrel.get(), LootTable.lootTable().withPool(LootPool.lootPool().name(name)));
             });

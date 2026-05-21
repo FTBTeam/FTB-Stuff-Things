@@ -40,17 +40,21 @@ public class AutoHammerBlock extends Block implements EntityBlock {
     );
     public static final VoxelShape NORTH_SOUTH = VoxelShapeUtils.rotateY(EAST_WEST, 90);
 
-    private final AutoHammerProperties props;
+    private final AutoHammerType hammerProps;
 
-    public AutoHammerBlock(Properties properties, AutoHammerProperties props) {
+    public AutoHammerBlock(Properties properties, AutoHammerType hammerProps) {
         super(properties.mapColor(MapColor.STONE).strength(1F, 1F));
 
-        this.props = props;
+        this.hammerProps = hammerProps;
 
         this.registerDefaultState(this.getStateDefinition().any()
                 .setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH)
                 .setValue(AbstractMachineBlock.ACTIVE, false)
                 .setValue(BlockStateProperties.ENABLED, true));
+    }
+
+    public AutoHammerType getHammerProps() {
+        return hammerProps;
     }
 
     @Override
@@ -105,7 +109,7 @@ public class AutoHammerBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState blockState) {
-        return props.createBlockEntity(pos, blockState);
+        return new AutoHammerBlockEntity(pos, blockState);
     }
 
     @Override
@@ -153,6 +157,6 @@ public class AutoHammerBlock extends Block implements EntityBlock {
     }
 
     public String getMaterial() {
-        return props.getMaterialId();
+        return hammerProps.getMaterialId();
     }
 }

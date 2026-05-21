@@ -6,23 +6,26 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.function.BiFunction;
-
 public enum CobblegenProperties implements IResourceGenProps {
-    STONE("cobblestone", ModConfig.STONE_COBBLEGEN_AMOUNT, CobblegenBlockEntity.Stone::new),
-    IRON("iron_block", ModConfig.IRON_COBBLEGEN_AMOUNT, CobblegenBlockEntity.Iron::new),
-    GOLD("gold_block", ModConfig.GOLD_COBBLEGEN_AMOUNT, CobblegenBlockEntity.Gold::new),
-    DIAMOND("diamond_block", ModConfig.DIAMOND_COBBLEGEN_AMOUNT, CobblegenBlockEntity.Diamond::new),
-    NETHERITE("netherite_block", ModConfig.NETHERITE_COBBLEGEN_AMOUNT, CobblegenBlockEntity.Netherite::new);
+    STONE("stone", "cobblestone", ModConfig.STONE_COBBLEGEN_AMOUNT),
+    IRON("iron", "iron_block", ModConfig.IRON_COBBLEGEN_AMOUNT),
+    GOLD("gold", "gold_block", ModConfig.GOLD_COBBLEGEN_AMOUNT),
+    DIAMOND("diamond", "diamond_block", ModConfig.DIAMOND_COBBLEGEN_AMOUNT),
+    NETHERITE("netherite", "netherite_block", ModConfig.NETHERITE_COBBLEGEN_AMOUNT);
 
+    private final String name;
     private final String textureId;
     private final IntValue cobblegenSpeed;
-    private final BiFunction<BlockPos, BlockState, ? extends CobblegenBlockEntity> beFactory;
 
-    CobblegenProperties(String textureId, IntValue cobblegenSpeed, BiFunction<BlockPos, BlockState, ? extends CobblegenBlockEntity> beFactory) {
+    CobblegenProperties(String name, String textureId, IntValue cobblegenSpeed) {
+        this.name = name;
         this.textureId = textureId;
         this.cobblegenSpeed = cobblegenSpeed;
-        this.beFactory = beFactory;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -42,6 +45,6 @@ public enum CobblegenProperties implements IResourceGenProps {
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState blockState) {
-        return beFactory.apply(pos, blockState);
+        return new CobblegenBlockEntity(pos, blockState);
     }
 }

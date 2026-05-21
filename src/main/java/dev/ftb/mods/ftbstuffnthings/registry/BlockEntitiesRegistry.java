@@ -29,67 +29,20 @@ import java.util.stream.Collectors;
 public class BlockEntitiesRegistry {
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, FTBStuffNThings.MOD_ID);
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Oak>> OAK_SLUICE
-            = register("oak_sluice", SluiceBlockEntity.Oak::new, BlocksRegistry.OAK_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Spruce>> SPRUCE_SLUICE
-            = register("spruce_sluice", SluiceBlockEntity.Spruce::new, BlocksRegistry.SPRUCE_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Birch>> BIRCH_SLUICE
-            = register("birch_sluice", SluiceBlockEntity.Birch::new, BlocksRegistry.BIRCH_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Jungle>> JUNGLE_SLUICE
-            = register("jungle_sluice", SluiceBlockEntity.Jungle::new, BlocksRegistry.JUNGLE_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Acacia>> ACACIA_SLUICE
-            = register("acacia_sluice", SluiceBlockEntity.Acacia::new, BlocksRegistry.ACACIA_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.DarkOak>> DARK_OAK_SLUICE
-            = register("dark_oak_sluice", SluiceBlockEntity.DarkOak::new, BlocksRegistry.DARK_OAK_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Mangrove>> MANGROVE_SLUICE
-            = register("mangrove_sluice", SluiceBlockEntity.Mangrove::new, BlocksRegistry.MANGROVE_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Cherry>> CHERRY_SLUICE
-            = register("cherry_sluice", SluiceBlockEntity.Cherry::new, BlocksRegistry.CHERRY_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.PaleOak>> PALE_OAK_SLUICE
-            = register("pale_oak_sluice", SluiceBlockEntity.PaleOak::new, BlocksRegistry.PALE_OAK_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Crimson>> CRIMSON_SLUICE
-            = register("crimson_sluice", SluiceBlockEntity.Crimson::new, BlocksRegistry.CRIMSON_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Warped>> WARPED_SLUICE
-            = register("warped_sluice", SluiceBlockEntity.Warped::new, BlocksRegistry.WARPED_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Bamboo>> BAMBOO_SLUICE
-            = register("bamboo_sluice", SluiceBlockEntity.Bamboo::new, BlocksRegistry.BAMBOO_SLUICE);
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity>> SLUICE
+            = registerBlockSet("sluice", SluiceBlockEntity::new,
+            () -> BlocksRegistry.allSluices().stream().map(DeferredHolder::get).collect(Collectors.toSet()));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Iron>> IRON_SLUICE
-            = register("iron_sluice", SluiceBlockEntity.Iron::new, BlocksRegistry.IRON_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Diamond>> DIAMOND_SLUICE
-            = register("diamond_sluice", SluiceBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_SLUICE);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SluiceBlockEntity.Netherite>> NETHERITE_SLUICE
-            = register("netherite_sluice", SluiceBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_SLUICE);
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoHammerBlockEntity>> AUTO_HAMMER
+            = registerBlockSet("auto_hammer", AutoHammerBlockEntity::new,
+            () -> BlocksRegistry.allAutoHammers().stream().map(DeferredHolder::get).collect(Collectors.toSet()));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoHammerBlockEntity.Iron>> IRON_HAMMER
-            = register("iron_hammer", AutoHammerBlockEntity.Iron::new, BlocksRegistry.IRON_AUTO_HAMMER);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoHammerBlockEntity.Gold>> GOLD_HAMMER
-            = register("gold_hammer", AutoHammerBlockEntity.Gold::new, BlocksRegistry.GOLD_AUTO_HAMMER);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoHammerBlockEntity.Diamond>> DIAMOND_HAMMER
-            = register("diamond_hammer", AutoHammerBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_AUTO_HAMMER);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AutoHammerBlockEntity.Netherite>> NETHERITE_HAMMER
-            = register("netherite_hammer", AutoHammerBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_AUTO_HAMMER);
-
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Stone>> STONE_COBBLEGEN
-            = register("stone_cobblegen", CobblegenBlockEntity.Stone::new, BlocksRegistry.STONE_COBBLESTONE_GENERATOR);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Iron>> IRON_COBBLEGEN
-            = register("iron_cobblegen", CobblegenBlockEntity.Iron::new, BlocksRegistry.IRON_COBBLESTONE_GENERATOR);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Gold>> GOLD_COBBLEGEN
-            = register("gold_cobblegen", CobblegenBlockEntity.Gold::new, BlocksRegistry.GOLD_COBBLESTONE_GENERATOR);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Diamond>> DIAMOND_COBBLEGEN
-            = register("diamond_cobblegen", CobblegenBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_COBBLESTONE_GENERATOR);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity.Netherite>> NETHERITE_COBBLEGEN
-            = register("netherite_cobblegen", CobblegenBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_COBBLESTONE_GENERATOR);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Stone>> STONE_BASALT_GENERATOR
-            = register("stone_basalt_generator", BasaltgenBlockEntity.Stone::new, BlocksRegistry.STONE_BASALT_GENERATOR);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Iron>> IRON_BASALT_GENERATOR
-            = register("iron_basalt_generator", BasaltgenBlockEntity.Iron::new, BlocksRegistry.IRON_BASALT_GENERATOR);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Gold>> GOLD_BASALT_GENERATOR
-            = register("gold_basalt_generator", BasaltgenBlockEntity.Gold::new, BlocksRegistry.GOLD_BASALT_GENERATOR);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Diamond>> DIAMOND_BASALT_GENERATOR
-            = register("diamond_basalt_generator", BasaltgenBlockEntity.Diamond::new, BlocksRegistry.DIAMOND_BASALT_GENERATOR);
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity.Netherite>> NETHERITE_BASALT_GENERATOR
-            = register("netherite_basalt_generator", BasaltgenBlockEntity.Netherite::new, BlocksRegistry.NETHERITE_BASALT_GENERATOR);
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CobblegenBlockEntity>> COBBLE_GENERATOR
+            = registerBlockSet("cobblestone_generator", CobblegenBlockEntity::new,
+            () -> BlocksRegistry.allCobbleGenerators().stream().map(DeferredHolder::get).collect(Collectors.toSet()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BasaltgenBlockEntity>> BASALT_GENERATOR
+            = registerBlockSet("basalt_generator", BasaltgenBlockEntity::new,
+            () -> BlocksRegistry.allBasaltGenerators().stream().map(DeferredHolder::get).collect(Collectors.toSet()));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PumpBlockEntity>> PUMP
             = register("pump", PumpBlockEntity::new, BlocksRegistry.PUMP);
@@ -111,11 +64,10 @@ public class BlockEntitiesRegistry {
             = register("super_cooler", SuperCoolerBlockEntity::new, BlocksRegistry.SUPER_COOLER);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WaterStrainerBlockEntity>> WATER_STRAINER
-            = registerBlockSet("water_strainer", WaterStrainerBlockEntity::new, BlockEntitiesRegistry::strainerBlocks);
+            = registerBlockSet("water_strainer", WaterStrainerBlockEntity::new,
+            () -> BlocksRegistry.allWaterStrainers().stream().map(DeferredHolder::get).collect(Collectors.toSet()));
 
-    private static Set<Block> strainerBlocks() {
-        return BlocksRegistry.waterStrainers().stream().map(DeferredHolder::get).collect(Collectors.toSet());
-    }
+    //-------------------------------
 
     @SafeVarargs
     private static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> register(String name, BlockEntityType.BlockEntitySupplier<T> supplier, Supplier<? extends Block>... blocks) {

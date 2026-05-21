@@ -1,33 +1,28 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.sluice;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.function.BiFunction;
+import net.minecraft.world.level.block.SoundType;
+import org.apache.commons.lang3.text.WordUtils;
 
 public enum SluiceType implements StringRepresentable {
-    OAK("oak", SluiceBlockEntity.Oak::new),
-    SPRUCE("spruce", SluiceBlockEntity.Spruce::new),
-    BIRCH("birch",  SluiceBlockEntity.Birch::new),
-    JUNGLE("jungle", SluiceBlockEntity.Jungle::new),
-    ACACIA("acacia", SluiceBlockEntity.Acacia::new),
-    DARK_OAK("dark_oak", SluiceBlockEntity.DarkOak::new),
-    MANGROVE("mangrove", SluiceBlockEntity.Mangrove::new),
-    CHERRY("cherry", SluiceBlockEntity.Cherry::new),
-    PALE_OAK("pale_oak", SluiceBlockEntity.PaleOak::new),
-    CRIMSON("crimson",  SluiceBlockEntity.Crimson::new),
-    WARPED("warped", SluiceBlockEntity.Warped::new),
-    BAMBOO("bamboo", SluiceBlockEntity.Bamboo::new),
+    OAK("oak"),
+    SPRUCE("spruce"),
+    BIRCH("birch"),
+    JUNGLE("jungle"),
+    ACACIA("acacia"),
+    DARK_OAK("dark_oak"),
+    MANGROVE("mangrove"),
+    CHERRY("cherry", SoundType.CHERRY_WOOD, true),
+    PALE_OAK("pale_oak"),
+    CRIMSON("crimson", SoundType.NETHER_WOOD, true),
+    WARPED("warped", SoundType.NETHER_WOOD, true),
+    BAMBOO("bamboo", SoundType.BAMBOO_WOOD, true),
     IRON("iron", 0.8, 0.6, 12000,
-            true, false, false, 0,
-            SluiceBlockEntity.Iron::new),
+            true, false, false, 0, SoundType.METAL, false),
     DIAMOND("diamond", 0.6, 0.75, 12000,
-            true, true, false, 0,
-            SluiceBlockEntity.Diamond::new),
+            true, true, false, 0, SoundType.METAL, false),
     NETHERITE("netherite", 0.4, 0.5, 12000,
-            true, true, true, 40,
-            SluiceBlockEntity.Netherite::new);
+            true, true, true, 40, SoundType.NETHERITE_BLOCK, false);
 
     private final String name;
     public final double defTimeMod;
@@ -37,13 +32,18 @@ public enum SluiceType implements StringRepresentable {
     public final boolean defFluidIO;
     public final boolean defUpgradeable;
     public final int defEnergyUsage;
-    private final BiFunction<BlockPos, BlockState, ? extends SluiceBlockEntity> beFactory;
+    public final SoundType soundType;
+    public final boolean isWood;
 
-    SluiceType(String name, BiFunction<BlockPos, BlockState, ? extends SluiceBlockEntity> beFactory) {
-        this(name, 1.0, 1.0, 12000, false, false, false, 0, beFactory);
+    SluiceType(String name) {
+        this(name, SoundType.WOOD, true);
     }
 
-    SluiceType(String name, double defTimeMod, double defFluidMod, int defCapacity, boolean defItemIO, boolean defFluidIO, boolean defUpgradeable, int defEnergyUsage, BiFunction<BlockPos, BlockState, ? extends SluiceBlockEntity> beFactory) {
+    SluiceType(String name, SoundType soundType, boolean isWood) {
+        this(name, 1.0, 1.0, 12000, false, false, false, 0, soundType, isWood);
+    }
+
+    SluiceType(String name, double defTimeMod, double defFluidMod, int defCapacity, boolean defItemIO, boolean defFluidIO, boolean defUpgradeable, int defEnergyUsage, SoundType soundType, boolean isWood) {
         this.name = name;
         this.defTimeMod = defTimeMod;
         this.defFluidMod = defFluidMod;
@@ -52,7 +52,8 @@ public enum SluiceType implements StringRepresentable {
         this.defFluidIO = defFluidIO;
         this.defUpgradeable = defUpgradeable;
         this.defEnergyUsage = defEnergyUsage;
-        this.beFactory = beFactory;
+        this.soundType = soundType;
+        this.isWood = isWood;
     }
 
     @Override
@@ -60,7 +61,7 @@ public enum SluiceType implements StringRepresentable {
         return name;
     }
 
-    public SluiceBlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return beFactory.apply(pos, state);
+    public String description() {
+        return WordUtils.capitalizeFully(name.replace('_', ' ')) + " Sluice";
     }
 }

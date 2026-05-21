@@ -11,23 +11,16 @@ import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
-public enum PumpComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum PumpComponentProvider implements IBlockComponentProvider {
     INSTANCE;
 
-    private static final Identifier ID = FTBStuffNThings.id("pump");
+    static final Identifier ID = FTBStuffNThings.id("pump");
 
     @Override
     public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
         CompoundTag serverData = blockAccessor.getServerData();
         serverData.getInt("timeLeft").ifPresent(timeLeft ->
                 iTooltip.add(Component.translatable("ftbstuff.jade.time_left", timeLeft)));
-    }
-
-    @Override
-    public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
-        if (blockAccessor.getBlockEntity() instanceof PumpBlockEntity pump) {
-            compoundTag.putInt("timeLeft", pump.getTimeLeft());
-        }
     }
 
     @Override

@@ -4,12 +4,13 @@ import com.google.common.collect.ImmutableList;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.SimpleFallingBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.BasaltgenProperties;
-import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.CobblegenBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.CobblegenProperties;
+import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.IResourceGenProps;
+import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.ResourceGeneratorBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.dripper.DripperBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.fusingmachine.FusingMachineBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlock;
-import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerProperties;
+import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerType;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.CreativeTemperatureSourceBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.JarAutomaterBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.JarBlock;
@@ -24,6 +25,7 @@ import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.supercooler.SuperCoolerBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.woodbasin.WoodenBasinBlock;
 import net.minecraft.util.ColorRGBA;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -41,88 +43,34 @@ public class BlocksRegistry {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(FTBStuffNThings.MOD_ID);
 
     // Sluices
-    public static final DeferredBlock<SluiceBlock> OAK_SLUICE
-            = BLOCKS.registerBlock("oak_sluice", p -> new SluiceBlock(p, SluiceType.OAK, SoundType.WOOD));
-    public static final DeferredBlock<SluiceBlock> SPRUCE_SLUICE
-            = BLOCKS.registerBlock("spruce_sluice", p -> new SluiceBlock(p, SluiceType.SPRUCE, SoundType.WOOD));
-    public static final DeferredBlock<SluiceBlock> BIRCH_SLUICE
-            = BLOCKS.registerBlock("birch_sluice", p -> new SluiceBlock(p, SluiceType.BIRCH, SoundType.WOOD));
-    public static final DeferredBlock<SluiceBlock> JUNGLE_SLUICE
-            = BLOCKS.registerBlock("jungle_sluice", p -> new SluiceBlock(p, SluiceType.JUNGLE, SoundType.WOOD));
-    public static final DeferredBlock<SluiceBlock> ACACIA_SLUICE
-            = BLOCKS.registerBlock("acacia_sluice", p -> new SluiceBlock(p, SluiceType.ACACIA, SoundType.WOOD));
-    public static final DeferredBlock<SluiceBlock> DARK_OAK_SLUICE
-            = BLOCKS.registerBlock("dark_oak_sluice", p -> new SluiceBlock(p, SluiceType.DARK_OAK, SoundType.WOOD));
-    public static final DeferredBlock<SluiceBlock> MANGROVE_SLUICE
-            = BLOCKS.registerBlock("mangrove_sluice", p -> new SluiceBlock(p, SluiceType.MANGROVE, SoundType.WOOD));
-    public static final DeferredBlock<SluiceBlock> CHERRY_SLUICE
-            = BLOCKS.registerBlock("cherry_sluice", p -> new SluiceBlock(p, SluiceType.CHERRY, SoundType.CHERRY_WOOD));
-    public static final DeferredBlock<SluiceBlock> PALE_OAK_SLUICE
-            = BLOCKS.registerBlock("pale_oak_sluice", p -> new SluiceBlock(p, SluiceType.PALE_OAK, SoundType.WOOD));
-    public static final DeferredBlock<SluiceBlock> CRIMSON_SLUICE
-            = BLOCKS.registerBlock("crimson_sluice", p -> new SluiceBlock(p, SluiceType.CRIMSON, SoundType.NETHER_WOOD));
-    public static final DeferredBlock<SluiceBlock> WARPED_SLUICE
-            = BLOCKS.registerBlock("warped_sluice", p -> new SluiceBlock(p, SluiceType.WARPED, SoundType.NETHER_WOOD));
-    public static final DeferredBlock<SluiceBlock> BAMBOO_SLUICE
-            = BLOCKS.registerBlock("bamboo_sluice", p -> new SluiceBlock(p, SluiceType.BAMBOO, SoundType.BAMBOO_WOOD));
-    public static final DeferredBlock<SluiceBlock> IRON_SLUICE
-            = BLOCKS.registerBlock("iron_sluice", p -> new SluiceBlock(p, SluiceType.IRON, SoundType.METAL));
-    public static final DeferredBlock<SluiceBlock> DIAMOND_SLUICE
-            = BLOCKS.registerBlock("diamond_sluice", p -> new SluiceBlock(p, SluiceType.DIAMOND, SoundType.METAL));
-    public static final DeferredBlock<SluiceBlock> NETHERITE_SLUICE
-            = BLOCKS.registerBlock("netherite_sluice", p -> new SluiceBlock(p, SluiceType.NETHERITE, SoundType.NETHERITE_BLOCK));
-
-    public static final List<DeferredBlock<SluiceBlock>> WOODEN_SLUICE = List.of(
-            OAK_SLUICE, SPRUCE_SLUICE, BIRCH_SLUICE, JUNGLE_SLUICE, ACACIA_SLUICE,
-            DARK_OAK_SLUICE, MANGROVE_SLUICE, CHERRY_SLUICE, PALE_OAK_SLUICE, CRIMSON_SLUICE, WARPED_SLUICE, BAMBOO_SLUICE);
-    public static final List<DeferredBlock<SluiceBlock>> ALL_SLUICES = List.of(
-            OAK_SLUICE, SPRUCE_SLUICE, BIRCH_SLUICE, JUNGLE_SLUICE, ACACIA_SLUICE,
-            DARK_OAK_SLUICE, MANGROVE_SLUICE, CHERRY_SLUICE, PALE_OAK_SLUICE, CRIMSON_SLUICE, WARPED_SLUICE,
-            BAMBOO_SLUICE, IRON_SLUICE, DIAMOND_SLUICE, NETHERITE_SLUICE);
+    private static final List<DeferredBlock<SluiceBlock>> WOODEN_SLUICES = new ArrayList<>();
+    private static final EnumMap<SluiceType, DeferredBlock<SluiceBlock>> SLUICES
+            = Util.make(new EnumMap<>(SluiceType.class), map -> {
+                for (var type : SluiceType.values()) {
+                    map.put(type, BLOCKS.registerBlock(type.getSerializedName() + "_sluice",
+                            p -> new SluiceBlock(p, type)));
+                    if (type.isWood) {
+                        WOODEN_SLUICES.add(map.get(type));
+                    }
+                }
+            }
+    );
 
     // Autohammers
-    public static final DeferredBlock<AutoHammerBlock> IRON_AUTO_HAMMER
-            = BLOCKS.registerBlock("iron_auto_hammer", p -> new AutoHammerBlock(p, AutoHammerProperties.IRON));
-    public static final DeferredBlock<AutoHammerBlock> GOLD_AUTO_HAMMER
-            = BLOCKS.registerBlock("gold_auto_hammer", p -> new AutoHammerBlock(p, AutoHammerProperties.GOLD));
-    public static final DeferredBlock<AutoHammerBlock> DIAMOND_AUTO_HAMMER
-            = BLOCKS.registerBlock("diamond_auto_hammer", p -> new AutoHammerBlock(p, AutoHammerProperties.DIAMOND));
-    public static final DeferredBlock<AutoHammerBlock> NETHERITE_AUTO_HAMMER
-            = BLOCKS.registerBlock("netherite_auto_hammer", p -> new AutoHammerBlock(p, AutoHammerProperties.NETHERITE));
-    public static final List<DeferredBlock<AutoHammerBlock>> ALL_AUTO_HAMMERS = List.of(
-            IRON_AUTO_HAMMER, GOLD_AUTO_HAMMER, DIAMOND_AUTO_HAMMER, NETHERITE_AUTO_HAMMER
+    private static final EnumMap<AutoHammerType, DeferredBlock<AutoHammerBlock>> AUTO_HAMMERS
+            = Util.make(new EnumMap<>(AutoHammerType.class), map -> {
+                for (var type : AutoHammerType.values()) {
+                    map.put(type, BLOCKS.registerBlock(type.getMaterialId() + "_auto_hammer",
+                            p -> new AutoHammerBlock(p, type)));
+                }
+            }
     );
 
     // Cobble & Basalt generators
-    public static final DeferredBlock<CobblegenBlock> STONE_COBBLESTONE_GENERATOR
-            = BLOCKS.registerBlock("stone_cobblestone_generator", p -> new CobblegenBlock(p, CobblegenProperties.STONE));
-    public static final DeferredBlock<CobblegenBlock> IRON_COBBLESTONE_GENERATOR
-            = BLOCKS.registerBlock("iron_cobblestone_generator", p -> new CobblegenBlock(p, CobblegenProperties.IRON));
-    public static final DeferredBlock<CobblegenBlock> GOLD_COBBLESTONE_GENERATOR
-            = BLOCKS.registerBlock("gold_cobblestone_generator", p -> new CobblegenBlock(p, CobblegenProperties.GOLD));
-    public static final DeferredBlock<CobblegenBlock> DIAMOND_COBBLESTONE_GENERATOR
-            = BLOCKS.registerBlock("diamond_cobblestone_generator", p -> new CobblegenBlock(p, CobblegenProperties.DIAMOND));
-    public static final DeferredBlock<CobblegenBlock> NETHERITE_COBBLESTONE_GENERATOR
-            = BLOCKS.registerBlock("netherite_cobblestone_generator", p -> new CobblegenBlock(p, CobblegenProperties.NETHERITE));
-    public static final DeferredBlock<CobblegenBlock> STONE_BASALT_GENERATOR
-            = BLOCKS.registerBlock("stone_basalt_generator", p -> new CobblegenBlock(p, BasaltgenProperties.STONE));
-    public static final DeferredBlock<CobblegenBlock> IRON_BASALT_GENERATOR
-            = BLOCKS.registerBlock("iron_basalt_generator", p -> new CobblegenBlock(p, BasaltgenProperties.IRON));
-    public static final DeferredBlock<CobblegenBlock> GOLD_BASALT_GENERATOR
-            = BLOCKS.registerBlock("gold_basalt_generator", p -> new CobblegenBlock(p, BasaltgenProperties.GOLD));
-    public static final DeferredBlock<CobblegenBlock> DIAMOND_BASALT_GENERATOR
-            = BLOCKS.registerBlock("diamond_basalt_generator", p -> new CobblegenBlock(p, BasaltgenProperties.DIAMOND));
-    public static final DeferredBlock<CobblegenBlock> NETHERITE_BASALT_GENERATOR
-            = BLOCKS.registerBlock("netherite_basalt_generator", p -> new CobblegenBlock(p, BasaltgenProperties.NETHERITE));
-
-    public static final List<DeferredBlock<CobblegenBlock>> COBBLEGENS = List.of(
-            STONE_COBBLESTONE_GENERATOR, IRON_COBBLESTONE_GENERATOR, GOLD_COBBLESTONE_GENERATOR,
-            DIAMOND_COBBLESTONE_GENERATOR, NETHERITE_COBBLESTONE_GENERATOR
-    );
-    public static final List<DeferredBlock<CobblegenBlock>> BASALTGENS = List.of(
-            STONE_BASALT_GENERATOR, IRON_BASALT_GENERATOR, GOLD_BASALT_GENERATOR,
-            DIAMOND_BASALT_GENERATOR, NETHERITE_BASALT_GENERATOR
-    );
+    private static final EnumMap<CobblegenProperties, DeferredBlock<ResourceGeneratorBlock>> COBBLE_GENS
+            = registerGenerators(CobblegenProperties.class);
+    private static final EnumMap<BasaltgenProperties, DeferredBlock<ResourceGeneratorBlock>> BASALT_GENS
+            = registerGenerators(BasaltgenProperties.class);
 
     // Misc machines
     public static final DeferredBlock<PumpBlock> PUMP
@@ -135,8 +83,6 @@ public class BlocksRegistry {
             = BLOCKS.registerBlock("fusing_machine", FusingMachineBlock::new);
     public static final DeferredBlock<SuperCoolerBlock> SUPER_COOLER
             = BLOCKS.registerBlock("super_cooler", SuperCoolerBlock::new);
-//    public static final DeferredBlock<TubeBlock> TUBE
-//            = BLOCKS.registerBlock("tube", TubeBlock::new);
     public static final DeferredBlock<JarBlock> JAR
             = BLOCKS.registerBlock("jar", JarBlock::new);
     public static final DeferredBlock<TemperedJarBlock> TEMPERED_JAR
@@ -188,18 +134,11 @@ public class BlocksRegistry {
                     .mapColor(MapColor.SAND).requiresCorrectToolForDrops().strength(2.0F, 6.0F));
 
     // Barrels
-    public static final DeferredBlock<Block> WHITE_BARREL = BLOCKS.registerBlock("white_barrel", BarrelBlock::new);
-    public static final DeferredBlock<Block> GREEN_BARREL = BLOCKS.registerBlock("green_barrel", BarrelBlock::new);
-    public static final DeferredBlock<Block> BLUE_BARREL = BLOCKS.registerBlock("blue_barrel", BarrelBlock::new);
-    public static final DeferredBlock<Block> PURPLE_BARREL = BLOCKS.registerBlock("purple_barrel", BarrelBlock::new);
-    public static final DeferredBlock<Block> RED_BARREL = BLOCKS.registerBlock("red_barrel", BarrelBlock::new);
-    public static final DeferredBlock<Block> BLACK_BARREL = BLOCKS.registerBlock("black_barrel", BarrelBlock::new);
-    public static final DeferredBlock<Block> GOLDEN_BARREL = BLOCKS.registerBlock("golden_barrel", BarrelBlock::new);
-
-    public static final List<DeferredBlock<Block>> BARRELS = List.of(
-            WHITE_BARREL, GREEN_BARREL, BLUE_BARREL, PURPLE_BARREL,
-            RED_BARREL, BLACK_BARREL, GOLDEN_BARREL
-    );
+    private static final List<DeferredBlock<BarrelBlock>> BARRELS = new ArrayList<>();
+    static {
+        List.of("white", "green", "blue", "purple", "red", "black", "golden")
+                .forEach(color -> BARRELS.add(BLOCKS.registerBlock(color + "_barrel", BarrelBlock::new)));
+    }
 
     // Crates
     public static final DeferredBlock<Block> SMALL_CRATE = BLOCKS.registerBlock("small_crate", SmallCrateBlock::new);
@@ -261,8 +200,44 @@ public class BlocksRegistry {
 
     //----------------------------------
 
-    public static Collection<DeferredBlock<WaterStrainerBlock>> waterStrainers() {
+    public static Collection<DeferredBlock<SluiceBlock>> allSluices() {
+        return Collections.unmodifiableCollection(SLUICES.values());
+    }
+
+    public static Collection<DeferredBlock<SluiceBlock>> woodenSluices() {
+        return Collections.unmodifiableCollection(WOODEN_SLUICES);
+    }
+
+    public static DeferredBlock<SluiceBlock> getSluice(SluiceType type) {
+        return SLUICES.get(type);
+    }
+
+    public static Collection<DeferredBlock<WaterStrainerBlock>> allWaterStrainers() {
         return Collections.unmodifiableCollection(WATER_STRAINERS);
+    }
+
+    public static Collection<DeferredBlock<AutoHammerBlock>> allAutoHammers() {
+        return Collections.unmodifiableCollection(AUTO_HAMMERS.values());
+    }
+
+    public static DeferredBlock<AutoHammerBlock> getAutoHammer(AutoHammerType autoHammerType) {
+        return AUTO_HAMMERS.get(autoHammerType);
+    }
+
+    public static Collection<DeferredBlock<ResourceGeneratorBlock>> allCobbleGenerators() {
+        return Collections.unmodifiableCollection(COBBLE_GENS.values());
+    }
+
+    public static DeferredBlock<ResourceGeneratorBlock> getCobbleGenerator(CobblegenProperties type) {
+        return COBBLE_GENS.get(type);
+    }
+
+    public static Collection<DeferredBlock<ResourceGeneratorBlock>> allBasaltGenerators() {
+        return Collections.unmodifiableCollection(BASALT_GENS.values());
+    }
+
+    public static DeferredBlock<ResourceGeneratorBlock> getBasaltGenerator(BasaltgenProperties type) {
+        return BASALT_GENS.get(type);
     }
 
     public static Collection<DeferredBlock<Block>> allCompressedBlocks() {
@@ -277,11 +252,25 @@ public class BlocksRegistry {
         return COMPRESSED_BY_NAME.get(name);
     }
 
+    public static Collection<DeferredBlock<BarrelBlock>> allBarrels() {
+        return Collections.unmodifiableList(BARRELS);
+    }
+
+    //----------------------------------
+
     private static DeferredBlock<WaterStrainerBlock> registerStrainer(WoodType type) {
         var block = BLOCKS.registerBlock(type.name() + "_water_strainer",
                 props -> new WaterStrainerBlock(props, type), WaterStrainerBlock::defaultProps);
         WATER_STRAINERS.add(block);
         return block;
+    }
+
+    private static <T extends Enum<T> & IResourceGenProps> EnumMap<T, DeferredBlock<ResourceGeneratorBlock>> registerGenerators(Class<T> cls) {
+        EnumMap<T, DeferredBlock<ResourceGeneratorBlock>> map = new EnumMap<>(cls);
+        for (var type : cls.getEnumConstants()) {
+            map.put(type, BLOCKS.registerBlock(type.getBlockId(), p -> new ResourceGeneratorBlock(p, type)));
+        }
+        return map;
     }
 
     private static List<DeferredBlock<Block>> registerCompressed(String baseName, String label, BlockBehaviour.Properties props,

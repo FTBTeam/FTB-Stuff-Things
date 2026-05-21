@@ -54,38 +54,10 @@ public class FTBStuffNThingsClient {
     }
 
     private void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.OAK_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.SPRUCE_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.BIRCH_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.JUNGLE_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.ACACIA_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.DARK_OAK_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.MANGROVE_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.CHERRY_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.PALE_OAK_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.CRIMSON_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.WARPED_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.BAMBOO_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.IRON_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.DIAMOND_SLUICE.get(), SluiceBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.NETHERITE_SLUICE.get(), SluiceBlockEntityRenderer::new);
-
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.IRON_HAMMER.get(), AutoHammerRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.GOLD_HAMMER.get(), AutoHammerRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.DIAMOND_HAMMER.get(), AutoHammerRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.NETHERITE_HAMMER.get(), AutoHammerRenderer::new);
-
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.STONE_COBBLEGEN.get(), ResourcegenBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.IRON_COBBLEGEN.get(), ResourcegenBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.GOLD_COBBLEGEN.get(), ResourcegenBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.DIAMOND_COBBLEGEN.get(), ResourcegenBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.NETHERITE_COBBLEGEN.get(), ResourcegenBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.STONE_BASALT_GENERATOR.get(), ResourcegenBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.IRON_BASALT_GENERATOR.get(), ResourcegenBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.GOLD_BASALT_GENERATOR.get(), ResourcegenBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.DIAMOND_BASALT_GENERATOR.get(), ResourcegenBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntitiesRegistry.NETHERITE_BASALT_GENERATOR.get(), ResourcegenBlockEntityRenderer::new);
-
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.SLUICE.get(), SluiceBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.AUTO_HAMMER.get(), AutoHammerRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.COBBLE_GENERATOR.get(), ResourcegenBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntitiesRegistry.BASALT_GENERATOR.get(), ResourcegenBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.JAR.get(), JarBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.TEMPERED_JAR.get(), TemperedJarBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntitiesRegistry.WOODEN_BASIN.get(), BasinBlockEntityRenderer::new);
@@ -103,10 +75,11 @@ public class FTBStuffNThingsClient {
     }
 
     public void registerBlockTintSources(final RegisterColorHandlersEvent.BlockTintSources event) {
-        event.register(List.of(BlockTintSources.water()), BlocksRegistry.COBBLEGENS.stream().map(DeferredHolder::get).toArray(Block[]::new));
+        event.register(List.of(BlockTintSources.water()), BlocksRegistry.allCobbleGenerators().stream().map(DeferredHolder::get).toArray(Block[]::new));
     }
 
     public RecipeMap getRecipeMap() {
         return recipeMap;
     }
+
 }

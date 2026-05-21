@@ -95,10 +95,10 @@ public class FTBStuffJeiPlugin implements IModPlugin {
         for (var item : ItemsRegistry.ALL_HAMMERS) {
             registration.addCraftingStation(JeiRecipeTypes.HAMMER, item.toStack());
         }
-        for (var block : BlocksRegistry.ALL_AUTO_HAMMERS) {
+        for (var block : BlocksRegistry.allAutoHammers()) {
             registration.addCraftingStation(JeiRecipeTypes.HAMMER, block.toStack());
         }
-        for (var block : BlocksRegistry.ALL_SLUICES) {
+        for (var block : BlocksRegistry.allSluices()) {
             registration.addCraftingStation(JeiRecipeTypes.SLUICE, block.toStack());
         }
 

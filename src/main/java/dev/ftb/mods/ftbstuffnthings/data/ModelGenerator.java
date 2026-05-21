@@ -110,7 +110,6 @@ public class ModelGenerator extends ModelProvider {
 
         // Simple items
         itemModels.generateItemWithTintedOverlay(ItemsRegistry.FLUID_CAPSULE.get(), FluidCapsuleTintSource.DEFAULT);
-//        simpleItem(itemModels, ItemsRegistry.FLUID_CAPSULE, "item/fluid_container_base", "item/fluid_container_overlay");
         simpleItem(itemModels, ItemsRegistry.DRIPPER, "item/dripper");
         simpleItem(itemModels, ItemsRegistry.WATER_BOWL, "item/water_bowl");
         simpleItem(itemModels, ItemsRegistry.CAST_IRON_GEAR, "item/cast_iron_gear");
@@ -143,7 +142,7 @@ public class ModelGenerator extends ModelProvider {
 
     private void registerCratesAndBarrels(BlockModelGenerators blockModels) {
         // Crates & Barrels
-        BlocksRegistry.BARRELS.forEach((block) -> {
+        BlocksRegistry.allBarrels().forEach((block) -> {
             var name = block.getId().getPath();
             createModelWithExistingParent(blockModels, block);
             blockModels.registerSimpleItemModel(block.asItem(), blockId(name));
@@ -199,8 +198,8 @@ public class ModelGenerator extends ModelProvider {
         ModelTemplate activeBlockTemplate = simpleBlockTemplate("auto_hammer_active", baseSlot, hammerSlot);
 
         // Block & Item models
-        BlocksRegistry.ALL_AUTO_HAMMERS.forEach(db -> {
-            String material = db.get().getMaterial();
+        BlocksRegistry.allAutoHammers().forEach(block -> {
+            String material = block.get().getMaterial();
             applyBlockTemplate(blockTemplate, material + "_auto_hammer", new TextureMapping()
                     .put(baseSlot, blockMaterial("auto_hammer/" + material + "_base"))
                     .put(hammerSlot, blockMaterial("auto_hammer/" + material + "_hammer")), blockModels);
@@ -209,11 +208,8 @@ public class ModelGenerator extends ModelProvider {
                     .put(baseSlot, blockMaterial("auto_hammer/" + material + "_base"))
                     .put(hammerSlot, blockMaterial("auto_hammer/" + material + "_hammer_active")), blockModels);
 
-            itemModels.itemModelOutput.accept(db.asItem(), ItemModelUtils.plainModel(blockId(material + "_auto_hammer")));
-        });
+            itemModels.itemModelOutput.accept(block.asItem(), ItemModelUtils.plainModel(blockId(material + "_auto_hammer")));
 
-        // Blockstates
-        BlocksRegistry.ALL_AUTO_HAMMERS.forEach(block -> {
             MultiPartGenerator gen = MultiPartGenerator.multiPart(block.get());
             String path = "block/" + block.getId().getPath();
 
@@ -226,6 +222,21 @@ public class ModelGenerator extends ModelProvider {
 
             blockModels.blockStateOutput.accept(gen);
         });
+
+        // Blockstates
+//        BlocksRegistry.allAutoHammers().forEach(block -> {
+//            MultiPartGenerator gen = MultiPartGenerator.multiPart(block.get());
+//            String path = "block/" + block.getId().getPath();
+//
+//            for (DirRotation horizontal : HORIZONTALS) {
+//                gen.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, false).term(HORIZONTAL_FACING, horizontal.direction()),
+//                        multiVariant(path, horizontal.mutator));
+//                gen.with(new ConditionBuilder().term(AbstractMachineBlock.ACTIVE, true).term(HORIZONTAL_FACING, horizontal.direction()),
+//                        multiVariant(path + "_active", horizontal.mutator));
+//            }
+//
+//            blockModels.blockStateOutput.accept(gen);
+//        });
     }
 
     private void registerProcessingMachines(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
@@ -260,7 +271,7 @@ public class ModelGenerator extends ModelProvider {
     }
 
     private void registerGenerators(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-        var blocks = Stream.concat(BlocksRegistry.COBBLEGENS.stream(), BlocksRegistry.BASALTGENS.stream()).toList();
+        var blocks = Stream.concat(BlocksRegistry.allCobbleGenerators().stream(), BlocksRegistry.allBasaltGenerators().stream()).toList();
 
         blocks.forEach(block -> {
             String textureType = block.get().getGeneratorProps().textureId();
@@ -299,7 +310,7 @@ public class ModelGenerator extends ModelProvider {
     }
 
     void registerSluices(BlockModelGenerators generators, ItemModelGenerators itemModels) {
-        BlocksRegistry.ALL_SLUICES.forEach(block -> {
+        BlocksRegistry.allSluices().forEach(block -> {
             String type = block.get().getSluiceType().getSerializedName();
             Material texture = blockMaterial("sluice/" + type + "_sluice");
 
@@ -342,7 +353,7 @@ public class ModelGenerator extends ModelProvider {
     }
 
     private void registerWaterStrainers(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-        BlocksRegistry.waterStrainers().forEach(block -> {
+        BlocksRegistry.allWaterStrainers().forEach(block -> {
             WoodType type = block.get().getWoodType();
             Identifier strainerBlockModel = blockId(type.name() + "_water_strainer");
             Material material = new Material(blockId("water_strainer/water_strainer_" + type.name()));

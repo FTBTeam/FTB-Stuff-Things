@@ -1,9 +1,14 @@
 package dev.ftb.mods.ftbstuffnthings.registry;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
+import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.BasaltgenProperties;
+import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.CobblegenProperties;
+import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlock;
+import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerType;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.JarBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.TemperedJarBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlock;
+import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceType;
 import dev.ftb.mods.ftbstuffnthings.items.*;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -46,53 +51,22 @@ public class ItemsRegistry {
     public static final DeferredItem<Item> STONE_ROD = simpleItem("stone_rod");
 
     //#region Block Items
-    public static final DeferredItem<BlockItem> OAK_SLUICE
-            = blockItem("oak_sluice", BlocksRegistry.OAK_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> SPRUCE_SLUICE
-            = blockItem("spruce_sluice", BlocksRegistry.SPRUCE_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> BIRCH_SLUICE
-            = blockItem("birch_sluice", BlocksRegistry.BIRCH_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> JUNGLE_SLUICE
-            = blockItem("jungle_sluice", BlocksRegistry.JUNGLE_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> ACACIA_SLUICE
-            = blockItem("acacia_sluice", BlocksRegistry.ACACIA_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> DARK_OAK_SLUICE
-            = blockItem("dark_oak_sluice", BlocksRegistry.DARK_OAK_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> MANGROVE_SLUICE
-            = blockItem("mangrove_sluice", BlocksRegistry.MANGROVE_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> CHERRY_SLUICE
-            = blockItem("cherry_sluice", BlocksRegistry.CHERRY_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> PALE_OAK_SLUICE
-            = blockItem("pale_oak_sluice", BlocksRegistry.PALE_OAK_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> CRIMSON_SLUICE
-            = blockItem("crimson_sluice", BlocksRegistry.CRIMSON_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> WARPED_SLUICE
-            = blockItem("warped_sluice", BlocksRegistry.WARPED_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> BAMBOO_SLUICE
-            = blockItem("bamboo_sluice", BlocksRegistry.BAMBOO_SLUICE, SluiceBlock.SluiceBlockItem::new);
-
-    public static final DeferredItem<BlockItem> IRON_SLUICE
-            = blockItem("iron_sluice", BlocksRegistry.IRON_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> DIAMOND_SLUICE
-            = blockItem("diamond_sluice", BlocksRegistry.DIAMOND_SLUICE, SluiceBlock.SluiceBlockItem::new);
-    public static final DeferredItem<BlockItem> NETHERITE_SLUICE
-            = blockItem("netherite_sluice", BlocksRegistry.NETHERITE_SLUICE, SluiceBlock.SluiceBlockItem::new);
-
-    public static final DeferredItem<BlockItem> IRON_AUTO_HAMMER = blockItem("iron_auto_hammer", BlocksRegistry.IRON_AUTO_HAMMER);
-    public static final DeferredItem<BlockItem> GOLD_AUTO_HAMMER = blockItem("gold_auto_hammer", BlocksRegistry.GOLD_AUTO_HAMMER);
-    public static final DeferredItem<BlockItem> DIAMOND_AUTO_HAMMER = blockItem("diamond_auto_hammer", BlocksRegistry.DIAMOND_AUTO_HAMMER);
-    public static final DeferredItem<BlockItem> NETHERITE_AUTO_HAMMER = blockItem("netherite_auto_hammer", BlocksRegistry.NETHERITE_AUTO_HAMMER);
-
-    public static final DeferredItem<BlockItem> STONE_COBBLESTONE_GENERATOR = blockItem("stone_cobblestone_generator", BlocksRegistry.STONE_COBBLESTONE_GENERATOR);
-    public static final DeferredItem<BlockItem> IRON_COBBLESTONE_GENERATOR = blockItem("iron_cobblestone_generator", BlocksRegistry.IRON_COBBLESTONE_GENERATOR);
-    public static final DeferredItem<BlockItem> GOLD_COBBLESTONE_GENERATOR = blockItem("gold_cobblestone_generator", BlocksRegistry.GOLD_COBBLESTONE_GENERATOR);
-    public static final DeferredItem<BlockItem> DIAMOND_COBBLESTONE_GENERATOR = blockItem("diamond_cobblestone_generator", BlocksRegistry.DIAMOND_COBBLESTONE_GENERATOR);
-    public static final DeferredItem<BlockItem> NETHERITE_COBBLESTONE_GENERATOR = blockItem("netherite_cobblestone_generator", BlocksRegistry.NETHERITE_COBBLESTONE_GENERATOR);
-    public static final DeferredItem<BlockItem> STONE_BASALT_GENERATOR = blockItem("stone_basalt_generator", BlocksRegistry.STONE_BASALT_GENERATOR);
-    public static final DeferredItem<BlockItem> IRON_BASALT_GENERATOR = blockItem("iron_basalt_generator", BlocksRegistry.IRON_BASALT_GENERATOR);
-    public static final DeferredItem<BlockItem> GOLD_BASALT_GENERATOR = blockItem("gold_basalt_generator", BlocksRegistry.GOLD_BASALT_GENERATOR);
-    public static final DeferredItem<BlockItem> DIAMOND_BASALT_GENERATOR = blockItem("diamond_basalt_generator", BlocksRegistry.DIAMOND_BASALT_GENERATOR);
-    public static final DeferredItem<BlockItem> NETHERITE_BASALT_GENERATOR = blockItem("netherite_basalt_generator", BlocksRegistry.NETHERITE_BASALT_GENERATOR);
+    static {
+        for (var type : SluiceType.values()) {
+            blockItem(type.getSerializedName() + "_sluice", BlocksRegistry.getSluice(type), SluiceBlock.SluiceBlockItem::new);
+        }
+        for (var type : AutoHammerType.values()) {
+            blockItem(type.getMaterialId() + "_auto_hammer", BlocksRegistry.getAutoHammer(type));
+        }
+        for (var type : CobblegenProperties.values()) {
+            blockItem(type.getName() + "_cobblestone_generator", BlocksRegistry.getCobbleGenerator(type));
+        }
+        for (var type : BasaltgenProperties.values()) {
+            blockItem(type.getName() + "_basalt_generator", BlocksRegistry.getBasaltGenerator(type));
+        }
+        BlocksRegistry.allWaterStrainers().forEach(block -> blockItem(block.getId().getPath(), block));
+        BlocksRegistry.allBarrels().forEach(block -> blockItem(block.getId().getPath(), block));
+    }
 
     public static final DeferredItem<BlockItem> PUMP = blockItem("pump", BlocksRegistry.PUMP);
 
@@ -125,29 +99,9 @@ public class ItemsRegistry {
     public static final DeferredItem<BlockItem> CREATIVE_CHILLED_TEMPERATURE_SOURCE
             = blockItem("creative_subzero_temperature_source", BlocksRegistry.CREATIVE_CHILLED_TEMPERATURE_SOURCE);
 
-    public static final DeferredItem<BlockItem> WHITE_BARREL = blockItem("white_barrel", BlocksRegistry.WHITE_BARREL);
-    public static final DeferredItem<BlockItem> GREEN_BARREL = blockItem("green_barrel", BlocksRegistry.GREEN_BARREL);
-    public static final DeferredItem<BlockItem> BLUE_BARREL = blockItem("blue_barrel", BlocksRegistry.BLUE_BARREL);
-    public static final DeferredItem<BlockItem> PURPLE_BARREL = blockItem("purple_barrel", BlocksRegistry.PURPLE_BARREL);
-    public static final DeferredItem<BlockItem> RED_BARREL = blockItem("red_barrel", BlocksRegistry.RED_BARREL);
-    public static final DeferredItem<BlockItem> BLACK_BARREL = blockItem("black_barrel", BlocksRegistry.BLACK_BARREL);
-    public static final DeferredItem<BlockItem> GOLDEN_BARREL = blockItem("golden_barrel", BlocksRegistry.GOLDEN_BARREL);
-
     public static final DeferredItem<BlockItem> SMALL_CRATE = blockItem("small_crate", BlocksRegistry.SMALL_CRATE);
     public static final DeferredItem<BlockItem> CRATE = blockItem("crate", BlocksRegistry.CRATE);
     public static final DeferredItem<BlockItem> PULSATING_CRATE = blockItem("pulsating_crate", BlocksRegistry.PULSATING_CRATE);
-
-    public static final DeferredItem<BlockItem> ACACIA_STRAINER = blockItem("acacia_water_strainer", BlocksRegistry.ACACIA_STRAINER);
-    public static final DeferredItem<BlockItem> BAMBOO_STRAINER = blockItem("bamboo_water_strainer", BlocksRegistry.BAMBOO_STRAINER);
-    public static final DeferredItem<BlockItem> BIRCH_STRAINER = blockItem("birch_water_strainer", BlocksRegistry.BIRCH_STRAINER);
-    public static final DeferredItem<BlockItem> CHERRY_STRAINER = blockItem("cherry_water_strainer", BlocksRegistry.CHERRY_STRAINER);
-    public static final DeferredItem<BlockItem> CRIMSON_STRAINER = blockItem("crimson_water_strainer", BlocksRegistry.CRIMSON_STRAINER);
-    public static final DeferredItem<BlockItem> DARK_OAK_STRAINER = blockItem("dark_oak_water_strainer", BlocksRegistry.DARK_OAK_STRAINER);
-    public static final DeferredItem<BlockItem> JUNGLE_STRAINER = blockItem("jungle_water_strainer", BlocksRegistry.JUNGLE_STRAINER);
-    public static final DeferredItem<BlockItem> MANGROVE_STRAINER = blockItem("mangrove_water_strainer", BlocksRegistry.MANGROVE_STRAINER);
-    public static final DeferredItem<BlockItem> OAK_STRAINER = blockItem("oak_water_strainer", BlocksRegistry.OAK_STRAINER);
-    public static final DeferredItem<BlockItem> SPRUCE_STRAINER = blockItem("spruce_water_strainer", BlocksRegistry.SPRUCE_STRAINER);
-    public static final DeferredItem<BlockItem> WARPED_STRAINER = blockItem("warped_water_strainer", BlocksRegistry.WARPED_STRAINER);
 
     static {
         BlocksRegistry.allCompressedBlocks().forEach(ITEMS::registerSimpleBlockItem);

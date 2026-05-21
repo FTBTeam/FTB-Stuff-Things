@@ -2,6 +2,7 @@ package dev.ftb.mods.ftbstuffnthings.data;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
+import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceType;
 import dev.ftb.mods.ftbstuffnthings.items.MeshType;
 import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import net.minecraft.core.HolderLookup;
@@ -41,15 +42,15 @@ public class BlockTagsGenerator extends BlockTagsProvider {
             }
         });
 
-        BlocksRegistry.ALL_SLUICES.forEach(sluice -> tag(FTBStuffTags.Blocks.SLUICE).add(sluice.get()));
-        BlocksRegistry.WOODEN_SLUICE.forEach(sluice -> tag(FTBStuffTags.Blocks.WOODEN_SLUICES).add(sluice.get()));
+        BlocksRegistry.allSluices().forEach(sluice -> tag(FTBStuffTags.Blocks.SLUICE).add(sluice.get()));
+        BlocksRegistry.woodenSluices().forEach(sluice -> tag(FTBStuffTags.Blocks.WOODEN_SLUICES).add(sluice.get()));
         BlocksRegistry.CRATES.forEach(crate -> tag(FTBStuffTags.Blocks.CRATE).add(crate.get()));
-        BlocksRegistry.BARRELS.forEach(barrel -> tag(FTBStuffTags.Blocks.BARREL).add(barrel.get()));
-        BlocksRegistry.waterStrainers().forEach(strainer -> tag(FTBStuffTags.Blocks.WATER_STRAINER).add(strainer.get()));
+        BlocksRegistry.allBarrels().forEach(barrel -> tag(FTBStuffTags.Blocks.BARREL).add(barrel.get()));
+        BlocksRegistry.allWaterStrainers().forEach(strainer -> tag(FTBStuffTags.Blocks.WATER_STRAINER).add(strainer.get()));
 
         MeshType.NON_EMPTY_VALUES.forEach(mesh -> {
             if (mesh == MeshType.BLAZING) {
-                tag(FTBStuffTags.Blocks.allowedMeshes(mesh)).add(BlocksRegistry.NETHERITE_SLUICE.get());
+                tag(FTBStuffTags.Blocks.allowedMeshes(mesh)).add(BlocksRegistry.getSluice(SluiceType.NETHERITE).get());
             } else {
                 tag(FTBStuffTags.Blocks.allowedMeshes(mesh)).addTag(FTBStuffTags.Blocks.SLUICE);
             }

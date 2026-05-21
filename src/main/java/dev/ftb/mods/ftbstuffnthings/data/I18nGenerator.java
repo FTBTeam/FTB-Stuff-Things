@@ -7,6 +7,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -78,37 +79,14 @@ public class I18nGenerator extends LanguageProvider {
         add("ftbstuff.wooden_basin.consume_chance", "Chance to destroy block: %s%%");
         add("ftbstuff.jei.wooden_basin_info", "Place block on top of basin\nand fall or jump on it");
 
-        addBlock(BlocksRegistry.OAK_SLUICE, "Oak Sluice");
-        addBlock(BlocksRegistry.SPRUCE_SLUICE, "Spruce Sluice");
-        addBlock(BlocksRegistry.BIRCH_SLUICE, "Birch Sluice");
-        addBlock(BlocksRegistry.JUNGLE_SLUICE, "Jungle Sluice");
-        addBlock(BlocksRegistry.ACACIA_SLUICE, "Acacia Sluice");
-        addBlock(BlocksRegistry.DARK_OAK_SLUICE, "Dark Oak Sluice");
-        addBlock(BlocksRegistry.MANGROVE_SLUICE, "Mangrove Sluice");
-        addBlock(BlocksRegistry.CHERRY_SLUICE, "Cherry Sluice");
-        addBlock(BlocksRegistry.PALE_OAK_SLUICE, "Pale Oak Sluice");
-        addBlock(BlocksRegistry.CRIMSON_SLUICE, "Crimson Sluice");
-        addBlock(BlocksRegistry.WARPED_SLUICE, "Warped Sluice");
-
-        addBlock(BlocksRegistry.IRON_SLUICE, "Iron Sluice");
-        addBlock(BlocksRegistry.DIAMOND_SLUICE, "Diamond Sluice");
-        addBlock(BlocksRegistry.NETHERITE_SLUICE, "Netherite Sluice");
-
-        addBlock(BlocksRegistry.IRON_AUTO_HAMMER, "Iron Auto-Hammer");
-        addBlock(BlocksRegistry.GOLD_AUTO_HAMMER, "Gold Auto-Hammer");
-        addBlock(BlocksRegistry.DIAMOND_AUTO_HAMMER, "Diamond Auto-Hammer");
-        addBlock(BlocksRegistry.NETHERITE_AUTO_HAMMER, "Netherite Auto-Hammer");
-
-        addBlock(BlocksRegistry.STONE_COBBLESTONE_GENERATOR, "Stone Cobble Generator");
-        addBlock(BlocksRegistry.IRON_COBBLESTONE_GENERATOR, "Iron Cobble Generator");
-        addBlock(BlocksRegistry.GOLD_COBBLESTONE_GENERATOR, "Gold Cobble Generator");
-        addBlock(BlocksRegistry.DIAMOND_COBBLESTONE_GENERATOR, "Diamond Cobble Generator");
-        addBlock(BlocksRegistry.NETHERITE_COBBLESTONE_GENERATOR, "Netherite Cobble Generator");
-        addBlock(BlocksRegistry.STONE_BASALT_GENERATOR, "Stone Basalt Generator");
-        addBlock(BlocksRegistry.IRON_BASALT_GENERATOR, "Iron Basalt Generator");
-        addBlock(BlocksRegistry.GOLD_BASALT_GENERATOR, "Gold Basalt Generator");
-        addBlock(BlocksRegistry.DIAMOND_BASALT_GENERATOR, "Diamond Basalt Generator");
-        addBlock(BlocksRegistry.NETHERITE_BASALT_GENERATOR, "Netherite Basalt Generator");
+        BlocksRegistry.allSluices().forEach(s ->
+                addBlock(s, s.get().getSluiceType().description()));
+        BlocksRegistry.allAutoHammers().forEach(s ->
+                addBlock(s, s.get().getHammerProps().description()));
+        BlocksRegistry.allCobbleGenerators().forEach(s ->
+                addBlock(s, s.get().getGeneratorProps().description()));
+        BlocksRegistry.allBasaltGenerators().forEach(s ->
+                addBlock(s, s.get().getGeneratorProps().description()));
 
         addBlock(BlocksRegistry.FUSING_MACHINE, "SlowMelter 9000");
         addBlock(BlocksRegistry.SUPER_COOLER, "\"Super\" Cooler");
@@ -130,7 +108,6 @@ public class I18nGenerator extends LanguageProvider {
         addBlock(BlocksRegistry.OAK_STRAINER, "Oak Water Strainer");
         addBlock(BlocksRegistry.SPRUCE_STRAINER, "Spruce Water Strainer");
         addBlock(BlocksRegistry.WARPED_STRAINER, "Warped Water Strainer");
-        addBlock(BlocksRegistry.BAMBOO_SLUICE, "Bamboo Sluice");
 
 //        addBlock(BlocksRegistry.TUBE, "Cast Iron Tube");
         addBlock(BlocksRegistry.JAR, "Glass Jar");
@@ -171,12 +148,9 @@ public class I18nGenerator extends LanguageProvider {
         addItem(ItemsRegistry.CROOK, "Stone Crook");
         addItem(ItemsRegistry.STONE_ROD, "Stone Rod");
 
-        BlocksRegistry.BARRELS.forEach((barrel) -> {
+        BlocksRegistry.allBarrels().forEach((barrel) -> {
             String name = barrel.getId().getPath().split("_")[0];
-            // Upper case first letter
-            name = name.substring(0, 1).toUpperCase() + name.substring(1);
-
-            addBlock(barrel, name + " Barrel");
+            addBlock(barrel, StringUtils.capitalize(name) + " Barrel");
         });
 
         addBlock(BlocksRegistry.CRATE, "Crate");

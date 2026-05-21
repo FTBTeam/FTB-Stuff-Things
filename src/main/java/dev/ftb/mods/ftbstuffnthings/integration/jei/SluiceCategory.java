@@ -1,8 +1,10 @@
 package dev.ftb.mods.ftbstuffnthings.integration.jei;
 
+import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceType;
 import dev.ftb.mods.ftbstuffnthings.crafting.ItemWithChance;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.SluiceRecipe;
 import dev.ftb.mods.ftbstuffnthings.items.MeshType;
+import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
 import mezz.jei.api.constants.VanillaTypes;
@@ -15,6 +17,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
@@ -30,7 +33,7 @@ public class SluiceCategory extends BaseStuffCategory<SluiceRecipe> {
                 Component.translatable("ftbstuff.sluice"),
                 guiHelper().drawableBuilder(bgTexture("jei_sluice.png"),
                         0, 0, 156, 78).setTextureSize(180, 78).build(),
-                guiHelper().createDrawableIngredient(VanillaTypes.ITEM_STACK, ItemsRegistry.OAK_SLUICE.get().getDefaultInstance())
+                guiHelper().createDrawableIngredient(VanillaTypes.ITEM_STACK, BlocksRegistry.getSluice(SluiceType.OAK).asItem().getDefaultInstance())
         );
     }
 
