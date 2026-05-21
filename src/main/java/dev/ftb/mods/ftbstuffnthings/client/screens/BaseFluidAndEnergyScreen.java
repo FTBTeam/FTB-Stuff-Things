@@ -1,6 +1,7 @@
 package dev.ftb.mods.ftbstuffnthings.client.screens;
 
 import dev.ftb.mods.ftbstuffnthings.client.GuiUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
@@ -33,7 +34,7 @@ public abstract class BaseFluidAndEnergyScreen<T extends AbstractContainerMenu> 
             List<Component> tooltip = getFluidStack().isEmpty() ?
                     List.of(Component.translatable("ftblibrary.empty")) :
                     List.of(getFluidStack().getHoverName(),
-                            Component.literal(getFluidStack().getAmount() + " / " + getFluidCapacity() + " mB"));
+                            Component.literal(getFluidStack().getAmount() + " / " + getFluidCapacity() + " mB").withStyle(ChatFormatting.GRAY));
             graphics.setTooltipForNextFrame(font, tooltip, Optional.empty(), mouseX, mouseY);
         } else if (mouseX > leftPos + 166 && mouseX < leftPos + 174 && mouseY > topPos + 3 && mouseY < topPos + 5 + 65) {
             MutableComponent energyText = Component.literal(getEnergyAmount() + " / " + getEnergyCapacity() + " FE");

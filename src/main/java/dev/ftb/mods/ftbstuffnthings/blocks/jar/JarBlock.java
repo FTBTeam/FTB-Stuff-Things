@@ -2,7 +2,6 @@ package dev.ftb.mods.ftbstuffnthings.blocks.jar;
 
 import dev.ftb.mods.ftbstuffnthings.blocks.SerializableComponentsProvider;
 import dev.ftb.mods.ftbstuffnthings.registry.ComponentsRegistry;
-import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
 import dev.ftb.mods.ftbstuffnthings.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
@@ -30,6 +29,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -81,13 +81,10 @@ public class JarBlock extends Block implements EntityBlock, SerializableComponen
 
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        ItemStack item = player.getItemInHand(hand);
-
         if (!level.isClientSide()) {
-            BlockEntity tileEntity = level.getBlockEntity(pos);
-
-            if (tileEntity instanceof JarBlockEntity jar) {
-                jar.onRightClick(player, hand, item);
+            if (level.getBlockEntity(pos) instanceof JarBlockEntity jar) {
+                FluidUtil.interactWithFluidHandler(player, hand, pos, jar.getTank());
+                MiscUtil.displayTankAmount(player, jar.getTank());
             }
         }
 

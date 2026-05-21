@@ -160,7 +160,7 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
     private Optional<RecipeHolder<SuperCoolerRecipe>> findValidRecipe(Level level) {
         return RecipesRegistry.SUPER_COOLER_TYPE.get().streamRecipes(level)
                 .sorted((a, b) -> b.value().getInputs().size() - a.value().getInputs().size())  // prioritise recipes with more ingredients
-                .filter(r -> r.value().test(itemHandler, fluidHandler.copyStack()))
+                .filter(r -> r.value().test(itemHandler, FluidUtil.getStack(fluidHandler, 0)))
                 .findFirst();
     }
 

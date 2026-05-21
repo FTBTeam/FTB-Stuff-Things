@@ -17,7 +17,7 @@ public class FusingMachineScreen extends BaseFluidAndEnergyScreen<FusingMachineM
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int i, int j) {
-        graphics.text(font, this.title, this.titleLabelX, this.titleLabelY, 0x404040, false);
+        graphics.text(font, this.title, this.titleLabelX, this.titleLabelY, 0xFF404040, false);
     }
 
     @Override

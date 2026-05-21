@@ -12,7 +12,6 @@ import dev.ftb.mods.ftbstuffnthings.registry.BlocksRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.ComponentsRegistry;
 import dev.ftb.mods.ftbstuffnthings.registry.RecipesRegistry;
 import dev.ftb.mods.ftbstuffnthings.temperature.TemperatureAndEfficiency;
-import dev.ftb.mods.ftbstuffnthings.util.DirectionUtil;
 import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -371,7 +370,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
 
     private List<ItemStack> distributeOutputItems(List<ItemStack> toDistribute) {
         List<ItemStack> excessList = new ArrayList<>();
-        for (Direction dir : DirectionUtil.VALUES) {
+        for (Direction dir : MiscUtil.DIRECTIONS) {
             if (suitableOutputBlock(dir)) {
                 ResourceHandler<ItemResource> handler = itemOutputs.computeIfAbsent(dir, _ ->
                                 BlockCapabilityCache.create(Capabilities.Item.BLOCK, (ServerLevel) getLevel(),
@@ -411,7 +410,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
 
     private List<FluidStack> distributeOutputFluids(List<FluidStack> toDistribute) {
         List<FluidStack> excessList = new ArrayList<>();
-        for (Direction dir : DirectionUtil.VALUES) {
+        for (Direction dir : MiscUtil.DIRECTIONS) {
             var handler = fluidOutputs.computeIfAbsent(dir, k ->
                             BlockCapabilityCache.create(Capabilities.Fluid.BLOCK, (ServerLevel) getLevel(), getBlockPos().relative(dir), dir.getOpposite()))
                     .getCapability();

@@ -1,10 +1,12 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.woodbasin;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
+import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -70,20 +72,30 @@ public class WoodenBasinBlock extends Block implements EntityBlock {
             if (FluidUtil.interactWithFluidHandler(player, hand, level, pos, hitResult.getDirection())) {
                 return InteractionResult.CONSUME;
             }
+            if (level.getBlockEntity(pos) instanceof WoodenBasinBlockEntity basin) {
+                MiscUtil.displayTankAmount(player, basin.getTank());
+            }
         }
+
         return stack.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forPlayerInteraction(player, hand)) == null ?
                 InteractionResult.PASS :
                 InteractionResult.SUCCESS;
+    }
+
+    public void onEntityFall(Entity entity, BlockPos pos, double fallDistance) {
+        if (fallDistance > 0.5 && entity.level().getBlockEntity(pos) instanceof WoodenBasinBlockEntity basin) {
+            basin.trySqueezing(entity);
+        }
     }
 
     @EventBusSubscriber(modid = FTBStuffNThings.MOD_ID)
     public static class Listener {
         @SubscribeEvent
         public static void onEntityFall(LivingFallEvent event) {
-            if (event.getEntity().level() instanceof ServerLevel serverLevel) {
+            if (event.getEntity().level() instanceof ServerLevel) {
                 BlockPos pos = event.getEntity().getOnPos();
                 if (event.getDistance() > 0.5 && event.getEntity().level().getBlockEntity(pos.below()) instanceof WoodenBasinBlockEntity basin) {
-                    basin.trySqueezing(serverLevel, event.getEntity());
+                    basin.trySqueezing(event.getEntity());
                 }
             }
         }

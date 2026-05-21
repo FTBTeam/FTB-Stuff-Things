@@ -1,5 +1,6 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.dripper;
 
+import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
 import dev.ftb.mods.ftbstuffnthings.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -87,12 +88,7 @@ public class DripperBlock extends Block implements EntityBlock {
 
 			FluidUtil.interactWithFluidHandler(player, hand, pos, tank);
 
-			if (tank.getAmountAsInt(0) == 0) {
-				player.sendOverlayMessage(Component.translatable("ftblibrary.empty"));
-			} else {
-				player.sendOverlayMessage(Component.translatable("ftblibrary.mb",
-						tank.getAmountAsInt(0), tank.getResource(0).getHoverName()));
-			}
+			MiscUtil.displayTankAmount(player, tank);
 		}
 
 		return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;

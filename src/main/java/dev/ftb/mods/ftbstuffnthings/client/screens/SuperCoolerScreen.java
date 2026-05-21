@@ -23,7 +23,7 @@ public class SuperCoolerScreen extends BaseFluidAndEnergyScreen<SuperCoolerMenu>
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int i, int j) {
-        graphics.text(font, title, titleLabelX, titleLabelY, 0x404040, false);
+        graphics.text(font, title, titleLabelX, titleLabelY, 0xFF404040, false);
     }
 
     @Override

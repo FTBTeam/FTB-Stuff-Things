@@ -7,7 +7,6 @@ import dev.ftb.mods.ftbstuffnthings.blocks.ProgressProvider;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingEnergy;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingFluidTank;
 import dev.ftb.mods.ftbstuffnthings.capabilities.EmittingStackHandler;
-import dev.ftb.mods.ftbstuffnthings.crafting.NoInventory;
 import dev.ftb.mods.ftbstuffnthings.crafting.RecipeCaches;
 import dev.ftb.mods.ftbstuffnthings.crafting.recipe.FusingMachineRecipe;
 import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
@@ -37,6 +36,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
+import net.neoforged.neoforge.transfer.DelegatingResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -51,12 +51,12 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class FusingMachineBlockEntity extends AbstractMachineBlockEntity implements MenuProvider, FluidEnergyProvider, ProgressProvider {
     private final EmittingEnergy energyHandler = new EmittingEnergy(1_000_000, 10_000, 10_000,
             _ -> setChanged());
-    private final ExtractOnlyFluidTank fluidHandler = new ExtractOnlyFluidTank(10000, _ -> setChanged());
+    private final EmittingFluidTank fluidHandler = new EmittingFluidTank(10000, _ -> setChanged());
+    private final ExtractOnlyFluidTank publicFluidHandler = new ExtractOnlyFluidTank(fluidHandler);
     private final EmittingStackHandler itemHandler = new EmittingStackHandler(2, _ -> onItemHandlerChange());
 
     private int progress = 0;
@@ -271,7 +271,7 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         super.collectImplicitComponents(components);
 
-        components.set(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(fluidHandler.copyStack()));
+        components.set(ComponentsRegistry.STORED_FLUID, SimpleFluidContent.copyOf(FluidUtil.getStack(fluidHandler, 0)));
         components.set(ComponentsRegistry.STORED_ENERGY, energyHandler.getAmountAsInt());
     }
 
@@ -296,7 +296,7 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
 
     @Override
     public FluidStack getFluid() {
-        return fluidHandler.copyStack();
+        return FluidUtil.getStack(fluidHandler, 0);
     }
 
     @Override
@@ -341,7 +341,7 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
 
     @Override
     public @Nullable ResourceHandler<FluidResource> getFluidHandler(@Nullable Direction side) {
-        return fluidHandler;
+        return side == null ? fluidHandler : publicFluidHandler;
     }
 
     @Override
@@ -354,20 +354,15 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
         return containerData;
     }
 
+//#endregion
+
     public void indexModifier(int index, ItemResource resource, int amount) {
         itemHandler.set(index, resource, amount);
     }
 
-//#endregion
-
-    public static class ExtractOnlyFluidTank extends EmittingFluidTank {
-        public ExtractOnlyFluidTank(int capacity, Consumer<EmittingFluidTank> listener) {
-            super(capacity, listener);
-        }
-
-        @Override
-        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            return 0;
+    public static class ExtractOnlyFluidTank extends DelegatingResourceHandler<FluidResource> {
+        public ExtractOnlyFluidTank(ResourceHandler<FluidResource> delegate) {
+            super(delegate);
         }
 
         @Override
@@ -375,12 +370,33 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
             return 0;
         }
 
-        private int insertOverride(FluidResource resource, int amount, TransactionContext transactionContext) {
-            return super.insert(resource, amount, transactionContext);
-        }
-
-        public void overrideFluidStack(FluidStack stack) {
-            set(0, FluidResource.of(stack), stack.amount());
+        @Override
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            return 0;
         }
     }
+
+//    public static class ExtractOnlyFluidTank extends EmittingFluidTank {
+//        public ExtractOnlyFluidTank(int capacity, Consumer<EmittingFluidTank> listener) {
+//            super(capacity, listener);
+//        }
+//
+//        @Override
+//        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+//            return 0;
+//        }
+//
+//        @Override
+//        public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+//            return 0;
+//        }
+//
+//        private int insertOverride(FluidResource resource, int amount, TransactionContext transactionContext) {
+//            return super.insert(resource, amount, transactionContext);
+//        }
+//
+//        public void overrideFluidStack(FluidStack stack) {
+//            set(0, FluidResource.of(stack), stack.amount());
+//        }
+//    }
 }

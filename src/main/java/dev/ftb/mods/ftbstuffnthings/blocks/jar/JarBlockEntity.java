@@ -7,14 +7,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -69,18 +65,6 @@ public class JarBlockEntity extends BlockEntity {
 
     public int getComparatorSignal() {
         return tank.getAmountAsInt(0) * 15 / tank.getCapacityAsInt(0, FluidResource.EMPTY);
-    }
-
-    public void onRightClick(Player player, InteractionHand hand, ItemStack item) {
-        FluidUtil.interactWithFluidHandler(player, hand, getBlockPos(), tank);
-
-        if (!level.isClientSide()) {
-            if (tank.getResource(0).isEmpty()) {
-                player.sendOverlayMessage(Component.translatable("ftblibrary.empty"));
-            } else {
-                player.sendOverlayMessage(Component.translatable("ftblibrary.mb", tank.getAmountAsInt(0), tank.getResource(0).getHoverName()));
-            }
-        }
     }
 
     @Override

@@ -9,6 +9,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,5 +62,9 @@ public class EmittingFluidTank extends SimpleFluidTank {
             SyncDisplayFluidPacket packet = new SyncDisplayFluidPacket(machine.getBlockPos(), getResource(0).toStack(getAmountAsInt(0)));
             PacketDistributor.sendToPlayersTrackingChunk(sl, ChunkPos.containing(machine.getBlockPos()), packet);
         }
+    }
+
+    public void overrideFluidStack(FluidStack stack) {
+        set(0, FluidResource.of(stack), stack.amount());
     }
 }

@@ -87,10 +87,14 @@ public class WoodenBasinBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    public void trySqueezing(ServerLevel serverLevel, Entity fallingEntity) {
-         RecipeCaches.WOODEN_BASIN.getCachedRecipe(serverLevel, this::searchForRecipe, this::genRecipeHash).ifPresent(h -> {
+    public void trySqueezing(Entity fallingEntity) {
+        if (!(fallingEntity.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        RecipeCaches.WOODEN_BASIN.getCachedRecipe(serverLevel, this::searchForRecipe, this::genRecipeHash).ifPresent(h -> {
             var recipe = h.value();
 
+            boolean creative = fallingEntity instanceof Player p && p.isCreative();
             if (recipe.getProductionChance() >= 1f || serverLevel.getRandom().nextFloat() < recipe.getProductionChance()) {
                 try (Transaction tx = Transaction.openRoot()) {
                     FluidStackTemplate result = recipe.getFluidResult();
@@ -98,7 +102,7 @@ public class WoodenBasinBlockEntity extends BlockEntity {
 
                     if (filled == result.amount()) {
                         tx.commit();
-                        if (recipe.getBlockConsumeChance() >= 1f || serverLevel.getRandom().nextFloat() < recipe.getBlockConsumeChance()) {
+                        if (!creative && (recipe.getBlockConsumeChance() >= 1f || serverLevel.getRandom().nextFloat() < recipe.getBlockConsumeChance())) {
                             serverLevel.destroyBlock(getBlockPos().above(), recipe.dropItems(), fallingEntity);
                         } else {
                             serverLevel.playSound(null, getBlockPos().above(), SoundEvents.POINTED_DRIPSTONE_DRIP_WATER_INTO_CAULDRON, SoundSource.BLOCKS, 1f, 1f);

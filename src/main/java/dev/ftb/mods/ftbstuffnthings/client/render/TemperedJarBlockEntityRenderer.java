@@ -3,7 +3,6 @@ package dev.ftb.mods.ftbstuffnthings.client.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.ftb.mods.ftbstuffnthings.blocks.jar.TemperedJarBlockEntity;
-import dev.ftb.mods.ftbstuffnthings.client.RenderUtil;
 import dev.ftb.mods.ftbstuffnthings.client.render.state.FluidRenderData;
 import dev.ftb.mods.ftbstuffnthings.client.render.state.TemperedJarRenderState;
 import net.minecraft.client.renderer.SubmitNodeCollector;
