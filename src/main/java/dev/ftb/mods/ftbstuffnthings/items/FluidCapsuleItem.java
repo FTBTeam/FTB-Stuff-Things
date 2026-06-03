@@ -14,7 +14,9 @@ import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.ItemAccessFluidHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
@@ -55,14 +57,8 @@ public class FluidCapsuleItem extends Item {
         }
 
         @Override
-        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            int amountInCapsule = getAmountAsInt(index);
-            int extracted = super.extract(index, resource, amount, transaction);
-            if (extracted == amountInCapsule) {
-                // extracted all of the fluid; shrink the container stack
-                itemAccess.extract(itemAccess.getResource(), 1, transaction);
-            }
-            return extracted;
+        protected @Nullable ItemResource update(ItemResource accessResource, int index, FluidResource newResource, int newAmount) {
+            return newAmount == 0 ? null : super.update(accessResource, index, newResource, newAmount);
         }
     }
 }
