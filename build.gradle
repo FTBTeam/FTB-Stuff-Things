@@ -3,7 +3,7 @@ plugins {
     id 'idea'
     id 'maven-publish'
     id 'net.neoforged.moddev' version '2.0.140'
-    id "me.modmuss50.mod-publish-plugin" version "1.1.0"
+    id "me.modmuss50.mod-publish-plugin" version "2.0.0-beta.2"
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -72,6 +72,7 @@ configurations {
 }
 
 repositories {
+    mavenLocal()
     maven { url "https://maven.ftb.dev/releases" } // FTB Mods
     maven { url "https://maven.architectury.dev" }
     maven {
@@ -154,38 +155,30 @@ idea {
 createMavenPublishingBlock(project)
 
 publishMods {
-    dryRun = providers.environmentVariable("CURSEFORGE_KEY").getOrNull() == null || providers.environmentVariable("SKIP_CURSEFORGE").getOrNull() != null
+    def CFToken = providers.environmentVariable("CURSEFORGE_KEY");
+
+    dryRun = CFToken.getOrNull() == null || providers.environmentVariable("SKIP_CURSEFORGE").getOrNull() != null
     changelog = createChangelog(project)
     version = project.version
     type = createReleaseType(project)
 
-    def tag = providers.environmentVariable("TAG").getOrElse("release")
-    type = tag.endsWith("-beta") ? BETA : (tag.endsWith("-alpha") ? ALPHA : STABLE)
+    displayName = "${project.readable_name} ${project.version}"
+    modLoaders.add("neoforge")
 
-    def createOptions = (String projectName) -> {
-        publishOptions {
-            file = project.provider { project(":$projectName").tasks.jar }.flatMap { it.archiveFile }
-            displayName = "${readable_name} ${projectName.capitalize()} ${project.version}"
-            modLoaders.add(projectName.toLowerCase())
-        }
-    }
+    changelog = createChangelog(project)
+    file = jar.archiveFile
+    version = project.version
 
-    def neoForgeOptions = createOptions("neoforge")
-
-    def curseForgeOptions = curseforgeOptions {
-        accessToken = providers.environmentVariable("CURSEFORGE_KEY")
+    curseforge {
+        accessToken = CFToken.orElse("missing")
+        projectId = project.curseforge_id
         supported_minecraft_versions.split(",").each {
             minecraftVersions.add(it.trim())
         }
         javaVersions.add(JavaVersion.VERSION_25)
-    }
-
-    curseforge("curseforgeNeoForge") {
-        from(curseForgeOptions, neoForgeOptions)
-        projectId = curseforge_id
         requires('ftb-library-forge')
         optional('jei')
-        optional('kubejs')
-        optional('jade')
+        client = true
+        server = true
     }
 }
