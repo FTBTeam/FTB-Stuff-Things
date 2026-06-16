@@ -122,11 +122,7 @@ public abstract class AbstractMachineMenu<T extends AbstractMachineBlockEntity> 
 
     @Override
     public boolean stillValid(Player player) {
-        if (blockEntity == null) {
-            return false;
-        }
-        Vec3 position = player.position();
-        return this.blockEntity.getBlockPos().distManhattan(BlockPos.containing(position)) <= 8;
+        return blockEntity != null && player.distanceToSqr(Vec3.atCenterOf(blockEntity.getBlockPos())) < 64.0;
     }
 
     public BlockEntity getBlockEntity() {
