@@ -1,7 +1,7 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.jar;
 
+import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineMenu;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import dev.ftb.mods.ftbstuffnthings.util.SubLevelMenuHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,7 +20,7 @@ public class TemperedJarMenu extends AbstractContainerMenu {
     private final TemperedJarBlockEntity jar;
 
     public static TemperedJarMenu fromNetwork(int containerId, Inventory invPlayer, FriendlyByteBuf extraData) {
-        BlockEntity be = SubLevelMenuHelper.readAndResolve(invPlayer.player, extraData);
+        BlockEntity be = AbstractMachineMenu.getTile(invPlayer.player, extraData);
         ResourceLocation recipeId = extraData.readOptional(FriendlyByteBuf::readResourceLocation).orElse(null);
         TemperedJarMenu menu = new TemperedJarMenu(containerId, invPlayer, be);
         menu.getJar().setCurrentRecipeId(recipeId);

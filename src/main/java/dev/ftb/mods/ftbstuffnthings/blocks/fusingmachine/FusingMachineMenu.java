@@ -2,7 +2,6 @@ package dev.ftb.mods.ftbstuffnthings.blocks.fusingmachine;
 
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineMenu;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import dev.ftb.mods.ftbstuffnthings.util.SubLevelMenuHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,7 +12,7 @@ import java.util.Objects;
 
 public class FusingMachineMenu extends AbstractMachineMenu<FusingMachineBlockEntity> {
     public FusingMachineMenu(int windowId, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(windowId, playerInventory, SubLevelMenuHelper.readAndResolve(playerInventory.player, buffer));
+        this(windowId, playerInventory, getTile(playerInventory.player, buffer));
     }
 
     public FusingMachineMenu(int windowId, Inventory playerInventory, BlockEntity be) {

@@ -39,7 +39,11 @@ public abstract class AbstractMachineMenu<T extends AbstractMachineBlockEntity> 
     protected ContainerData containerData;
 
     public AbstractMachineMenu(MenuType type, int windowId, Inventory invPlayer, FriendlyByteBuf extraData) {
-        this(type, windowId, invPlayer, SubLevelMenuHelper.readAndResolve(invPlayer.player, extraData));
+        this(type, windowId, invPlayer, getTile(invPlayer.player, extraData));
+    }
+
+    public static BlockEntity getTile(Player player, FriendlyByteBuf buf) {
+        return SubLevelMenuHelper.readAndResolve(player, buf);
     }
 
     public AbstractMachineMenu(MenuType type, int windowId, Inventory invPlayer) {

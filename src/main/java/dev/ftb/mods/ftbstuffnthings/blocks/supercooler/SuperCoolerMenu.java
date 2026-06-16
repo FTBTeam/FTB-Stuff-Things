@@ -3,7 +3,6 @@ package dev.ftb.mods.ftbstuffnthings.blocks.supercooler;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineMenu;
 import dev.ftb.mods.ftbstuffnthings.capabilities.IOStackHandler;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import dev.ftb.mods.ftbstuffnthings.util.SubLevelMenuHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -14,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class SuperCoolerMenu extends AbstractMachineMenu<SuperCoolerBlockEntity> {
     public SuperCoolerMenu(int windowId, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(windowId, playerInventory, SubLevelMenuHelper.readAndResolve(playerInventory.player, buffer));
+        this(windowId, playerInventory, getTile(playerInventory.player, buffer));
     }
 
     public SuperCoolerMenu(int windowId, Inventory playerInventory, BlockEntity be) {

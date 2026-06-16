@@ -2,7 +2,6 @@ package dev.ftb.mods.ftbstuffnthings.blocks.strainer;
 
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineMenu;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import dev.ftb.mods.ftbstuffnthings.util.SubLevelMenuHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -15,7 +14,7 @@ import java.util.Objects;
 
 public class WaterStrainerMenu extends AbstractMachineMenu<WaterStrainerBlockEntity> {
     public WaterStrainerMenu(int windowId, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(windowId, playerInventory, SubLevelMenuHelper.readAndResolve(playerInventory.player, buffer));
+        this(windowId, playerInventory, getTile(playerInventory.player, buffer));
     }
 
     public WaterStrainerMenu(int containerId, Inventory playerInv, BlockEntity be) {
