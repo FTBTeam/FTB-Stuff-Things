@@ -17,6 +17,7 @@
 
 package dev.ftb.mods.ftbstuffnthings.blocks;
 
+import dev.ftb.mods.ftbstuffnthings.util.SubLevelMenuHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,6 +31,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class AbstractMachineMenu<T extends AbstractMachineBlockEntity> extends AbstractContainerMenu {
     public final T blockEntity;
@@ -37,31 +39,22 @@ public abstract class AbstractMachineMenu<T extends AbstractMachineBlockEntity> 
     protected ContainerData containerData;
 
     public AbstractMachineMenu(MenuType type, int windowId, Inventory invPlayer, FriendlyByteBuf extraData) {
-        this(type, windowId, invPlayer, getTilePos(extraData));
+        this(type, windowId, invPlayer, SubLevelMenuHelper.readAndResolve(invPlayer.player, extraData));
     }
 
     public AbstractMachineMenu(MenuType type, int windowId, Inventory invPlayer) {
-        this(type, windowId, invPlayer, (BlockPos) null);
+        this(type, windowId, invPlayer, (BlockEntity) null);
     }
 
-    public AbstractMachineMenu(MenuType type, int windowId, Inventory invPlayer, BlockPos blockPos) {
+    public AbstractMachineMenu(MenuType type, int windowId, Inventory invPlayer, @Nullable BlockEntity blockEntity) {
         super(type, windowId);
-        if (blockPos != null) {
-            BlockEntity te0 = invPlayer.player.level().getBlockEntity(blockPos);
-            if (te0 instanceof AbstractMachineBlockEntity) {
-                //noinspection unchecked
-                blockEntity = (T) te0;  // safe cast: T extends AbstractMachineBlockEntity, and we're doing an instanceof
-                containerData = blockEntity.getContainerData();
-            } else {
-                blockEntity = null;
-            }
+        if (blockEntity instanceof AbstractMachineBlockEntity) {
+            //noinspection unchecked
+            this.blockEntity = (T) blockEntity;
+            containerData = this.blockEntity.getContainerData();
         } else {
-            blockEntity = null;
+            this.blockEntity = null;
         }
-    }
-
-    public static BlockPos getTilePos(FriendlyByteBuf buf) {
-        return buf.readBlockPos();
     }
 
     @Override

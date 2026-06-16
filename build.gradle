@@ -89,6 +89,9 @@ dependencies {
 
     implementation("curse.maven:jade-324717:${jade_curse_id}")
 
+    compileOnly("curse.maven:sable-1312371:${sable_curse_id}")
+    compileOnly("dev.ryanhcode.sable-companion:sable-companion-common-${minecraft_version}:${sable_companion_version}")
+
     compileOnly("dev.latvian.mods:kubejs-neoforge:${kubejs_version}")
     compileOnly("dev.latvian.mods:rhino:${rhino_version}")
 }
@@ -103,6 +106,12 @@ repositories {
         }
     }
     maven { url "https://maven.latvian.dev/releases" }
+    maven {
+        url "https://maven.ryanhcode.dev/releases"
+        content {
+            includeGroup "dev.ryanhcode.sable-companion"
+        }
+    }
     maven {
         url "https://www.cursemaven.com"
         content {

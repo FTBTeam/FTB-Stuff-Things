@@ -2,9 +2,10 @@ package dev.ftb.mods.ftbstuffnthings.blocks.fusingmachine;
 
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineMenu;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import net.minecraft.core.BlockPos;
+import dev.ftb.mods.ftbstuffnthings.util.SubLevelMenuHelper;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
@@ -12,11 +13,11 @@ import java.util.Objects;
 
 public class FusingMachineMenu extends AbstractMachineMenu<FusingMachineBlockEntity> {
     public FusingMachineMenu(int windowId, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(windowId, playerInventory, getTilePos(buffer));
+        this(windowId, playerInventory, SubLevelMenuHelper.readAndResolve(playerInventory.player, buffer));
     }
 
-    public FusingMachineMenu(int windowId, Inventory playerInventory, BlockPos pos) {
-        super(ContentRegistry.FUSING_MACHINE_MENU.get(), windowId, playerInventory, pos);
+    public FusingMachineMenu(int windowId, Inventory playerInventory, BlockEntity be) {
+        super(ContentRegistry.FUSING_MACHINE_MENU.get(), windowId, playerInventory, be);
 
         IItemHandler itemHandler = Objects.requireNonNull(blockEntity.getItemHandler());
         addSlot(new SlotItemHandler(itemHandler, 0, 43, 27));
