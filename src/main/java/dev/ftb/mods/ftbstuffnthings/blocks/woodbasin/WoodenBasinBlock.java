@@ -74,21 +74,8 @@ public class WoodenBasinBlock extends Block implements EntityBlock {
     }
 
     public void onEntityFall(Entity entity, BlockPos pos, float fallDistance) {
-        if (fallDistance > 0.5 && entity.level().getBlockEntity(pos) instanceof WoodenBasinBlockEntity basin) {
+        if (!entity.level().isClientSide() && fallDistance > 0.5 && entity.level().getBlockEntity(pos) instanceof WoodenBasinBlockEntity basin) {
             basin.trySqueezing(entity);
         }
     }
-
-//    @EventBusSubscriber(modid = FTBStuffNThings.MODID)
-//    public static class Listener {
-//        @SubscribeEvent
-//        public static void onEntityFall(LivingFallEvent event) {
-//            if (!event.getEntity().level().isClientSide) {
-//                BlockPos pos = event.getEntity().getOnPos();
-//                if (event.getDistance() > 0.5 && event.getEntity().level().getBlockEntity(pos.below()) instanceof WoodenBasinBlockEntity basin) {
-//                    basin.trySqueezing(event.getEntity());
-//                }
-//            }
-//        }
-//    }
 }
