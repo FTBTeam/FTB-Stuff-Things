@@ -2,6 +2,7 @@ package dev.ftb.mods.ftbstuffnthings.blocks;
 
 import dev.ftb.mods.ftbstuffnthings.client.ClientUtil;
 import dev.ftb.mods.ftbstuffnthings.registry.ComponentsRegistry;
+import dev.ftb.mods.ftbstuffnthings.util.SubLevelMenuHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -132,7 +133,7 @@ public abstract class AbstractMachineBlock extends Block implements EntityBlock 
                 }
             }
             if (blockEntity instanceof MenuProvider menuProvider) {
-                player.openMenu(menuProvider, pos);
+                player.openMenu(menuProvider, buf -> SubLevelMenuHelper.writeLocator(buf, blockEntity));
             }
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide);

@@ -2,10 +2,10 @@ package dev.ftb.mods.ftbstuffnthings.blocks.strainer;
 
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineMenu;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
@@ -14,11 +14,11 @@ import java.util.Objects;
 
 public class WaterStrainerMenu extends AbstractMachineMenu<WaterStrainerBlockEntity> {
     public WaterStrainerMenu(int windowId, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(windowId, playerInventory, AbstractMachineMenu.getTilePos(buffer));
+        this(windowId, playerInventory, getTile(playerInventory.player, buffer));
     }
 
-    public WaterStrainerMenu(int containerId, Inventory playerInv, BlockPos pos) {
-        super(ContentRegistry.WATER_STRAINER_MENU.get(), containerId, playerInv, pos);
+    public WaterStrainerMenu(int containerId, Inventory playerInv, BlockEntity be) {
+        super(ContentRegistry.WATER_STRAINER_MENU.get(), containerId, playerInv, be);
 
         IItemHandler itemHandler = Objects.requireNonNull(blockEntity.getItemHandler());
 

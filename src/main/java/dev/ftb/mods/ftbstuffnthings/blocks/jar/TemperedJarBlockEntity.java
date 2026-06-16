@@ -147,7 +147,7 @@ public class TemperedJarBlockEntity extends BlockEntity implements MenuProvider 
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new TemperedJarMenu(containerId, playerInventory, getBlockPos());
+        return new TemperedJarMenu(containerId, playerInventory, this);
     }
 
     @Override

@@ -81,7 +81,7 @@ public class WaterStrainerBlockEntity extends AbstractMachineBlockEntity {
 
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new WaterStrainerMenu(containerId, playerInventory, getBlockPos());
+        return new WaterStrainerMenu(containerId, playerInventory, this);
     }
 
     @Override
