@@ -204,6 +204,7 @@ publishMods {
         optional('jei')
         optional('kubejs')
         optional('jade')
+        optional('sable')
     }
 }
 

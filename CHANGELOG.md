@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Wooden Bowls (vanilla) can now be filled from water-containing tanks, taking 250mB water
 * The Dripper can now pull fluid from a tank above itself
+* Machine GUIs (Water Strainer, Fusing Machine, Super Cooler, Tempered Jar) now work when the block is on a Create: Aeronautics / Sable airship sub-level
+  * Added a soft dependency on Sable
 
 ### Fixed
 * Fixed Wooden Basin sometimes causing desyncs when block above it breaks
