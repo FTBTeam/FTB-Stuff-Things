@@ -279,7 +279,7 @@ public class SuperCoolerBlockEntity extends AbstractMachineBlockEntity implement
         if (player instanceof ServerPlayer sp) {
             fluidHandler.needSync(sp);
         }
-        return new SuperCoolerMenu(containerId, inventory, getBlockPos());
+        return new SuperCoolerMenu(containerId, inventory, this);
     }
 
     @Override

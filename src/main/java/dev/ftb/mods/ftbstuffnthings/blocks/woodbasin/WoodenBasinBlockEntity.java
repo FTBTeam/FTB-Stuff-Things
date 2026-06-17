@@ -83,11 +83,12 @@ public class WoodenBasinBlockEntity extends BlockEntity {
          RecipeCaches.WOODEN_BASIN.getCachedRecipe(this::searchForRecipe, this::genRecipeHash).ifPresent(h -> {
             var recipe = h.value();
 
+            boolean creative = fallingEntity instanceof Player p && p.isCreative();
             if (recipe.getProductionChance() >= 1f || level.getRandom().nextFloat() < recipe.getProductionChance()) {
                 int filled = tank.fill(recipe.getFluid(), IFluidHandler.FluidAction.SIMULATE);
                 if (filled == recipe.getFluid().getAmount()) {
                     tank.fill(recipe.getFluid(), IFluidHandler.FluidAction.EXECUTE);
-                    if (recipe.getBlockConsumeChance() >= 1f || level.getRandom().nextFloat() < recipe.getBlockConsumeChance()) {
+                    if (!creative && (recipe.getBlockConsumeChance() >= 1f || level.getRandom().nextFloat() < recipe.getBlockConsumeChance())) {
                         level.destroyBlock(getBlockPos().above(), recipe.dropItems(), fallingEntity);
                     } else {
                         level.playSound(null, getBlockPos().above(), SoundEvents.POINTED_DRIPSTONE_DRIP_WATER_INTO_CAULDRON, SoundSource.BLOCKS, 1f, 1f);

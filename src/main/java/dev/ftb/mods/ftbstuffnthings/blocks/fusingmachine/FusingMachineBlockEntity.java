@@ -203,7 +203,7 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
         if (player instanceof ServerPlayer sp) {
             fluidHandler.needSync(sp);
         }
-        return new FusingMachineMenu(windowId, inventory, getBlockPos());
+        return new FusingMachineMenu(windowId, inventory, this);
     }
 
     @Override

@@ -2,7 +2,9 @@ package dev.ftb.mods.ftbstuffnthings.integration.kubejs;
 
 import dev.ftb.mods.ftbstuffnthings.crafting.EnergyRequirement;
 import dev.latvian.mods.kubejs.recipe.RecipeKey;
-import dev.latvian.mods.kubejs.recipe.component.*;
+import dev.latvian.mods.kubejs.recipe.component.IngredientComponent;
+import dev.latvian.mods.kubejs.recipe.component.ItemStackComponent;
+import dev.latvian.mods.kubejs.recipe.component.SizedFluidIngredientComponent;
 import dev.latvian.mods.kubejs.recipe.schema.RecipeSchema;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;

@@ -1,8 +1,7 @@
 package dev.ftb.mods.ftbstuffnthings.blocks.jar;
 
-import dev.ftb.mods.ftbstuffnthings.registry.BlockEntitiesRegistry;
+import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineMenu;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -10,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
@@ -20,17 +20,20 @@ public class TemperedJarMenu extends AbstractContainerMenu {
     private final TemperedJarBlockEntity jar;
 
     public static TemperedJarMenu fromNetwork(int containerId, Inventory invPlayer, FriendlyByteBuf extraData) {
-        TemperedJarMenu menu = new TemperedJarMenu(containerId, invPlayer, extraData.readBlockPos());
+        BlockEntity be = AbstractMachineMenu.getTile(invPlayer.player, extraData);
         ResourceLocation recipeId = extraData.readOptional(FriendlyByteBuf::readResourceLocation).orElse(null);
+        TemperedJarMenu menu = new TemperedJarMenu(containerId, invPlayer, be);
         menu.getJar().setCurrentRecipeId(recipeId);
         return menu;
     }
 
-    public TemperedJarMenu(int containerId, Inventory invPlayer, BlockPos blockPos) {
+    public TemperedJarMenu(int containerId, Inventory invPlayer, BlockEntity be) {
         super(ContentRegistry.TEMPERED_JAR_MENU.get(), containerId);
 
-        jar = invPlayer.player.level().getBlockEntity(blockPos, BlockEntitiesRegistry.TEMPERED_JAR.get())
-                .orElseThrow(() -> new IllegalStateException("tempered jar missing at " + blockPos));
+        if (!(be instanceof TemperedJarBlockEntity jarBlockEntity)) {
+            throw new IllegalStateException("tempered jar missing");
+        }
+        jar = jarBlockEntity;
 
         // player's main inventory
         for (int y = 0; y < 3; y++) {

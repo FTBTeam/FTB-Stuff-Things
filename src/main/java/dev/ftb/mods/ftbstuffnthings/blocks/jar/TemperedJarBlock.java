@@ -5,6 +5,7 @@ import dev.ftb.mods.ftbstuffnthings.registry.ItemsRegistry;
 import dev.ftb.mods.ftbstuffnthings.temperature.Temperature;
 import dev.ftb.mods.ftbstuffnthings.temperature.TemperatureAndEfficiency;
 import dev.ftb.mods.ftbstuffnthings.util.MiscUtil;
+import dev.ftb.mods.ftbstuffnthings.util.SubLevelMenuHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentType;
@@ -101,7 +102,7 @@ public class TemperedJarBlock extends JarBlock {
             if (!player.isShiftKeyDown()) {
                 if (!jar.onRightClick(player, hand)) {
                     player.openMenu(jar, buf -> {
-                        buf.writeBlockPos(pos);
+                        SubLevelMenuHelper.writeLocator(buf, jar);
                         buf.writeOptional(jar.getCurrentRecipeId(), FriendlyByteBuf::writeResourceLocation);
                     });
                 }

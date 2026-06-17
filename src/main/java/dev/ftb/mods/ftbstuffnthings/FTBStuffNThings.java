@@ -14,13 +14,19 @@ import dev.ftb.mods.ftbstuffnthings.network.SyncLootSummaryPacket;
 import dev.ftb.mods.ftbstuffnthings.registry.*;
 import dev.ftb.mods.ftbstuffnthings.util.lootsummary.LootSummaryCollection;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -32,6 +38,9 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import org.slf4j.Logger;
@@ -61,12 +70,35 @@ public class FTBStuffNThings {
 
         NeoForge.EVENT_BUS.addListener(this::addReloadListeners);
         NeoForge.EVENT_BUS.addListener(this::onPlayerJoin);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerInteract);
     }
 
     private void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             syncLootSummaries(serverPlayer);
             CriterionTriggerRegistry.FTBSTUFF_ROOT.get().trigger(serverPlayer);
+        }
+    }
+
+    private void onPlayerInteract(PlayerInteractEvent.RightClickBlock event) {
+        ItemStack stack = event.getEntity().getItemInHand(event.getHand());
+        if (event.getLevel() instanceof ServerLevel serverLevel && stack.is(Items.BOWL)) {
+            IFluidHandler handler = serverLevel.getCapability(Capabilities.FluidHandler.BLOCK, event.getPos(), event.getFace());
+            if (handler != null) {
+                var toDrain = handler.drain(new FluidStack(Fluids.WATER, 250), IFluidHandler.FluidAction.SIMULATE);
+                if (toDrain.getAmount() == 250) {
+                    if (stack.getCount() == 1) {
+                        event.getEntity().setItemInHand(event.getHand(), ItemsRegistry.WATER_BOWL.toStack());
+                    } else {
+                        stack.shrink(1);
+                        event.getEntity().getInventory().placeItemBackInInventory(ItemsRegistry.WATER_BOWL.toStack());
+                    }
+                    serverLevel.playSound(null, event.getPos(), SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1f, 1f);
+                    handler.drain(new FluidStack(Fluids.WATER, 250), IFluidHandler.FluidAction.EXECUTE);
+                }
+                event.setCanceled(true);
+                event.setCancellationResult(InteractionResult.CONSUME);
+            }
         }
     }
 

@@ -3,21 +3,21 @@ package dev.ftb.mods.ftbstuffnthings.blocks.supercooler;
 import dev.ftb.mods.ftbstuffnthings.blocks.AbstractMachineMenu;
 import dev.ftb.mods.ftbstuffnthings.capabilities.IOStackHandler;
 import dev.ftb.mods.ftbstuffnthings.registry.ContentRegistry;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 public class SuperCoolerMenu extends AbstractMachineMenu<SuperCoolerBlockEntity> {
     public SuperCoolerMenu(int windowId, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(windowId, playerInventory, getTilePos(buffer));
+        this(windowId, playerInventory, getTile(playerInventory.player, buffer));
     }
 
-    public SuperCoolerMenu(int windowId, Inventory playerInventory, BlockPos pos) {
-        super(ContentRegistry.SUPER_COOLER_MENU.get(), windowId, playerInventory, pos);
+    public SuperCoolerMenu(int windowId, Inventory playerInventory, BlockEntity be) {
+        super(ContentRegistry.SUPER_COOLER_MENU.get(), windowId, playerInventory, be);
 
         int startY = 10;
         if (blockEntity.getItemHandler() instanceof IOStackHandler handler) {
