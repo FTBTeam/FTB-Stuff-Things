@@ -101,8 +101,10 @@ dependencies {
 
     implementation("curse.maven:jade-324717:${jade_curse_id}")
 
-    compileOnly("dev.latvian.mods:kubejs-neoforge:${kubejs_version}")
-    compileOnly("dev.latvian.mods:rhino:${rhino_version}")
+    compileOnly("curse.maven:kubejs-238086:${kubejs_version}")
+    compileOnly("curse.maven:rhino-416294:${rhino_version}")
+//    compileOnly("dev.latvian.mods:kubejs-neoforge:${kubejs_version}")
+//    compileOnly("dev.latvian.mods:rhino:${rhino_version}")
 }
 
 tasks.register("sourcesJar", Jar) {

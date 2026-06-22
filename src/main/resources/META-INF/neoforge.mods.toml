@@ -79,7 +79,7 @@ description='''A collection of useful little machines and blocks'''
 [[dependencies.${mod_id}]]
     modId="kubejs"
     type="optional"
-    versionRange="[${kubejs_version},)"
+    versionRange="[26.1.2,)"
     ordering="NONE"
     side="BOTH"
 
