@@ -1,5 +1,6 @@
 package dev.ftb.mods.ftbstuffnthings.integration.wallalike;
 
+import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -11,6 +12,8 @@ import snownee.jade.api.IServerDataProvider;
 
 public enum AutoHammerDataProvider implements IServerDataProvider<BlockAccessor> {
     INSTANCE;
+
+    static final Identifier ID = FTBStuffNThings.id("autohammer");
 
     @Override
     public void appendServerData(CompoundTag compoundTag, BlockAccessor blockAccessor) {
@@ -31,6 +34,6 @@ public enum AutoHammerDataProvider implements IServerDataProvider<BlockAccessor>
 
     @Override
     public Identifier getUid() {
-        return AutoHammerComponentProvider.ID;
+        return ID;
     }
 }

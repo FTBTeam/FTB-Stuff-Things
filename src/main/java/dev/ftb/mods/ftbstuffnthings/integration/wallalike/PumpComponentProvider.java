@@ -1,20 +1,15 @@
 package dev.ftb.mods.ftbstuffnthings.integration.wallalike;
 
-import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
-import dev.ftb.mods.ftbstuffnthings.blocks.pump.PumpBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
-import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
 public enum PumpComponentProvider implements IBlockComponentProvider {
     INSTANCE;
-
-    static final Identifier ID = FTBStuffNThings.id("pump");
 
     @Override
     public void appendTooltip(ITooltip iTooltip, BlockAccessor blockAccessor, IPluginConfig iPluginConfig) {
@@ -25,7 +20,7 @@ public enum PumpComponentProvider implements IBlockComponentProvider {
 
     @Override
     public Identifier getUid() {
-        return ID;
+        return PumpDataProvider.ID;
     }
 
     private static String getTimeString(int ticks) {

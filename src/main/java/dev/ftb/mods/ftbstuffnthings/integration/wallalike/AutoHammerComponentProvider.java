@@ -1,6 +1,5 @@
 package dev.ftb.mods.ftbstuffnthings.integration.wallalike;
 
-import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -18,8 +17,6 @@ import java.util.List;
 
 enum AutoHammerComponentProvider implements IBlockComponentProvider {
     INSTANCE;
-
-    static final Identifier ID = FTBStuffNThings.id("autohammer");
 
     private static final Component WAITING = Component.literal(" ")
             .append(Component.translatable("ftbstuff.autohammer.waiting").withStyle(ChatFormatting.WHITE));
@@ -93,7 +90,7 @@ enum AutoHammerComponentProvider implements IBlockComponentProvider {
 
     @Override
     public Identifier getUid() {
-        return ID;
+        return AutoHammerDataProvider.ID;
     }
 
 }
