@@ -1,0 +1,12 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "minecraft:basalt"
+  },
+  "results": [
+    {
+      "count": 1,
+      "id": "ftbstuff:crushed_basalt"
+    }
+  ]
+}

@@ -222,35 +222,35 @@ public class BlocksRegistry {
     private static final Map<String, List<DeferredBlock<Block>>> COMPRESSED_BY_NAME = new HashMap<>();
     private static final Map<String, String> COMPRESSED_XLATE = new HashMap<>();
 
-    private static final List<DeferredBlock<Block>> COMPRESSED_BASALTS
+    public static final List<DeferredBlock<Block>> COMPRESSED_BASALTS
             = registerCompressed("basalt", "Basalt", BlockBehaviour.Properties.ofFullCopy(Blocks.BASALT),
             1.25f, 3, RotatedPillarBlock::new);
-    private static final List<DeferredBlock<Block>> COMPRESSED_CLAYS
+    public static final List<DeferredBlock<Block>> COMPRESSED_CLAYS
             = registerCompressed("clay", "Clay", Blocks.CLAY, 3);
-    private static final List<DeferredBlock<Block>> COMPRESSED_COBBLESTONES
+    public static final List<DeferredBlock<Block>> COMPRESSED_COBBLESTONES
             = registerCompressed("cobblestone", "Cobblestone", Blocks.COBBLESTONE, 3);
-    private static final List<DeferredBlock<Block>> COMPRESSED_DIRTS
+    public static final List<DeferredBlock<Block>> COMPRESSED_DIRTS
             = registerCompressed("dirt", "Dirt", Blocks.DIRT, 3);
-    private static final List<DeferredBlock<Block>> COMPRESSED_DUSTS
+    public static final List<DeferredBlock<Block>> COMPRESSED_DUSTS
             = registerCompressed("dust", "Dust", dustBlockProperties(), 0.5F, 3, SimpleFallingBlock::new);
-    private static final List<DeferredBlock<Block>> COMPRESSED_END_STONES
+    public static final List<DeferredBlock<Block>> COMPRESSED_END_STONES
             = registerCompressed("end_stone", "End Stone",Blocks.END_STONE, 3);
-    private static final List<DeferredBlock<Block>> COMPRESSED_GRAVELS
+    public static final List<DeferredBlock<Block>> COMPRESSED_GRAVELS
             = registerCompressed("gravel", "Gravel", BlockBehaviour.Properties.ofFullCopy(Blocks.GRAVEL),
             0.6f, 3, properties -> new ColoredFallingBlock(new ColorRGBA(0x807C7B), properties));
-    private static final List<DeferredBlock<Block>> COMPRESSED_NETHERRACKS
+    public static final List<DeferredBlock<Block>> COMPRESSED_NETHERRACKS
             = registerCompressed("netherrack", "Netherrack", Blocks.NETHERRACK, 3);
-    private static final List<DeferredBlock<Block>> COMPRESSED_RED_SANDS
+    public static final List<DeferredBlock<Block>> COMPRESSED_RED_SANDS
             = registerCompressed("red_sand", "Red Sand", BlockBehaviour.Properties.ofFullCopy(Blocks.RED_SAND),
             0.5f, 3, properties -> new ColoredFallingBlock(new ColorRGBA(0xA95821), properties));
-    private static final List<DeferredBlock<Block>> COMPRESSED_SANDS
+    public static final List<DeferredBlock<Block>> COMPRESSED_SANDS
             = registerCompressed("sand", "Sand", BlockBehaviour.Properties.ofFullCopy(Blocks.SAND),
             0.5f, 3, properties -> new ColoredFallingBlock(new ColorRGBA(0xDBD3A0), properties));
-    private static final List<DeferredBlock<Block>> COMPRESSED_STONES
+    public static final List<DeferredBlock<Block>> COMPRESSED_STONES
             = registerCompressed("stone", "Stone", Blocks.STONE, 3);
-    private static final List<DeferredBlock<Block>> COMPRESSED_SOUL_SANDS
+    public static final List<DeferredBlock<Block>> COMPRESSED_SOUL_SANDS
             = registerCompressed("soul_sand", "Soul Sand", Blocks.SOUL_SAND, 3);
-    private static final List<DeferredBlock<Block>> COMPRESSED_SOUL_SOILS
+    public static final List<DeferredBlock<Block>> COMPRESSED_SOUL_SOILS
             = registerCompressed("soul_soil", "Soul Soil", Blocks.SOUL_SOIL, 3);
 
     //----------------------------------

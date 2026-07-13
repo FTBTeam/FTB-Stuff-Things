@@ -1,0 +1,16 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_gravel_2"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 17,
+      "id": "minecraft:dirt"
+    }
+  ]
+}

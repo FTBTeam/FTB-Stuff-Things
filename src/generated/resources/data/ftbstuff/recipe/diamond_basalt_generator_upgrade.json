@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "ftbstuff:gold_basalt_generator"
+    },
+    "I": {
+      "tag": "c:gems/diamond"
+    }
+  },
+  "pattern": [
+    " I ",
+    "ICI",
+    " I "
+  ],
+  "result": {
+    "count": 1,
+    "id": "ftbstuff:diamond_basalt_generator"
+  }
+}

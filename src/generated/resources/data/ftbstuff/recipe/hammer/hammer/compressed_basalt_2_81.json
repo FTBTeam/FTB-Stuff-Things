@@ -1,0 +1,16 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_basalt_2"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 17,
+      "id": "ftbstuff:crushed_basalt"
+    }
+  ]
+}

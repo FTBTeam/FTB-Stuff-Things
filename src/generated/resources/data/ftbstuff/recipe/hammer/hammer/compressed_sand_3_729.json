@@ -1,0 +1,56 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_sand_3"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 25,
+      "id": "ftbstuff:dust"
+    }
+  ]
+}

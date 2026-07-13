@@ -1,0 +1,16 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_stone_2"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "minecraft:cobblestone"
+    },
+    {
+      "count": 17,
+      "id": "minecraft:cobblestone"
+    }
+  ]
+}

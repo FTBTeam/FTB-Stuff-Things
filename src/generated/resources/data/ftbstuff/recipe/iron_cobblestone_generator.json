@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "tag": "c:cobblestones"
+    },
+    "G": {
+      "tag": "c:glass_blocks/colorless"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "L": {
+      "tag": "c:buckets/lava"
+    },
+    "W": {
+      "tag": "c:buckets/water"
+    }
+  },
+  "pattern": [
+    "ICI",
+    "WGL",
+    "ICI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ftbstuff:iron_cobblestone_generator"
+  }
+}

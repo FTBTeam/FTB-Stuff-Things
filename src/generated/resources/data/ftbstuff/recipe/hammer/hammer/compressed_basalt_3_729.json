@@ -1,0 +1,56 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_basalt_3"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_basalt"
+    },
+    {
+      "count": 25,
+      "id": "ftbstuff:crushed_basalt"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_end_stone_2"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 17,
+      "id": "ftbstuff:crushed_endstone"
+    }
+  ]
+}

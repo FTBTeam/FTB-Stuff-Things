@@ -1,0 +1,12 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "tag": "c:stones"
+  },
+  "results": [
+    {
+      "count": 1,
+      "id": "minecraft:cobblestone"
+    }
+  ]
+}

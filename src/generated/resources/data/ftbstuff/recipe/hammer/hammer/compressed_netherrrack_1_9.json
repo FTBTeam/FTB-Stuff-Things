@@ -1,0 +1,12 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_netherrack"
+  },
+  "results": [
+    {
+      "count": 9,
+      "id": "ftbstuff:crushed_netherrack"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_cobblestone_3"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:gravel"
+    },
+    {
+      "count": 25,
+      "id": "minecraft:gravel"
+    }
+  ]
+}

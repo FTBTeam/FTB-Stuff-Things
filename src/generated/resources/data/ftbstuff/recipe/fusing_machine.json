@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "tag": "c:glass_blocks/colorless"
+    },
+    "I": {
+      "tag": "c:storage_blocks/iron"
+    },
+    "L": {
+      "tag": "c:buckets/lava"
+    },
+    "R": {
+      "tag": "c:dusts/redstone"
+    }
+  },
+  "pattern": [
+    "IGI",
+    "RLR",
+    "IRI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ftbstuff:fusing_machine"
+  }
+}

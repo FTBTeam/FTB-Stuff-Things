@@ -2,6 +2,7 @@ package dev.ftb.mods.ftbstuffnthings.data;
 
 import dev.ftb.mods.ftbstuffnthings.FTBStuffNThings;
 import dev.ftb.mods.ftbstuffnthings.FTBStuffTags;
+import dev.ftb.mods.ftbstuffnthings.blocks.cobblegen.CobblegenBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.hammer.AutoHammerBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.sluice.SluiceBlock;
 import dev.ftb.mods.ftbstuffnthings.blocks.strainer.WaterStrainerBlock;
@@ -40,7 +41,9 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -81,6 +84,23 @@ public class RecipesGenerator extends RecipeProvider {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(Tags.Items.GLASS_PANES), RecipeCategory.MISC,
                 ItemsRegistry.TEMPERED_GLASS.get(), 0.1f, 200
         ).unlockedBy("has_glass", has(Tags.Items.GLASS_PANES)).save(output, FTBStuffNThings.id("tempered_glass_from_furnace"));
+
+        // machines
+        shaped(BlocksRegistry.FUSING_MACHINE, Items.IRON_BLOCK, "IGI/RLR/IRI",
+                'I', Tags.Items.STORAGE_BLOCKS_IRON,
+                'G', Tags.Items.GLASS_BLOCKS_COLORLESS,
+                'R', Tags.Items.DUSTS_REDSTONE,
+                'L', Tags.Items.BUCKETS_LAVA
+        ).save(output);
+        shaped(BlocksRegistry.SUPER_COOLER, Items.IRON_BLOCK, "IGI/RBR/IRI",
+                'I', Tags.Items.STORAGE_BLOCKS_IRON,
+                'G', Tags.Items.GLASS_BLOCKS_COLORLESS,
+                'R', Tags.Items.DUSTS_REDSTONE,
+                'B', Items.BLUE_ICE
+        ).save(output);
+        shaped(BlocksRegistry.WOODEN_BASIN, Items.OAK_LOG, "L L/L L/LLL",
+                'L', ItemTags.LOGS
+        ).save(output);
 
         // jars
         shaped(ItemsRegistry.TEMPERED_JAR.get(), ItemsRegistry.TEMPERED_GLASS,
@@ -198,16 +218,41 @@ public class RecipesGenerator extends RecipeProvider {
 
         BlocksRegistry.compressedBlockTranslations().keySet().forEach(id -> compressedBlockRecipe(output, id));
 
-        // a bunch of test recipes, only present in dev environment
-        temperedJarRecipes(output);
-        temperatureSourceRecipes(output);
-        dripperRecipes(output);
-        woodenBasinRecipes(output);
-        crookRecipes(output);
-        sluiceRecipes(output);
+        // cobble/basalt generators
+        cobbleGen(output, BlocksRegistry.STONE_COBBLESTONE_GENERATOR, Items.COBBLESTONE, Tags.Items.COBBLESTONES, null);
+        cobbleGen(output, BlocksRegistry.IRON_COBBLESTONE_GENERATOR, Items.IRON_INGOT, Tags.Items.COBBLESTONES, Tags.Items.INGOTS_IRON);
+        cobbleGen(output, BlocksRegistry.GOLD_COBBLESTONE_GENERATOR, Items.GOLD_INGOT, Tags.Items.COBBLESTONES, Tags.Items.INGOTS_GOLD);
+        cobbleGen(output, BlocksRegistry.DIAMOND_COBBLESTONE_GENERATOR, Items.DIAMOND, Tags.Items.COBBLESTONES, Tags.Items.GEMS_DIAMOND);
+        cobbleGen(output, BlocksRegistry.NETHERITE_COBBLESTONE_GENERATOR, Items.NETHERITE_INGOT, Tags.Items.COBBLESTONES, Tags.Items.INGOTS_NETHERITE);
+        cobbleGen(output, BlocksRegistry.STONE_BASALT_GENERATOR, Items.BASALT, Items.BASALT, null);
+        cobbleGen(output, BlocksRegistry.IRON_BASALT_GENERATOR, Items.IRON_INGOT, Items.BASALT, Tags.Items.INGOTS_IRON);
+        cobbleGen(output, BlocksRegistry.GOLD_BASALT_GENERATOR, Items.GOLD_INGOT, Items.BASALT, Tags.Items.INGOTS_GOLD);
+        cobbleGen(output, BlocksRegistry.DIAMOND_BASALT_GENERATOR, Items.DIAMOND, Items.BASALT, Tags.Items.GEMS_DIAMOND);
+        cobbleGen(output, BlocksRegistry.NETHERITE_BASALT_GENERATOR, Items.NETHERITE_INGOT, Items.BASALT, Tags.Items.INGOTS_NETHERITE);
+
+        // cobble/basalt gen upgrades
+        cobbleGenUpgrade(output, BlocksRegistry.IRON_COBBLESTONE_GENERATOR, Items.IRON_INGOT, BlocksRegistry.STONE_COBBLESTONE_GENERATOR, Tags.Items.INGOTS_IRON);
+        cobbleGenUpgrade(output, BlocksRegistry.GOLD_COBBLESTONE_GENERATOR, Items.GOLD_INGOT, BlocksRegistry.IRON_COBBLESTONE_GENERATOR, Tags.Items.INGOTS_GOLD);
+        cobbleGenUpgrade(output, BlocksRegistry.DIAMOND_COBBLESTONE_GENERATOR, Items.DIAMOND, BlocksRegistry.GOLD_COBBLESTONE_GENERATOR, Tags.Items.GEMS_DIAMOND);
+        cobbleGenUpgrade(output, BlocksRegistry.NETHERITE_COBBLESTONE_GENERATOR, Items.NETHERITE_INGOT, BlocksRegistry.DIAMOND_COBBLESTONE_GENERATOR, Tags.Items.INGOTS_NETHERITE);
+        cobbleGenUpgrade(output, BlocksRegistry.IRON_BASALT_GENERATOR, Items.IRON_INGOT, BlocksRegistry.STONE_BASALT_GENERATOR, Tags.Items.INGOTS_IRON);
+        cobbleGenUpgrade(output, BlocksRegistry.GOLD_BASALT_GENERATOR, Items.GOLD_INGOT, BlocksRegistry.IRON_BASALT_GENERATOR, Tags.Items.INGOTS_GOLD);
+        cobbleGenUpgrade(output, BlocksRegistry.DIAMOND_BASALT_GENERATOR, Items.DIAMOND, BlocksRegistry.GOLD_BASALT_GENERATOR, Tags.Items.GEMS_DIAMOND);
+        cobbleGenUpgrade(output, BlocksRegistry.NETHERITE_BASALT_GENERATOR, Items.NETHERITE_INGOT, BlocksRegistry.DIAMOND_BASALT_GENERATOR, Tags.Items.INGOTS_NETHERITE);
+
         hammerRecipes(output);
-        fusingMachineRecipes(output);
-        superCoolerRecipes(output);
+
+        temperatureSourceRecipes(output);
+
+        // a bunch of test recipes, only present in dev environment
+        testTemperedJarRecipes(output);
+        testDripperRecipes(output);
+        testWoodenBasinRecipes(output);
+        testCrookRecipes(output);
+        testSluiceRecipes(output);
+        testHammerRecipes(output);
+        testFusingMachineRecipes(output);
+        testSuperCoolerRecipes(output);
     }
 
     private void compressedBlockRecipe(RecipeOutput output, String id) {
@@ -279,7 +324,81 @@ public class RecipesGenerator extends RecipeProvider {
         ).save(output);
     }
 
-    private void temperedJarRecipes(RecipeOutput output) {
+    private void cobbleGen(RecipeOutput output, DeferredBlock<CobblegenBlock> result, ItemLike required, TagKey<Item> cobbleTag, @Nullable TagKey<Item> ingotTag) {
+        shaped(result, required, "ICI/WGL/ICI",
+                'I', Objects.requireNonNullElse(ingotTag, cobbleTag),
+                'C', cobbleTag,
+                'G', Tags.Items.GLASS_BLOCKS_COLORLESS,
+                'W', Tags.Items.BUCKETS_WATER,
+                'L', Tags.Items.BUCKETS_LAVA
+        ).save(output);
+    }
+
+    private void cobbleGen(RecipeOutput output, DeferredBlock<CobblegenBlock> result, ItemLike required, ItemLike cobbleItem, @Nullable TagKey<Item> ingotTag) {
+        shaped(result, required, "ICI/WGL/ICI",
+                'I', Objects.requireNonNullElse(ingotTag, cobbleItem),
+                'C', cobbleItem,
+                'G', Tags.Items.GLASS_BLOCKS_COLORLESS,
+                'W', Tags.Items.BUCKETS_WATER,
+                'L', Tags.Items.BUCKETS_LAVA
+        ).save(output);
+    }
+
+    private void cobbleGenUpgrade(RecipeOutput output, DeferredBlock<CobblegenBlock> result, ItemLike required, DeferredBlock<CobblegenBlock> previous, TagKey<Item> ingot) {
+        shaped(result, required, " I /ICI/ I ",
+                'I', ingot,
+                'C', previous
+        ).save(output, result.getId().withPath(result.getId().getPath() + "_upgrade"));
+    }
+
+    private void hammerRecipes(RecipeOutput output) {
+        hammerRecipe(output, "stone", Tags.Items.STONES, BlocksRegistry.COMPRESSED_STONES, Items.COBBLESTONE);
+        hammerRecipe(output, "cobblestone", Tags.Items.COBBLESTONES, BlocksRegistry.COMPRESSED_COBBLESTONES, Items.GRAVEL);
+        hammerRecipe(output, "basalt", Items.BASALT, BlocksRegistry.COMPRESSED_BASALTS, ItemsRegistry.CRUSHED_BASALT.get());
+        hammerRecipe(output, "gravel", Items.GRAVEL, BlocksRegistry.COMPRESSED_GRAVELS, Items.DIRT);
+        hammerRecipe(output, "dirt", Items.DIRT, BlocksRegistry.COMPRESSED_DIRTS, Items.SAND);
+        hammerRecipe(output, "sand", Items.SAND, BlocksRegistry.COMPRESSED_SANDS, ItemsRegistry.DUST.get());
+        hammerRecipe(output, "red_sand", Items.RED_SAND, BlocksRegistry.COMPRESSED_RED_SANDS, ItemsRegistry.DUST.get());
+        hammerRecipe(output, "netherrrack", Items.NETHERRACK, BlocksRegistry.COMPRESSED_NETHERRACKS, ItemsRegistry.CRUSHED_NETHERRACK.get());
+        hammerRecipe(output, "end_stone", Items.END_STONE, BlocksRegistry.COMPRESSED_END_STONES, ItemsRegistry.CRUSHED_ENDSTONE.get());
+    }
+
+    private void hammerRecipe(RecipeOutput output, String baseName, Object baseItem, List<DeferredBlock<Block>> list, Item result) {
+        for (int i = -1; i < list.size(); i++) {
+            int nOutputs = (int) Math.pow(9, i + 1);
+            Ingredient input = i < 0 ? makeIngredient(baseItem) : Ingredient.of(list.get(i));
+            String name = i < 0 ? baseName + "_0_1" : "compressed_" + baseName + "_" + (i + 1) + "_" + nOutputs;
+            new HammerRecipeBuilder(input, makeHammerOutputs(result, nOutputs))
+                    .save(output, FTBStuffNThings.id("hammer/" + name));
+        }
+    }
+
+    private static List<ItemStack> makeHammerOutputs(Item item, int count) {
+        int stackSize = item.getMaxStackSize(item.getDefaultInstance());
+        int nStacks = count / stackSize;
+        int nExtra = count % stackSize;
+
+        List<ItemStack> res = new ArrayList<>();
+        for (int i = 0; i < nStacks; i++) {
+            res.add(new ItemStack(item, stackSize));
+        }
+        if (nExtra > 0) {
+            res.add(new ItemStack(item, nExtra));
+        }
+        return res;
+    }
+
+    private static Ingredient makeIngredient(Object from) {
+        if (from instanceof ItemLike i) {
+            return Ingredient.of(i);
+        } else if (from instanceof TagKey<?> t) {
+            return Ingredient.of((TagKey<Item>) t);
+        } else {
+            throw new IllegalArgumentException("expected ItemLike or TagKey!");
+        }
+    }
+
+    private void testTemperedJarRecipes(RecipeOutput output) {
         // testing recipes; note the use of DevEnvironmentCondition
 
         temperedJar(List.of(SizedIngredient.of(Tags.Items.COBBLESTONES, 4)), List.of(),
@@ -374,7 +493,7 @@ public class RecipesGenerator extends RecipeProvider {
                 .save(output, FTBStuffNThings.id("wall_torch"));
     }
 
-    private void dripperRecipes(RecipeOutput output) {
+    private void testDripperRecipes(RecipeOutput output) {
         new DripperRecipeBuilder(stateStr(Blocks.DIRT), stateStr(Blocks.MUD), new FluidStack(Fluids.WATER, 50))
                 .withChance(0.2)
                 .saveTest(output.withConditions(DevEnvironmentCondition.INSTANCE), FTBStuffNThings.id("dirt_to_mud"));
@@ -393,7 +512,7 @@ public class RecipesGenerator extends RecipeProvider {
                 .saveTest(output, FTBStuffNThings.id("leaves_to_water"));
     }
 
-    private void woodenBasinRecipes(RecipeOutput output) {
+    private void testWoodenBasinRecipes(RecipeOutput output) {
         new WoodenBasinRecipeBuilder("#minecraft:leaves", new FluidStack(Fluids.WATER, 125))
                 .withBlockConsumeChance(0.1f)
                 .saveTest(output, FTBStuffNThings.id("leaves_to_water"));
@@ -404,7 +523,7 @@ public class RecipesGenerator extends RecipeProvider {
                 .saveTest(output, FTBStuffNThings.id("blue_magma_to_lava"));
     }
 
-    private void crookRecipes(RecipeOutput output) {
+    private void testCrookRecipes(RecipeOutput output) {
         new CrookRecipeBuilder(Ingredient.of(ItemTags.LEAVES), List.of(
                 new ItemWithChance(new ItemStack(Items.GOLD_NUGGET), 0.5),
                 new ItemWithChance(new ItemStack(Items.IRON_NUGGET), 0.5)
@@ -415,21 +534,23 @@ public class RecipesGenerator extends RecipeProvider {
         )).keepExistingDrops().saveTest(output, FTBStuffNThings.id("string_from_grass"));
     }
 
-    private void sluiceRecipes(RecipeOutput output) {
-        new SluiceRecipeBuilder(Ingredient.of(Items.COBBLESTONE), List.of(
-                new ItemWithChance(new ItemStack(Blocks.GRAVEL), 1)
-        ), List.of(MeshType.CLOTH, MeshType.IRON)).saveTest(output, FTBStuffNThings.id("gravel_from_cobblestone"));
-        new SluiceRecipeBuilder(Ingredient.of(Items.GRAVEL), List.of(
-                new ItemWithChance(new ItemStack(Blocks.SAND), 0.5)
-        ), List.of(MeshType.CLOTH, MeshType.IRON, MeshType.DIAMOND))
-                .fluid(new FluidStack(Fluids.WATER, 1000)
-                ).saveTest(output, FTBStuffNThings.id("sand_from_gravel"));
-        new SluiceRecipeBuilder(Ingredient.of(Items.SOUL_SAND), List.of(
-                new ItemWithChance(new ItemStack(Items.BLAZE_POWDER), 1)
-        ), List.of(MeshType.BLAZING)).saveTest(output, FTBStuffNThings.id("blaze_from_soul_sand"));
+    private void testSluiceRecipes(RecipeOutput output) {
+        new SluiceRecipeBuilder(Ingredient.of(Items.COBBLESTONE),
+                List.of(new ItemWithChance(new ItemStack(Blocks.GRAVEL), 1)),
+                List.of(MeshType.CLOTH, MeshType.IRON)
+        ).saveTest(output, FTBStuffNThings.id("gravel_from_cobblestone"));
+        new SluiceRecipeBuilder(Ingredient.of(Items.GRAVEL),
+                List.of(new ItemWithChance(new ItemStack(Blocks.SAND), 0.5)),
+                List.of(MeshType.CLOTH, MeshType.IRON, MeshType.DIAMOND)
+        ).fluid(new FluidStack(Fluids.WATER, 1000))
+                .saveTest(output, FTBStuffNThings.id("sand_from_gravel"));
+        new SluiceRecipeBuilder(Ingredient.of(Items.SOUL_SAND),
+                List.of(new ItemWithChance(new ItemStack(Items.BLAZE_POWDER), 1)),
+                List.of(MeshType.BLAZING)
+        ).saveTest(output, FTBStuffNThings.id("blaze_from_soul_sand"));
     }
 
-    private void hammerRecipes(RecipeOutput output) {
+    private void testHammerRecipes(RecipeOutput output) {
         new HammerRecipeBuilder(Ingredient.of(Items.COBBLESTONE), List.of(
                 new ItemStack(Blocks.GRAVEL)
         )).saveTest(output, FTBStuffNThings.id("gravel_from_cobblestone"));
@@ -466,7 +587,7 @@ public class RecipesGenerator extends RecipeProvider {
         )).saveTest(output, FTBStuffNThings.id("crushed_basalt_2"));
     }
 
-    private void fusingMachineRecipes(RecipeOutput output) {
+    private void testFusingMachineRecipes(RecipeOutput output) {
         new FusingMachineRecipeBuilder(
                 List.of(Ingredient.of(Items.COBBLESTONE), Ingredient.of(Items.GRAVEL)),
                 new FluidStack(Fluids.LAVA, 1000),
@@ -484,7 +605,7 @@ public class RecipesGenerator extends RecipeProvider {
         ).saveTest(output, FTBStuffNThings.id("water_from_ice"));
     }
 
-    private void superCoolerRecipes(RecipeOutput output) {
+    private void testSuperCoolerRecipes(RecipeOutput output) {
         new SuperCoolerRecipeBuilder(
                 List.of(Ingredient.of(ItemTags.SAND), Ingredient.of(Tags.Items.GRAVELS), Ingredient.of(Tags.Items.DYES_WHITE)),
                 SizedFluidIngredient.of(Fluids.WATER, FluidType.BUCKET_VOLUME),
