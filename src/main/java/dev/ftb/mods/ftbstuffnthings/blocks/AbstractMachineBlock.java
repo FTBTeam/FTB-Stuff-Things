@@ -154,14 +154,14 @@ public abstract class AbstractMachineBlock extends Block implements EntityBlock 
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean bl) {
-        if (state.getBlock() != newState.getBlock()) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (state.getBlock() != newState.getBlock() && !isMoving) {
             if (level.getBlockEntity(pos) instanceof AbstractMachineBlockEntity machine) {
                 machine.dropItemContents();
             }
         }
 
-        super.onRemove(state, level, pos, newState, bl);
+        super.onRemove(state, level, pos, newState, isMoving);
     }
 
 

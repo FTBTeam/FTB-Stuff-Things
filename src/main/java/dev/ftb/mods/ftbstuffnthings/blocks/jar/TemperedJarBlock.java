@@ -138,7 +138,7 @@ public class TemperedJarBlock extends JarBlock {
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
-            if (level.getBlockEntity(pos) instanceof TemperedJarBlockEntity jar) {
+            if (level.getBlockEntity(pos) instanceof TemperedJarBlockEntity jar && !movedByPiston) {
                 jar.dropContentsOnBreak();
             }
 
