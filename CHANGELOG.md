@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The SlowMelter 9000 no longer allows the same item in both slots of its input
   * Makes single item -> fluid recipes much easier to automate
 
+### Fixed
+* Fixed items being dropped & duped from some machines when assembled into a Sable sublevel
+
 ## [21.1.18]
 
 ### Added
