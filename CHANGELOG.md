@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [21.1.19]
 
+### Added
+* The mod now has recipes for the following machines:
+  * All Cobblestone & Basalt generators
+  * The Wooden Basin
+  * The SlowMelter 9000 and the Supercooler
+
 ### Changed
 * The SlowMelter 9000 no longer allows the same item in both slots of its input
   * Makes single item -> fluid recipes much easier to automate
