@@ -42,7 +42,7 @@ import java.util.function.Consumer;
 public class FusingMachineBlockEntity extends AbstractMachineBlockEntity implements MenuProvider, FluidEnergyProvider, ProgressProvider {
     private final EmittingEnergy energyHandler = new EmittingEnergy(1_000_000, 10_000, 10_000, (energy) -> setChanged());
     private final ExtractOnlyFluidTank fluidHandler = new ExtractOnlyFluidTank(10000, (tank) -> setChanged());
-    private final EmittingStackHandler itemHandler = new EmittingStackHandler(2, (contents) -> onItemHandlerChange());
+    private final EmittingStackHandler itemHandler = new FusingMachineItemHandler();
 
     private int progress = 0;
     private int progressRequired = 0;
@@ -352,6 +352,25 @@ public class FusingMachineBlockEntity extends AbstractMachineBlockEntity impleme
 
         public void overrideFluidStack(FluidStack stack) {
             fluid = stack;
+        }
+    }
+
+    public class FusingMachineItemHandler extends EmittingStackHandler {
+        public FusingMachineItemHandler() {
+            super(2, c -> FusingMachineBlockEntity.this.onItemHandlerChange());
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            if (!stack.isEmpty()) {
+                // don't allow the same item in more than one slot
+                for (int i = 0; i < getSlots(); i++) {
+                    if (i != slot && ItemStack.isSameItemSameComponents(getStackInSlot(i), stack)) {
+                        return false;
+                    }
+                }
+            }
+            return super.isItemValid(slot, stack);
         }
     }
 }

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "ftbstuff:diamond_cobblestone_generator"
+    },
+    "I": {
+      "tag": "c:ingots/netherite"
+    }
+  },
+  "pattern": [
+    " I ",
+    "ICI",
+    " I "
+  ],
+  "result": {
+    "count": 1,
+    "id": "ftbstuff:netherite_cobblestone_generator"
+  }
+}

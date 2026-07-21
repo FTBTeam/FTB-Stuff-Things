@@ -1,0 +1,16 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_red_sand_2"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "ftbstuff:dust"
+    },
+    {
+      "count": 17,
+      "id": "ftbstuff:dust"
+    }
+  ]
+}

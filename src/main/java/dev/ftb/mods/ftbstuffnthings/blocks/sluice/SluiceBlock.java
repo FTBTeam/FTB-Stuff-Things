@@ -278,8 +278,9 @@ public class SluiceBlock extends AbstractMachineBlock implements EntityBlock, Se
             // Don't act on the funnel
             if (state.getValue(PART) != Part.FUNNEL) {
                 world.removeBlock(otherPos, false);
-                popResource(world, pos, state.getValue(MESH).getItemStack());
-
+                if (!isMoving) {
+                    popResource(world, pos, state.getValue(MESH).getItemStack());
+                }
                 super.onRemove(state, world, pos, newState, isMoving);
             }
         } else {

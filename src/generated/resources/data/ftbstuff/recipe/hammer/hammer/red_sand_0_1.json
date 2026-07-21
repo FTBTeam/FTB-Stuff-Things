@@ -1,0 +1,12 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "minecraft:red_sand"
+  },
+  "results": [
+    {
+      "count": 1,
+      "id": "ftbstuff:dust"
+    }
+  ]
+}

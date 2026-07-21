@@ -1,0 +1,56 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_gravel_3"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 64,
+      "id": "minecraft:dirt"
+    },
+    {
+      "count": 25,
+      "id": "minecraft:dirt"
+    }
+  ]
+}

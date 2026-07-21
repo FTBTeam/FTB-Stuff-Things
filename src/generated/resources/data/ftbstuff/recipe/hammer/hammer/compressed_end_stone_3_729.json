@@ -1,0 +1,56 @@
+{
+  "type": "ftbstuff:hammer",
+  "input": {
+    "item": "ftbstuff:compressed_end_stone_3"
+  },
+  "results": [
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 64,
+      "id": "ftbstuff:crushed_endstone"
+    },
+    {
+      "count": 25,
+      "id": "ftbstuff:crushed_endstone"
+    }
+  ]
+}

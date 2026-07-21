@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:blue_ice"
+    },
+    "G": {
+      "tag": "c:glass_blocks/colorless"
+    },
+    "I": {
+      "tag": "c:storage_blocks/iron"
+    },
+    "R": {
+      "tag": "c:dusts/redstone"
+    }
+  },
+  "pattern": [
+    "IGI",
+    "RBR",
+    "IRI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ftbstuff:super_cooler"
+  }
+}
