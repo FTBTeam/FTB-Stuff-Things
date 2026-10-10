@@ -5,8 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "ftbstuffnthings.refmap.json",
   "mixins": [
-    "BlockMixin",
-    "PaintingMixin"
+    "BlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

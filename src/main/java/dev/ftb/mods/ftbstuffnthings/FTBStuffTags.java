@@ -66,18 +66,4 @@ public class FTBStuffTags {
             return tag("c", name);
         }
     }
-
-
-    public static class Painting {
-
-        public static final TagKey<PaintingVariant> DROPS_WITH_VARIANT = modTag("drops_with_variant");
-
-        static TagKey<PaintingVariant> tag(String modid, String name) {
-            return TagKey.create(Registries.PAINTING_VARIANT, Identifier.fromNamespaceAndPath(modid, name));
-        }
-
-        static TagKey<PaintingVariant> modTag(String name) {
-            return tag(FTBStuffNThings.MOD_ID, name);
-        }
-    }
 }
